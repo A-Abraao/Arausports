@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import GoogleLogoSRC from "../../../assets/img/google-logo.png";
+import { loginWithGoogle } from "./googleAuth";
 import FcebookLogoSRC from "../../../assets/img/facebook-logo.png";
-import { loginComGoogle } from "./auth";
 import { IconButton } from "@mui/material";
 
 //criaremos o componente de autenticação
@@ -37,7 +37,7 @@ function Autenticar() {
     <AutenticarComponent>
       <h2>entre também com:</h2>
       <DivEncapsuladora>
-        <IconButton size="small" onClick={() => loginComGoogle()}>
+        <IconButton size="small" onClick={() => loginWithGoogle()}>
           <img src={GoogleLogoSRC} alt="logo do google" />
         </IconButton>
 
