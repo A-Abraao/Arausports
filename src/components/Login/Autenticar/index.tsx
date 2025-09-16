@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import GoogleLogoSRC from "../../../assets/img/google-logo.png";
-import { loginWithGoogle } from "./googleAuth";
+import { loginWithGoogle } from "./GoogleAuth";
 import FcebookLogoSRC from "../../../assets/img/facebook-logo.png";
 import { IconButton } from "@mui/material";
 

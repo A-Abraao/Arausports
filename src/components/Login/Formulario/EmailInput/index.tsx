@@ -6,6 +6,7 @@ function EmailInput() {
 
     //estado para guardar o email digitado pelo usuario
     const [valorEmail, setValorEmail] = useState("")
+    const [erroEmail, setErroEmail] = useState(false)
     
     //função que pega o valor e guarda lá no estado
     const handleSetValorEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
