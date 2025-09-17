@@ -4,6 +4,7 @@ import { createGlobalStyle } from 'styled-components'
 import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { AlertProvider } from './components/Login/Alerta/AlertProvider.tsx';
 import App from './App.tsx'
 
 const GlobalStyle = createGlobalStyle`
@@ -70,9 +71,11 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <GoogleOAuthProvider clientId="912477332805-51cp3chm479l1v5lin174b4fravp7okg.apps.googleusercontent.com">
-          <CssBaseline />
-          <GlobalStyle />
-          <App />
+          <AlertProvider>
+            <CssBaseline />
+            <GlobalStyle />
+            <App />
+          </AlertProvider>
         </GoogleOAuthProvider>
       </ThemeProvider>
     </BrowserRouter>

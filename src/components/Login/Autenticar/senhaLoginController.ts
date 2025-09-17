@@ -1,8 +1,9 @@
-export function verificaSenha(senha: string) {
-    if(senha.trim().length > 0 == false) {
-        console.log("senha está vazia eu acho")
-        return false
-    } else {
-        return true
-    }
+export function verificaSenha(senha: string): boolean {
+    //retorna false se for vazia
+    const ok = senha.trim().length > 0;
+
+    //verifica ela viado
+    if (!ok) console.log("Senha inválida (vazia)");
+
+    return ok;
 }

@@ -6,45 +6,94 @@ import { Button } from "@mui/material";
 import { verificaEmail } from "../Autenticar/emailLoginController";
 import { verificaSenha } from "../Autenticar/senhaLoginController";
 import Autenticar from "../Autenticar";
+import { useAlert } from "../Alerta/AlertProvider";
 
-//criamos o componente formulario..
+//criaremos o compoennte formulario cara
 const FormularioComponent = styled.form`
-    background: purple;
-    display: flex;
-    flex-direction: column;
-    gap: 1.05em;
-    padding: 1em 1em 0.25em 1em;
-`
+  background: purple;
+  display: flex;
+  flex-direction: column;
+  gap: 1.05em;
+  padding: 1em 1em 0.25em 1em;
+`;
 
-
-//e usamos a função formulario para renderizar esse componente
 function Formulario() {
+  const [valorEmail, setValorEmail] = useState("");
+  const [valorSenha, setValorSenha] = useState("");
+  const { showAlert } = useAlert();
 
-    //guardar o valor do email
-    const [valorEmail, setValorEmail] = useState("")
+  const handleSubmit = () => {
+    const emailOk = verificaEmail(valorEmail);
+    const senhaOk = verificaSenha(valorSenha);
 
-    //guardar o valor da senha
-    const [valorSenha, setValorSenha] = useState("")
+    if (!emailOk) {
+      showAlert("email não me parece válido", {
+        severity: "error",
+        duration: 4500,
+        variant: "standard", // preferível para controlar fundo
+        sx: {
+          backgroundColor: "#DC143C",
+          color: "#ffffff",
+          fontWeight: 500,
+          "& .MuiAlert-message": { fontWeight: 500 },
+          "& .MuiAlert-icon": { color: "#ffffff" },
+        },
+      });
+      return;
+    }
 
-    return(
-        <FormularioComponent>
-            <EmailInput value={valorEmail} onChange={setValorEmail}/>
-            <InputSenha value={valorSenha} onChange={setValorSenha}/>
-            <Button
-            onClick={() => {
-                verificaEmail(valorEmail)
-                verificaSenha(valorSenha)
-            }}
-            sx={{
-                background: "dodgerblue",
-                color: "white",
-                height: "2.15em",
-                textTransform: "none",
-                
-            }}>prosseguir</Button>
-            <Autenticar/>
-        </FormularioComponent>
-    )
+    if (!senhaOk) {
+      showAlert("ops, ta sem senha aí", {
+        severity: "error",
+        duration: 4500,
+        variant: "standard",
+        sx: {
+          backgroundColor: "#DC143C",
+          color: "#ffffff",
+          fontWeight: 500,
+          "& .MuiAlert-message": { fontWeight: 500 },
+          "& .MuiAlert-icon": { color: "#ffffff" },
+        },
+      });
+      return;
+    }
+
+    // sucesso
+    showAlert("Indo pro site, peraí...", {
+      severity: "success",
+      duration: 3000,
+      variant: "standard",
+      sx: {
+        backgroundColor: "#006400",
+        color: "#ffffff",
+        fontWeight: 500,
+        "& .MuiAlert-message": { fontWeight: 500 },
+        "& .MuiAlert-icon": { color: "#ffffff" },
+      },
+    });
+
+    // prosseguir com autenticação...
+  };
+
+  return (
+    <FormularioComponent>
+      <EmailInput value={valorEmail} onChange={setValorEmail} />
+      <InputSenha value={valorSenha} onChange={setValorSenha} />
+      <Button
+        type="button"
+        onClick={handleSubmit}
+        sx={{
+          background: "dodgerblue",
+          color: "white",
+          height: "2.15em",
+          textTransform: "none",
+        }}
+      >
+        prosseguir
+      </Button>
+      <Autenticar />
+    </FormularioComponent>
+  );
 }
 
-export default Formulario
+export default Formulario;
