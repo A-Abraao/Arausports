@@ -1,20 +1,24 @@
-import { useState } from "react";
 import { TextField } from "@mui/material";
 
-function InputSenha() {
-  const [valorSenha, setValorSenha] = useState("");
+//aqui criamos a tipagem do tipo de dado que o email input var receber
+type SenhaInputProps = {
+  value: string;
+  onChange: (value: string) => void;
+}
 
-  const handleSetValorSenha = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValorSenha(e.target.value);
+function InputSenha({value, onChange}: SenhaInputProps) {
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.value); // transforma o valor em string quando for usado no input
   };
 
   return (
     <TextField
-      value={valorSenha}
+      value={value}
       label="Senha"
       type="password"
       variant="outlined"
-      onChange={handleSetValorSenha}
+      onChange={handleChange}
       sx={{
         "& .MuiOutlinedInput-root": {
           "& .MuiInputBase-input": {

@@ -1,24 +1,23 @@
-import { useState } from "react";
 import { TextField } from "@mui/material";
 
+//aqui criamos as props para o componente do emailInput
+type InputEmailProps = {
+    value: string;
+    onChange: (value:string) => void;
+}
 
-function EmailInput() {
+function EmailInput({value, onChange}: InputEmailProps) {
 
-    //estado para guardar o email digitado pelo usuario
-    const [valorEmail, setValorEmail] = useState("")
-    const [erroEmail, setErroEmail] = useState(false)
-    
-    //função que pega o valor e guarda lá no estado
-    const handleSetValorEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setValorEmail(e.target.value);
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange(e.target.value); // atualiza o componente do formulário cara
     };
 
     return (
         <TextField
-        value={valorEmail}
+        value={value}
         label="Email"
         variant="outlined"
-        onChange={handleSetValorEmail}
+        onChange={handleChange}
         sx={{
             "& .MuiOutlinedInput-root": {
 

@@ -1,7 +1,10 @@
 import styled from "styled-components";
+import { useState } from "react";
 import EmailInput from "./EmailInput";
 import InputSenha from "./InputSenha";
 import { Button } from "@mui/material";
+import { verificaEmail } from "../Autenticar/emailLoginController";
+import { verificaSenha } from "../Autenticar/senhaLoginController";
 import Autenticar from "../Autenticar";
 
 //criamos o componente formulario..
@@ -17,15 +20,27 @@ const FormularioComponent = styled.form`
 //e usamos a função formulario para renderizar esse componente
 function Formulario() {
 
+    //guardar o valor do email
+    const [valorEmail, setValorEmail] = useState("")
+
+    //guardar o valor da senha
+    const [valorSenha, setValorSenha] = useState("")
+
     return(
         <FormularioComponent>
-            <EmailInput/>
-            <InputSenha/>
-            <Button className="botao-login" sx={{
+            <EmailInput value={valorEmail} onChange={setValorEmail}/>
+            <InputSenha value={valorSenha} onChange={setValorSenha}/>
+            <Button
+            onClick={() => {
+                verificaEmail(valorEmail)
+                verificaSenha(valorSenha)
+            }}
+            sx={{
                 background: "dodgerblue",
                 color: "white",
                 height: "2.15em",
                 textTransform: "none",
+                
             }}>prosseguir</Button>
             <Autenticar/>
         </FormularioComponent>
