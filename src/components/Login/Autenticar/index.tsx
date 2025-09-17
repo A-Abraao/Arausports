@@ -1,8 +1,11 @@
-import styled from "styled-components";
-import GoogleLogoSRC from "../../../assets/img/google-logo.png";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { loginWithGoogle } from "./GoogleAuth";
+import GoogleLogoSRC from "../../../assets/img/google-logo.png";
 import FcebookLogoSRC from "../../../assets/img/facebook-logo.png";
 import { IconButton } from "@mui/material";
+import styled from "styled-components";
+import { useAlert } from "../Alerta/AlertProvider";
 
 //criaremos o componente de autenticação
 const AutenticarComponent = styled.div`
@@ -22,29 +25,37 @@ const AutenticarComponent = styled.div`
   }
 `;
 
-//div que serve apenas para segurar os logos do facebook e do google
-const DivEncapsuladora = styled.div`
-  display: flex;
-  width: 100%;
-  gap: 0.65em;
-  justify-content: center;
-`;
-
-//função que renderiza a parada lá no site
 function Autenticar() {
- 
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const { showAlert } = useAlert();
+
+  const handleGoogle = async () => {
+    try {
+      setLoading(true);
+      await loginWithGoogle();
+      // navega pra homepage e passa flag para mostrar o alerta apenas lá
+      navigate("/homepage", { state: { fromLogin: true } });
+    } catch (err) {
+      console.error(err);
+      showAlert("Erro ao autenticar com o Google.", { severity: "error", duration: 4000 });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AutenticarComponent>
       <h2>entre também com:</h2>
-      <DivEncapsuladora>
-        <IconButton size="small" onClick={() => loginWithGoogle()}>
+      <div style={{ display: "flex", gap: ".65em", justifyContent: "center" }}>
+        <IconButton size="small" onClick={handleGoogle} disabled={loading}>
           <img src={GoogleLogoSRC} alt="logo do google" />
         </IconButton>
 
         <IconButton size="small">
           <img src={FcebookLogoSRC} alt="logo do facebook" />
         </IconButton>
-      </DivEncapsuladora>
+      </div>
     </AutenticarComponent>
   );
 }

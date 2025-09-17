@@ -11,7 +11,6 @@ const LoginPage = styled.div`
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    color: white;
     display: flex;
     justify-content: center;
     height: 100vh;
@@ -21,12 +20,13 @@ const LoginPage = styled.div`
 //A div 'Principal' tem a unica função de segurar os outros componentes da pagina e impedir que alguma coisa saiu do controle
 const Principal = styled.div`
     align-items: center;
-    background: black;
+    background: white;
+    border-radius: 0.5em;
     display: flex;
     flex-direction: column;
-    height: 50%;
+    height: 62%;
     justify-content: center;
-    width: 50%;
+    width: 25%;
 `
 
 //Página de login é renderizada pela função que tem o mesmo nome da pagina

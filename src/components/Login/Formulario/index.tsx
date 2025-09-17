@@ -6,14 +6,15 @@ import { Button } from "@mui/material";
 import { verificaEmail } from "../Autenticar/emailLoginController";
 import { verificaSenha } from "../Autenticar/senhaLoginController";
 import Autenticar from "../Autenticar";
+import { useNavigate } from "react-router-dom";
 import { useAlert } from "../Alerta/AlertProvider";
 
 //criaremos o compoennte formulario cara
 const FormularioComponent = styled.form`
-  background: purple;
+  align-items: center;
   display: flex;
   flex-direction: column;
-  gap: 1.05em;
+  gap: 1.1em;
   padding: 1em 1em 0.25em 1em;
 `;
 
@@ -21,6 +22,7 @@ function Formulario() {
   const [valorEmail, setValorEmail] = useState("");
   const [valorSenha, setValorSenha] = useState("");
   const { showAlert } = useAlert();
+  const navigate = useNavigate()
 
   const handleSubmit = () => {
     const emailOk = verificaEmail(valorEmail);
@@ -59,7 +61,7 @@ function Formulario() {
     }
 
     // sucesso
-    showAlert("Indo pro site, peraí...", {
+    showAlert("Sucesso irmão!", {
       severity: "success",
       duration: 3000,
       variant: "standard",
@@ -72,13 +74,15 @@ function Formulario() {
       },
     });
 
-    // prosseguir com autenticação...
+    navigate("/homepage")
+
   };
 
   return (
     <FormularioComponent>
       <EmailInput value={valorEmail} onChange={setValorEmail} />
       <InputSenha value={valorSenha} onChange={setValorSenha} />
+
       <Button
         type="button"
         onClick={handleSubmit}
@@ -86,10 +90,11 @@ function Formulario() {
           background: "dodgerblue",
           color: "white",
           height: "2.15em",
+          width: "100%",
           textTransform: "none",
         }}
       >
-        prosseguir
+        Login
       </Button>
       <Autenticar />
     </FormularioComponent>

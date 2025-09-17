@@ -1,6 +1,8 @@
 // vite.config.ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import svgr from 'vite-plugin-svgr';
+
 
 function addCoopHeader() {
   return {
@@ -15,5 +17,10 @@ function addCoopHeader() {
 }
 
 export default defineConfig({
-  plugins: [react(), addCoopHeader()],
+  plugins: [
+    react(), 
+    addCoopHeader(),
+    svgr()
+  
+  ],
 });
