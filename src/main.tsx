@@ -70,7 +70,7 @@ const theme = createTheme({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <HashRouter basename="/Arausports/">
+    <HashRouter>
       <ThemeProvider theme={theme}>
         <GoogleOAuthProvider clientId="912477332805-51cp3chm479l1v5lin174b4fravp7okg.apps.googleusercontent.com">
           <AlertProvider>
