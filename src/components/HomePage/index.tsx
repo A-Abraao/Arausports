@@ -1,7 +1,8 @@
+import styled from "styled-components";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAlert } from "../Login/Alerta/AlertProvider";
-import styled from "styled-components";
+import Header from "./Header";
 
 const HomePageComponent = styled.div`
   background: dodgerblue;
@@ -11,9 +12,6 @@ const HomePageComponent = styled.div`
 
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: white;
 `;
 
 export default function HomePage() {
@@ -39,8 +37,8 @@ export default function HomePage() {
 
   return (
     <HomePageComponent>
-      <h1>Home Page</h1>
-      <p>Conteúdo do usuário vai aqui.</p>
+      <Header/>
+    
     </HomePageComponent>
   );
 }

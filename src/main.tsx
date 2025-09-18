@@ -10,7 +10,9 @@ import App from './App.tsx'
 const GlobalStyle = createGlobalStyle`
 
   :root {
-    --font-principal: "Montserrat", sans-serif;;
+    --font-principal: "Montserrat", sans-serif;
+    --gradient-hero: linear-gradient(135deg, hsl(25 95% 53%), hsl(200 95% 60%));
+    --ring: rgb(243, 116, 13);
   }
 
   html, body, div, span, applet, object, iframe,
