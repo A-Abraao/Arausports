@@ -20,7 +20,7 @@ export default defineConfig({
   plugins: [
     react(), 
     addCoopHeader(),
-    svgr()
-  
+    svgr(),
   ],
+  base: "/Arausports/",
 });
