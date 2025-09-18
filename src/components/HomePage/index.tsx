@@ -5,7 +5,7 @@ import { useAlert } from "../Login/Alerta/AlertProvider";
 import Header from "./Header";
 
 const HomePageComponent = styled.div`
-  background: dodgerblue;
+
   width: 100%;
   height: 100%;
   min-height: 100vh;

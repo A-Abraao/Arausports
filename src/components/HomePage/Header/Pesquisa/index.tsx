@@ -8,7 +8,7 @@ function SearchBarMui({ placeholder = "Search...", onChange }: { placeholder?: s
         placeholder={placeholder}
         onChange={(e) => onChange?.(e.target.value)}
         variant="outlined"
-        
+        fullWidth
         InputProps={{
             startAdornment: (
             <InputAdornment position="start">

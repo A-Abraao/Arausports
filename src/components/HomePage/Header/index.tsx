@@ -1,14 +1,15 @@
 import styled from 'styled-components'
 import logoUrl from '../../../assets/img/logo-icone.png'
 import BarraDePesquisa from './Pesquisa'
+import { AreaDoUsuario } from './AreaDoUsuario'
 
 const HeaderComponent = styled.header`
     align-items: center;
     width: 100%;
-    padding: 0.75em;
+    padding: 0.65em 1.75em;
+    gap: 12em;
     display: flex;
     position: sticky;
-    justify-content: space-between;
     top: 0;
     z-index: 50;
     width: 100%;
@@ -50,6 +51,7 @@ function Header() {
             </div>
             
             <BarraDePesquisa/>
+            <AreaDoUsuario/>
         </HeaderComponent>
     )
 }
