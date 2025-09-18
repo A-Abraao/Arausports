@@ -3230,4 +3230,4 @@ This typically indicates that your device does not have a healthy Internet conne
     border-collapse: collapse;
     border-spacing: 0;
   }
-`,wB=Gv({typography:{fontFamily:"Montserrat, sans-serif"}});II.createRoot(document.getElementById("root")).render(K.jsx(C.StrictMode,{children:K.jsx(FO,{basename:"/Arausports/",children:K.jsx(TN,{theme:wB,children:K.jsx(h6,{clientId:"912477332805-51cp3chm479l1v5lin174b4fravp7okg.apps.googleusercontent.com",children:K.jsxs(g6,{children:[K.jsx(p4,{}),K.jsx(TB,{}),K.jsx(EB,{})]})})})})}));
+`,wB=Gv({typography:{fontFamily:"Montserrat, sans-serif"}});II.createRoot(document.getElementById("root")).render(K.jsx(C.StrictMode,{children:K.jsx(FO,{children:K.jsx(TN,{theme:wB,children:K.jsx(h6,{clientId:"912477332805-51cp3chm479l1v5lin174b4fravp7okg.apps.googleusercontent.com",children:K.jsxs(g6,{children:[K.jsx(p4,{}),K.jsx(TB,{}),K.jsx(EB,{})]})})})})}));
