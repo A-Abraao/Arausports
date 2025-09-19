@@ -3,13 +3,13 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAlert } from "../Login/Alerta/AlertProvider";
 import Header from "./Header";
+import { Banner } from "./MainBanner";
 
 const HomePageComponent = styled.div`
 
   width: 100%;
   height: 100%;
   min-height: 100vh;
-
   display: flex;
   flex-direction: column;
 `;
@@ -38,7 +38,7 @@ export default function HomePage() {
   return (
     <HomePageComponent>
       <Header/>
-    
+      <Banner/>
     </HomePageComponent>
   );
 }
