@@ -33,7 +33,7 @@ const GlobalStyle = createGlobalStyle`
     padding: 0;
     border: 0;
     font-size: 100%;
-
+    font-weight: 450;
     vertical-align: baseline;
   }
   

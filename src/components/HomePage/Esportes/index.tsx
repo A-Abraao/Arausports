@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { SecaoSuperior } from "./SecaoSuperior";
+import { EsportesGrid } from "./EsportesGrid";
 
 const EsportesSectionComponent = styled.section`
 
@@ -16,6 +17,7 @@ export function Esportes() {
     return (
         <EsportesSectionComponent>
             <SecaoSuperior/>
+            <EsportesGrid/>
         </EsportesSectionComponent>
     )
 }
