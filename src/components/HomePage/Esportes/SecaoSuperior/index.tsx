@@ -4,7 +4,7 @@ const DivSuperior = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 1.60em;
+    
 
     span {
         color: #696969;
