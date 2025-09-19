@@ -4,9 +4,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAlert } from "../Login/Alerta/AlertProvider";
 import Header from "./Header";
 import { Banner } from "./MainBanner";
+import { Filtros } from "./Filtros";
+import { Esportes } from "./Esportes";
 
 const HomePageComponent = styled.div`
-
   width: 100%;
   height: 100%;
   min-height: 100vh;
@@ -39,6 +40,8 @@ export default function HomePage() {
     <HomePageComponent>
       <Header/>
       <Banner/>
+      <Filtros/>
+      <Esportes/>
     </HomePageComponent>
   );
 }
