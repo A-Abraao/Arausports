@@ -15,11 +15,11 @@ export function BarraDeProgresso({ valor }: { valor: number }) {
           borderRadius: "0.5em", // Arredonda os cantos
           
           // cor de fundo da barra
-          backgroundColor: '#FFFFE0',
+          backgroundColor: 'rgba(255, 255, 224, 0.65)',
 
 
           '& .MuiLinearProgress-bar': {
-            backgroundColor: 'var(--ring)', // cor da varra de progresso rapá
+            backgroundImage: 'var(--gradient-primary)', // cor da varra de progresso rapá
           },
         }}
         />

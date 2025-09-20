@@ -3,6 +3,7 @@ import Login from "./components/Login"
 import HomePage from "./components/HomePage"
 import AuthListener from "./components/AuthListener"
 import { Routes, Route } from "react-router-dom"
+import { Perfil } from "./components/Perfil"
 
 const AppComponent = styled.div`
   
@@ -16,6 +17,7 @@ function App() {
         <Route path="/" element={<Login/>}/>
         <Route path="/criar-conta" element={<></>}/>
         <Route path="/homepage" element={<HomePage/>}/>
+        <Route path="/perfil" element={<Perfil/>}/>
       </Routes>
     </AppComponent>
   );

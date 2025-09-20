@@ -6,7 +6,7 @@ const EsportesGridComponent = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5em;
+    gap: 1.75em;
     flex-wrap: wrap;
 `
 
@@ -18,7 +18,65 @@ const informacoesCard = [
         horario: "12:50",
         localizacao: "Parque cachoeira",
         capacidade: "12 nego",
-    }
+    },
+
+    {
+        imagem: futebolImage,
+        tituloCard: "aquela partida de fut",
+        data: "23 de Março, 2025",
+        horario: "12:50",
+        localizacao: "Parque cachoeira",
+        capacidade: "12 nego",
+    },
+    {
+        imagem: futebolImage,
+        tituloCard: "aquela partida de fut",
+        data: "23 de Março, 2025",
+        horario: "12:50",
+        localizacao: "Parque cachoeira",
+        capacidade: "12 nego",
+    },
+    {
+        imagem: futebolImage,
+        tituloCard: "aquela partida de fut",
+        data: "23 de Março, 2025",
+        horario: "12:50",
+        localizacao: "Parque cachoeira",
+        capacidade: "12 nego",
+    },
+    {
+        imagem: futebolImage,
+        tituloCard: "aquela partida de fut",
+        data: "23 de Março, 2025",
+        horario: "12:50",
+        localizacao: "Parque cachoeira",
+        capacidade: "12 nego",
+    },
+    {
+        imagem: futebolImage,
+        tituloCard: "aquela partida de fut",
+        data: "23 de Março, 2025",
+        horario: "12:50",
+        localizacao: "Parque cachoeira",
+        capacidade: "12 nego",
+    },
+    {
+        imagem: futebolImage,
+        tituloCard: "aquela partida de fut",
+        data: "23 de Março, 2025",
+        horario: "12:50",
+        localizacao: "Parque cachoeira",
+        capacidade: "12 nego",
+    },
+    {
+        imagem: futebolImage,
+        tituloCard: "aquela partida de fut",
+        data: "23 de Março, 2025",
+        horario: "12:50",
+        localizacao: "Parque cachoeira",
+        capacidade: "12 nego",
+    },
+    
 ]
 
 export function EsportesGrid() {

@@ -4,6 +4,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import { BarraDeProgresso } from "./BarraDeProgresso";
+import { EntrarBt } from "./EntrarBt";
 
 const InformacoesEventoComponent = styled.div`
     display: flex;
@@ -28,9 +29,15 @@ const InformacoesEventoComponent = styled.div`
     }
 `
 
-const Titulo = styled.h2`
+type TituloProps = {
+    hoverTitulo: boolean
+}
+
+const Titulo = styled.h2<TituloProps>`
     font-weight: 450;
     font-size: 1.25em;
+    color: ${props => props.hoverTitulo ? "var(--gradient-primary)" : "black"};
+    transition: color 0.3s ease;
 `
 
 const HorarioData = styled.div`
@@ -47,13 +54,13 @@ type InformacoesEventoProps = {
     horario: string,
     localizacao: string,
     capacidade: string
-
+    hoverTitulo: boolean
 }
 
-export function InformacoesEvento({titulo, data, horario, localizacao, capacidade}: InformacoesEventoProps) {
+export function InformacoesEvento({titulo, data, horario, localizacao, capacidade, hoverTitulo}: InformacoesEventoProps) {
     return (
         <InformacoesEventoComponent>
-            <Titulo>{titulo}</Titulo>
+            <Titulo hoverTitulo={hoverTitulo}>{titulo}</Titulo>
 
             <HorarioData>
                 <span><CalendarTodayIcon className="icone"/>{data}</span>
@@ -64,6 +71,8 @@ export function InformacoesEvento({titulo, data, horario, localizacao, capacidad
             <span><PersonIcon className="icone"/>{capacidade}</span>
 
             <BarraDeProgresso valor={12}/>
+
+            <EntrarBt/>
             
         </InformacoesEventoComponent>
     )

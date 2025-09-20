@@ -13,6 +13,7 @@ const GlobalStyle = createGlobalStyle`
     --font-principal: 'Poppins', sans-serif;
     --gradient-hero: linear-gradient(135deg, hsl(25 95% 53%), hsl(200 95% 60%));
     --ring: rgb(243, 116, 13);
+    --gradient-primary: linear-gradient(135deg, hsl(25 95% 53%), hsl(35 95% 60%));
   }
 
   html, body, div, span, applet, object, iframe,

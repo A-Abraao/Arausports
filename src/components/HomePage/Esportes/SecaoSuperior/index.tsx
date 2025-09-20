@@ -4,6 +4,7 @@ const DivSuperior = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 0em 1.75em 0em 1.75em;
     
 
     span {

@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { InformacoesEvento } from "../InformacoesEvento";
 
@@ -15,10 +16,6 @@ const CardComponent = styled.div`
     }
 `;
 
-const Titulo = styled.h2`
-    color: var(--ring);
-
-`;
 
 const MotionCard = styled(motion.div)`
     display: flex;
@@ -89,6 +86,8 @@ export function Card({ imageUrl, titulo, data, horario, localizacao, capacidade 
 
   const imageScale = useTransform(y, [-8, 0], [1.08, 1]);
 
+  const [hoverAtivado, setHoverAtivado] = useState(false)
+
     return (
     <CardComponent>
       <MotionCard
@@ -108,6 +107,8 @@ export function Card({ imageUrl, titulo, data, horario, localizacao, capacidade 
         tabIndex={0}
         role="button"
         aria-label={titulo}
+        onHoverStart={() => setHoverAtivado(true)}
+        onHoverEnd={() => setHoverAtivado(false)} 
       >
         <ImageWrapper>
           <MotionImage
@@ -120,6 +121,7 @@ export function Card({ imageUrl, titulo, data, horario, localizacao, capacidade 
             </ImageWrapper>
 
             <InformacoesEvento
+                hoverTitulo={hoverAtivado}
                 titulo={titulo}
                 data={data}
                 horario={horario}
