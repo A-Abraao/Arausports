@@ -1,11 +1,12 @@
 import styled from "styled-components";
 import { Estastisticas } from "./Estatisticas";
+import { ButtonContainer } from "./Botoes";
 
 const UsarioComponent = styled.div`
     display: flex;
     flex-direction: column;
     width: 55%;
-    gap: 1.2em;
+    gap: 1.35em;
     flex-wrap: wrap;
 `
 
@@ -26,6 +27,7 @@ export function Usuario() {
             <Titulo>New user</Titulo>
             <TextoDescricaoUsuario>mano só criei a conta aqui carai..</TextoDescricaoUsuario>
             <Estastisticas/>
+            <ButtonContainer/>
         </UsarioComponent>
     )
 }

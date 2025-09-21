@@ -3,7 +3,7 @@ import styled from "styled-components";
 const EstastisticasComponent = styled.div`
     display: flex;
     align-items: center;
-    gap: 1.15em;
+    gap: 1.5em;
 
 `
 
@@ -14,7 +14,7 @@ const Estastistica = styled.span`
 
     .numero {
         font-size: 1.75em;
-        font-weight: 500;
+        font-weight: 550;
     }
 
     .acao {

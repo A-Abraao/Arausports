@@ -15,7 +15,9 @@ const GlobalStyle = createGlobalStyle`
     --ring: #f3740dff;
     --gradient-primary: linear-gradient(135deg, hsl(25 95% 53%), hsl(35 95% 60%));
     --cinza: 222.2 47.4% 11.2%;
-  }
+    --sidebar-ring: hsl(217.2 91.2% 59.8%);
+    --secondary: hsl(200 95% 60%);
+    }
 
   html, body, div, span, applet, object, iframe,
   h1, h2, h3, h4, h5, h6, p, blockquote, pre,
