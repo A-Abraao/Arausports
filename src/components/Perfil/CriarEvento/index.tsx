@@ -3,7 +3,7 @@ import { ButtonDeAcao } from "../EventoMarcado/MaisDetalhesButton";
 import Textos from "./Textos";
 
 const CriarEventoComponent = styled.div`
-    background: blue;
+    background: springgreen;
     border-radius: 0.5em;
     display: flex;
     justify-content: space-between;
