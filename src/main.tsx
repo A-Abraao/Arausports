@@ -14,7 +14,8 @@ const GlobalStyle = createGlobalStyle`
     --gradient-hero: linear-gradient(135deg, hsl(25 95% 53%), hsl(200 95% 60%));
     --ring: #f3740dff;
     --gradient-primary: linear-gradient(135deg, hsl(25 95% 53%), hsl(35 95% 60%));
-    --cinza: 222.2 47.4% 11.2%;
+    --gradient-secondary: linear-gradient(135deg, hsl(200 95% 60%), hsl(210 90% 65%));
+    --cinza: #F5F5DC	;
     --sidebar-ring: hsl(217.2 91.2% 59.8%);
     --secondary: hsl(200 95% 60%);
     }
@@ -33,6 +34,7 @@ const GlobalStyle = createGlobalStyle`
   menu, nav, output, ruby, section, summary,
   time, mark, audio, video {
     font-family: var(--font-principal);
+    overflow-wrap: break-word;
     margin: 0;
     padding: 0;
     border: 0;

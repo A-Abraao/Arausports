@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { UsuarioBanner } from "./UsuarioBanner";
+import { EventoMarcado } from "../EventoMarcado";
 
 const UserInfoComponent = styled.div`
     display: flex;
@@ -15,6 +16,7 @@ export function UserInfo() {
     return (
         <UserInfoComponent>
             <UsuarioBanner/>
+            <EventoMarcado/>
         </UserInfoComponent>
     )
 }

@@ -4,7 +4,7 @@ import { Usuario } from "./Usuario";
 
 const UsuarioBannerComponet = styled.section`
     background: var(--gradient-hero);
-    border-radius: 0.75em;
+    border-radius: 0.5em;
     display: flex;
     gap: 1.8em;
     padding: 2.25em;

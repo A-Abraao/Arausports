@@ -6,13 +6,14 @@ export function AdicionarAmigo() {
         <Button
         sx={{
             background: "dodgerblue",
-            borderRadius: "0.5em",
+            borderRadius: "0.35em",
             color: "white",
             display: "flex",
+            fontSize: "0.85em",
             alignItems: "center",
             gap: "0.65em",
             textTransform: "none",
-            padding: "0.5em 0.75em",
+            padding: "0.7em 0.75em",
         }}
         >
             <PersonAddIcon fontSize="small"/>

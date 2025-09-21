@@ -6,8 +6,7 @@ const PerfilComponent = styled.div`
     display: flex;
     color: white;
     flex-direction: column;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
 `
 
 export function Perfil() {

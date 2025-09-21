@@ -13,12 +13,13 @@ const Estastistica = styled.span`
     align-items: center;
 
     .numero {
-        font-size: 1.75em;
+        font-size: 1.5em;
         font-weight: 550;
     }
 
     .acao {
         font-size: 0.85em;
+        font-weight: extralight;
         color: var(--cinza);
     }
 
