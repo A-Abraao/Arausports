@@ -8,7 +8,7 @@ const CardComponent = styled.div`
     flex-direction: column;
     flex-wrap: wrap;
     width: 30%;
-    overflow: visible; /* importante: permitir que a subida não seja cortada */
+    overflow: visible;
     position: relative;
 
     p, h2, span {
