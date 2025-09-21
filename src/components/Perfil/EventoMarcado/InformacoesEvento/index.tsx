@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import { MaisDetalhesButton } from "../MaisDetalhesButton";
+import { ButtonDeAcao } from "../MaisDetalhesButton";
 
 const InformacoesEventoComponent = styled.div`
     display: flex;
@@ -16,7 +16,7 @@ const InformacoesEventoComponent = styled.div`
         min-width: 0;
 `
 
-const TituloEvento = styled.h2`
+export const TituloEvento = styled.h2`
     font-size: 1.25em;
     font-weight: extralight;
     `
@@ -49,7 +49,7 @@ export function InformacoesEvento() {
                 </EventoInfo>
             </div>
             <div>
-                <MaisDetalhesButton/>
+                <ButtonDeAcao>Mais detalhes</ButtonDeAcao>
 
             </div>
             

@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Titulo } from "./Titulo";
 import { InformacoesEvento } from "./InformacoesEvento";
 
-const EventoMarcadoComponent = styled.section`
+export const EventoMarcadoComponent = styled.section`
     background: var(--gradient-secondary);
     border-radius: 0.5em;
     display: flex;

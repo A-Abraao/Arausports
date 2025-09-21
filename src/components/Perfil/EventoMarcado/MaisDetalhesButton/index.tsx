@@ -1,14 +1,22 @@
 import { Button } from "@mui/material";
+import type { ReactNode } from "react";
 
-export function MaisDetalhesButton() {
-    return (
-        <Button sx={{
-            background:"var(--gradient-hero)", 
-            textTransform: "none",
-            padding: "0.5em",
-            color: "white",
-        }}>
-            Mais detalhes
-        </Button>
-    )
+interface ButtonDeAcaoProps {
+  children: ReactNode;
+}
+
+export function ButtonDeAcao({ children }: ButtonDeAcaoProps) {
+  return (
+    <Button
+      sx={{
+        background: "var(--gradient-hero)",
+        textTransform: "none",
+        height: "",
+        padding: "0.5em",
+        color: "white",
+      }}
+    >
+      {children}
+    </Button>
+  );
 }
