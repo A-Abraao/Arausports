@@ -1,12 +1,19 @@
 import styled from "styled-components";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import { MaisDetalhesButton } from "../MaisDetalhesButton";
 
 const InformacoesEventoComponent = styled.div`
     display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    gap: 0.5em;
+    align-items: flex-end;
+    gap: 1em; 
+
+    .divEncapsuladora {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75em;
+        flex: 1; 
+        min-width: 0;
 `
 
 const TituloEvento = styled.h2`
@@ -34,11 +41,18 @@ const EventoInfo = styled.div`
 export function InformacoesEvento() {
     return (
         <InformacoesEventoComponent>
-            <TituloEvento>Aquela partida de fut lá</TituloEvento>
-            <EventoInfo>
-                <span><CalendarMonthIcon fontSize="small"/>23 de março, 2025</span>
-                <span><LocationOnIcon fontSize="small"/>Parque cachoeira</span>
-            </EventoInfo>
+            <div className="divEncapsuladora">
+                <TituloEvento>Aquela partida de fut lá</TituloEvento>
+                <EventoInfo>
+                    <span><CalendarMonthIcon fontSize="small"/>23 de março, 2025</span>
+                    <span><LocationOnIcon fontSize="small"/>Parque cachoeira</span>
+                </EventoInfo>
+            </div>
+            <div>
+                <MaisDetalhesButton/>
+
+            </div>
+            
         </InformacoesEventoComponent>
     )
 }
