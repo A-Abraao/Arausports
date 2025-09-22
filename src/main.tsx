@@ -18,8 +18,9 @@ const GlobalStyle = createGlobalStyle`
     --cinza: #F5F5DC	;
     --sidebar-ring: hsl(217.2 91.2% 59.8%);
     --secondary: hsl(200 95% 60%);
-     --background: hsl(35 100% 98%);
-    }
+    --background: hsl(35 100% 98%);
+    --muted-foreground: hsl(210 15% 45%);
+  }
 
   html, body, div, span, applet, object, iframe,
   h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -35,8 +36,6 @@ const GlobalStyle = createGlobalStyle`
   menu, nav, output, ruby, section, summary,
   time, mark, audio, video, button {
     font-family: var(--font-principal);
-    word-break: break-word;
-    overflow-wrap: anywhere;
     margin: 0;
     padding: 0;
     border: 0;

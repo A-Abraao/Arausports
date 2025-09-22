@@ -10,7 +10,7 @@ const UsuarioBannerComponet = styled.section`
     padding: 2.25em;
 `
 
-const ImagemDePerfil = styled.div`
+export const ImagemDePerfil = styled.div`
     width: 7em;   
     height: 7em;
     border-radius: 9999px;
