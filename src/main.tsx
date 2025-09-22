@@ -18,6 +18,7 @@ const GlobalStyle = createGlobalStyle`
     --cinza: #F5F5DC	;
     --sidebar-ring: hsl(217.2 91.2% 59.8%);
     --secondary: hsl(200 95% 60%);
+     --background: hsl(35 100% 98%);
     }
 
   html, body, div, span, applet, object, iframe,
@@ -32,17 +33,20 @@ const GlobalStyle = createGlobalStyle`
   article, aside, canvas, details, embed, 
   figure, figcaption, footer, header, hgroup, 
   menu, nav, output, ruby, section, summary,
-  time, mark, audio, video {
+  time, mark, audio, video, button {
     font-family: var(--font-principal);
-    overflow-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: anywhere;
     margin: 0;
     padding: 0;
     border: 0;
-    font-size: 100%;
     font-weight: 450;
     vertical-align: baseline;
   }
   
+  #root {
+    background: var(--background);
+  }
 
   article, aside, details, figcaption, figure, 
   footer, header, hgroup, menu, nav, section {
