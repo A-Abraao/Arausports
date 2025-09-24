@@ -10,7 +10,9 @@ const AppComponent = styled.div`
 `
 
 function App() {
+
   return (
+
     <AppComponent>
       <AuthListener />
       <Routes>

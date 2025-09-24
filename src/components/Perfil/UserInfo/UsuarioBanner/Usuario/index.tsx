@@ -21,11 +21,15 @@ const TextoDescricaoUsuario = styled.p`
     
 `
 
-export function Usuario() {
+interface UsuarioProps {
+    name: string;
+}
+
+export function Usuario({name}: UsuarioProps) {
     return (
         <UsarioComponent>
-            <Titulo>New user</Titulo>
-            <TextoDescricaoUsuario>mano só criei a conta aqui carai..</TextoDescricaoUsuario>
+            <Titulo>{name}</Titulo>
+            <TextoDescricaoUsuario>mano só criei a conta aqui e é isso..</TextoDescricaoUsuario>
             <Estastisticas/>
             <ButtonContainer/>
         </UsarioComponent>

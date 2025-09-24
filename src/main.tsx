@@ -5,6 +5,7 @@ import { HashRouter } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AlertProvider } from './components/Login/Alerta/AlertProvider.tsx';
+import { AuthProvider } from './contexts/AuthContext.tsx';
 import App from './App.tsx'
 
 const GlobalStyle = createGlobalStyle`
@@ -77,18 +78,21 @@ const theme = createTheme({
   },
 });
 
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HashRouter>
-      <ThemeProvider theme={theme}>
-        <GoogleOAuthProvider clientId="912477332805-51cp3chm479l1v5lin174b4fravp7okg.apps.googleusercontent.com">
-          <AlertProvider>
-            <CssBaseline />
-            <GlobalStyle />
-            <App />
-          </AlertProvider>
-        </GoogleOAuthProvider>
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider theme={theme}>
+          <GoogleOAuthProvider clientId="912477332805-51cp3chm479l1v5lin174b4fravp7okg.apps.googleusercontent.com">
+            <AlertProvider>
+              <CssBaseline />
+              <GlobalStyle />
+              <App />
+            </AlertProvider>
+          </GoogleOAuthProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </HashRouter>
   </StrictMode>
 )

@@ -8,8 +8,9 @@ import { verificaSenha } from "../Autenticar/senhaLoginController";
 import Autenticar from "../Autenticar";
 import { useNavigate } from "react-router-dom";
 import { useAlert } from "../Alerta/AlertProvider";
+import { useAuth } from "../../../contexts/AuthContext";
 
-//criaremos o compoennte formulario cara
+// componente do formulario
 const FormularioComponent = styled.form`
   align-items: center;
   display: flex;
@@ -22,17 +23,32 @@ function Formulario() {
   const [valorEmail, setValorEmail] = useState("");
   const [valorSenha, setValorSenha] = useState("");
   const { showAlert } = useAlert();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { signIn } = useAuth();
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
-    const emailOk = verificaEmail(valorEmail);
-    const senhaOk = verificaSenha(valorSenha);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const emailTrim = valorEmail.trim();
+    const senhaVal = valorSenha; // mantenha a senha como está para checar comprimento (não trim por padrão)
+
+    // DEBUG: mostra o que está sendo enviado (remova em produção)
+    console.log("DEBUG login ->", {
+      email: emailTrim,
+      emailLength: String(emailTrim).length,
+      passwordType: typeof senhaVal,
+      passwordLength: String(senhaVal).length,
+    });
+
+    const emailOk = verificaEmail(emailTrim);
+    const senhaOk = verificaSenha(senhaVal);
 
     if (!emailOk) {
       showAlert("email não me parece válido", {
         severity: "error",
         duration: 4500,
-        variant: "standard", // preferível para controlar fundo
+        variant: "standard",
         sx: {
           backgroundColor: "#DC143C",
           color: "#ffffff",
@@ -60,32 +76,51 @@ function Formulario() {
       return;
     }
 
-    // sucesso
-    showAlert("Sucesso irmão!", {
-      severity: "success",
-      duration: 3000,
-      variant: "standard",
-      sx: {
-        backgroundColor: "#006400",
-        color: "#ffffff",
-        fontWeight: 500,
-        "& .MuiAlert-message": { fontWeight: 500 },
-        "& .MuiAlert-icon": { color: "#ffffff" },
-      },
-    });
+    setLoading(true);
+    try {
+      // use emailTrim e senhaVal (se quiser trim na senha, troque senhaVal por senhaVal.trim())
+      await signIn(emailTrim, senhaVal);
 
-    navigate("/homepage")
+      showAlert("Login realizado com sucesso!", {
+        severity: "success",
+        duration: 2500,
+        variant: "standard",
+        sx: {
+          backgroundColor: "#006400",
+          color: "#ffffff",
+          fontWeight: 500,
+        },
+      });
 
+      navigate("/homepage");
+    } catch (err: any) {
+      console.error("Erro ao logar (front):", err);
+      const message = err?.message ?? "Erro ao autenticar";
+      showAlert(message, {
+        severity: "error",
+        duration: 4500,
+        variant: "standard",
+        sx: {
+          backgroundColor: "#DC143C",
+          color: "#ffffff",
+          fontWeight: 500,
+          "& .MuiAlert-message": { fontWeight: 500 },
+          "& .MuiAlert-icon": { color: "#ffffff" },
+        },
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <FormularioComponent>
+    <FormularioComponent onSubmit={handleSubmit}>
       <EmailInput value={valorEmail} onChange={setValorEmail} />
       <InputSenha value={valorSenha} onChange={setValorSenha} />
 
       <Button
-        type="button"
-        onClick={handleSubmit}
+        type="submit"
+        disabled={loading}
         sx={{
           background: "dodgerblue",
           color: "white",
@@ -94,8 +129,9 @@ function Formulario() {
           textTransform: "none",
         }}
       >
-        Login
+        {loading ? "Entrando..." : "Login"}
       </Button>
+
       <Autenticar />
     </FormularioComponent>
   );
