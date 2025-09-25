@@ -13,7 +13,7 @@ export function EditarPerfilButton() {
                 alignItems: "center",
                 gap: "0.65em",
                 textTransform: "none",
-                padding: "0.7em 0.75em",
+                padding: "0.45em 0.6em",
             }}
         >
             <EngrenagemSvg height={"1.75em"} width={"1.75em"}/>Editar perfil

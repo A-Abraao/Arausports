@@ -1,9 +1,7 @@
 import styled from "styled-components";
 import ImagemDePerfilSrc from '../../../../assets/img/bola-de-basquete.jpg'
 import { Usuario } from "./Usuario";
-import { useAuth } from "../../../../contexts/AuthContext";
-import { getUserProfile } from "../../../../contexts/pegarDadosUsuario";
-import { useEffect, useState } from "react";
+import { useUserData } from "../../../../contexts/getDadosUsuario";
 
 const UsuarioBannerComponet = styled.section`
     background: var(--gradient-hero);
@@ -27,9 +25,7 @@ export const ImagemDePerfil = styled.div<ImagemDePerfilProps>`
 `
 
 export function UsuarioBanner() {
-    const { userData } = useAuth(); 
-    const photoURL = userData?.photoURL || ImagemDePerfilSrc;
-    const userName = userData?.displayName || "New User";
+    const { photoURL, userName } = useUserData()
 
     return (
         <UsuarioBannerComponet>

@@ -13,7 +13,7 @@ export function AdicionarAmigo() {
             alignItems: "center",
             gap: "0.65em",
             textTransform: "none",
-            padding: "0.7em 0.75em",
+            padding: "0.45em 0.6em",
         }}
         >
             <PersonAddIcon fontSize="small"/>

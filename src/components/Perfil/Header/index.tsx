@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { IconButton } from "@mui/material";
 import ArrowIcon from "../../../assets/img/retornar-setinha.svg?react"
 
-const HeaderComponent = styled.header`
+export const HeaderComponent = styled.header`
     align-items: center;
     border-bottom: 1px solid #e5e7eb;
     background-color: rgba(255, 255, 255, 0.3);
