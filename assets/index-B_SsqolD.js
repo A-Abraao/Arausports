@@ -4263,7 +4263,7 @@ Content-Type: `+h.contentType+`\r
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  padding: 1.25rem;
+  padding: 2.25em;
   border-radius: 0.75em; /* harmonizei com o CardEvento */
   background: rgba(255,255,255,0.9);
 
