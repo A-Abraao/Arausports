@@ -5,26 +5,25 @@ import LocationPinIcon from '@mui/icons-material/LocationPin';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { TextField, InputAdornment } from "@mui/material";
 
-/* Container principal: 35% do pai, centralizado; responsivo para telas pequenas */
-const DetalhesEventoContainer = styled.div`
-  width: 35%;
+export const DetalhesEventoContainer = styled.div`
+  width: 50%;
   max-width: 600px;
   box-sizing: border-box;
-  margin: 0 auto; /* centraliza horizontalmente no pai */
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  padding: 1.25rem;
+  gap: 1.75rem;
+  padding: 2.25rem;
   border-radius: 0.75em; /* harmonizei com o CardEvento */
   background: rgba(255,255,255,0.9);
 
-  /* borda suave e sombra igual ao CardEvento */
+  
   border: 1px solid rgba(15, 23, 42, 0.06);
   box-shadow:
     0 10px 30px rgba(2,6,23,0.06),
     0 2px 6px rgba(2,6,23,0.04);
 
-  /* micro-interação ao hover (igual ao CardEvento) */
+ 
   transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
   &:hover {
     transform: translateY(-4px);
@@ -34,21 +33,21 @@ const DetalhesEventoContainer = styled.div`
     border-color: rgba(15,23,42,0.08);
   }
 
-  /* centralizar conteúdo interno (horizontalmente) */
+  
   align-items: center;
 
-  /* responsividade: ocupa 100% em telas pequenas */
+  
   @media (max-width: 900px) {
     width: 100%;
     padding: 1rem;
   }
 
-  /* garante que textos/inputs possam usar 100% do disponível */
+  
   * {
     box-sizing: border-box;
   }
 
-  /* evita overflow dentro de flex children */
+  
   & > * {
     min-width: 0;
     width: 100%;
@@ -68,7 +67,7 @@ const DetalhesEventoContainer = styled.div`
   }
 `;
 
-/* Flex wrapper reutilizável */
+
 const FlexDiv = styled.div<{ direction?: string; gap?: string; alignItems?: string }>`
   display: flex;
   flex-direction: ${({ direction }) => direction || "column"};
@@ -77,7 +76,7 @@ const FlexDiv = styled.div<{ direction?: string; gap?: string; alignItems?: stri
   width: 100%;
 `;
 
-/* input base: full width */
+
 const TituloInput = styled.input`
   font-family: var(--font-principal);
   background: rgba(245, 245, 220, 0.5);
@@ -99,7 +98,7 @@ const TituloInput = styled.input`
   }
 `;
 
-/* date input baseado no TituloInput */
+
 const DataInput = styled(TituloInput).attrs({ type: "date" })`
   padding: 0.4em;
   &::-webkit-calendar-picker-indicator {
@@ -108,10 +107,10 @@ const DataInput = styled(TituloInput).attrs({ type: "date" })`
   }
 `;
 
-/* location input */
+
 const LocationInput = styled(TituloInput)``;
 
-/* bloco de horário: garante que tudo fique contido e responsivo */
+
 const EventoHorario = styled.div`
   width: 100%;
   border-top: 1px solid #e5e7eb;
@@ -148,7 +147,6 @@ const EventoHorario = styled.div`
   }
 `;
 
-/* título + label wrapper */
 const TituloWrapper = styled.div`
   display: flex;
   flex-direction: column;

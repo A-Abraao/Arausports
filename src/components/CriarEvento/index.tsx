@@ -5,9 +5,12 @@ import { IconButton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { Titulo } from "./Titulo";
 import { DetalhesEvento } from "./DetalhesEvento";
+import { Button } from "@mui/material";
 
 const CriarEventoComponent = styled.div`
-   
+    align-items: center;
+    display: flex;
+    flex-direction: column;
 `
 
 const Header = styled(HeaderComponent)`
@@ -39,6 +42,18 @@ export function CriarEvento() {
                 <InformacoesEvento>
                     <DetalhesEvento/>
                 </InformacoesEvento>
+                <Button
+                sx={{
+                    width: "22%",
+                    textTransform: "none",
+                    background: "var(--gradient-hero)",
+                    color: "white",
+                    padding: "0.25em 0.25em",
+                    fontWeight: "550",
+                    fontSize: "1em",
+                    marginTop: "1.15em",
+                }}
+                >Criar Evento</Button>
             </CriarEventoComponent>
         </div>
     )
