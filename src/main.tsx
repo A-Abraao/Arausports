@@ -16,9 +16,11 @@ const GlobalStyle = createGlobalStyle`
     --ring: #f3740dff;
     --gradient-primary: linear-gradient(135deg, hsl(25 95% 53%), hsl(35 95% 60%));
     --gradient-secondary: linear-gradient(135deg, hsl(200 95% 60%), hsl(210 90% 65%));
-    --cinza: #F5F5DC	;
+    --cinza: rgba(245, 245, 220, 1)	;
     --sidebar-ring: hsl(217.2 91.2% 59.8%);
+    --accent: hsl(140 85% 55%);
     --secondary: hsl(200 95% 60%);
+    --accent-foreground: hsl(0 0% 100%);
     --background: hsl(35 100% 98%);
     --muted-foreground: hsl(210 15% 45%);
   }

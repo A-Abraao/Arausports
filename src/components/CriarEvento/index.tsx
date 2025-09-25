@@ -4,14 +4,23 @@ import VoltarSetinha from '../../assets/img/retornar-setinha.svg?react'
 import { IconButton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { Titulo } from "./Titulo";
+import { DetalhesEvento } from "./DetalhesEvento";
 
 const CriarEventoComponent = styled.div`
-
+   
 `
 
 const Header = styled(HeaderComponent)`
 
 `
+
+const InformacoesEvento = styled.div`
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 1.5em;
+`
+
 
 export function CriarEvento() {
     const navigate = useNavigate()
@@ -27,6 +36,9 @@ export function CriarEvento() {
 
             <CriarEventoComponent>
                 <Titulo/>
+                <InformacoesEvento>
+                    <DetalhesEvento/>
+                </InformacoesEvento>
             </CriarEventoComponent>
         </div>
     )
