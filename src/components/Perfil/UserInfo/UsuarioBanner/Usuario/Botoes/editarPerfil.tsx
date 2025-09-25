@@ -2,8 +2,10 @@ import { Button } from "@mui/material";
 import EngrenagemSvg from '../../../../../../assets/img/engrenagem.svg?react'
 
 export function EditarPerfilButton() {
+
     return (
         <Button
+            onClick={() => {}}
             sx={{
                 background: "var(--secondary)",
                 borderRadius: "0.35em",

@@ -41,7 +41,25 @@ export const googleProvider = new GoogleAuthProvider();
 
 export const onAuth = (cb: (user: User | null) => void) => onAuthStateChanged(auth, cb);
 
-// 🔹 NOVO: função para buscar dados do usuário no Firestore
+
+export const updateUserBio = async (uid: string, bio: string) => {
+    const userRef = doc(db, "users", uid);
+    
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) {
+      await setDoc(userRef, {
+        uid,
+        bio,
+        createdAt: new Date().toISOString(),
+      });
+    } else {
+      await updateDoc(userRef, {
+        bio,
+        updatedAt: new Date().toISOString(),
+      });
+    }
+};
+
 export const getUserData = async (uid: string) => {
   const userRef = doc(db, "users", uid);
   const snap = await getDoc(userRef);

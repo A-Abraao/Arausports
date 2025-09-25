@@ -11,6 +11,7 @@ const CriarEventoComponent = styled.div`
     align-items: center;
     display: flex;
     flex-direction: column;
+    padding-bottom: 0.75em;
 `
 
 const Header = styled(HeaderComponent)`
@@ -21,7 +22,7 @@ const InformacoesEvento = styled.div`
     display: flex;
     align-items: center;
     width: 100%;
-    gap: 1.5em;
+    gap: 1em;
 `
 
 
