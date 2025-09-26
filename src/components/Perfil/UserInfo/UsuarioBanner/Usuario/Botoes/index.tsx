@@ -1,6 +1,8 @@
 import styled from "styled-components";
+import { useState } from "react";
 import { EditarPerfilButton } from "./editarPerfil";
 import { AdicionarAmigo } from "./adicionarAmigo";
+import { EditarPerfilPopup } from "./popUp";
 
 const ButtonContainerComponent = styled.div`
     display: flex;
@@ -9,9 +11,16 @@ const ButtonContainerComponent = styled.div`
 `
 
 export function ButtonContainer() {
+    const [ mostrarPopUp, setMostrarPopUp ] = useState(false)
+
+    const handleMostrarPopUp = () => {
+        setMostrarPopUp(true)
+    }
+
     return (
         <ButtonContainerComponent>
-            <EditarPerfilButton/>
+            <EditarPerfilButton atualizarEstado={handleMostrarPopUp}/>
+            <EditarPerfilPopup open={mostrarPopUp} onClose={() => setMostrarPopUp(false)} onSalvar={() => setMostrarPopUp(false)}/>
             <AdicionarAmigo/>
         </ButtonContainerComponent>
     )

@@ -23,6 +23,7 @@ const TextoDescricaoUsuario = styled.p`
 
 interface UsuarioProps {
     name: string;
+     
 }
 
 export function Usuario({name}: UsuarioProps) {

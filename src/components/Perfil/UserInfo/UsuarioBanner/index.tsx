@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import ImagemDePerfilSrc from '../../../../assets/img/bola-de-basquete.jpg'
+import { useState } from "react";
 import { Usuario } from "./Usuario";
 import { useUserData } from "../../../../contexts/getDadosUsuario";
 
@@ -11,8 +12,9 @@ const UsuarioBannerComponet = styled.section`
     padding: 2.25em;
 `
 interface ImagemDePerfilProps {
-    imagem?: string;
+    imagem?: string | null;
 }
+
 
 export const ImagemDePerfil = styled.div<ImagemDePerfilProps>`
     width: 7em;   
@@ -27,10 +29,12 @@ export const ImagemDePerfil = styled.div<ImagemDePerfilProps>`
 export function UsuarioBanner() {
     const { photoURL, userName } = useUserData()
 
+
     return (
         <UsuarioBannerComponet>
             <ImagemDePerfil imagem={photoURL}/>
             <Usuario name={userName} />
+            
         </UsuarioBannerComponet>
     )
 }

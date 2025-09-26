@@ -1,11 +1,19 @@
 import { Button } from "@mui/material";
 import EngrenagemSvg from '../../../../../../assets/img/engrenagem.svg?react'
 
-export function EditarPerfilButton() {
+type EditarPerfilButtonProps = {
+    atualizarEstado: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export function EditarPerfilButton({ atualizarEstado }: EditarPerfilButtonProps) {
+
+    const handleClick = () => {
+        atualizarEstado(true)
+    }
 
     return (
         <Button
-            onClick={() => {}}
+            onClick={handleClick}
             sx={{
                 background: "var(--secondary)",
                 borderRadius: "0.35em",
