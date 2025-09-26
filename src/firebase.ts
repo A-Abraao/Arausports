@@ -11,6 +11,7 @@ import {
   signInWithEmailAndPassword,
   signOut
 } from "firebase/auth";
+import { updateProfile } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 export const uploadProfileImage = async (uid: string, file: File) => {
@@ -60,6 +61,46 @@ export const updateUserBio = async (uid: string, bio: string) => {
     }
 };
 
+export const updateUserProfile = async (
+  uid: string,
+  data: { bio?: string; username?: string }
+) => {
+  const userRef = doc(db, "users", uid);
+  
+  const snap = await getDoc(userRef);
+
+  const dataToUpdateInFirestore: { bio?: string; displayName?: string; updatedAt: string } = {
+    updatedAt: new Date().toISOString()
+  };
+
+  if (data.bio) {
+    dataToUpdateInFirestore.bio = data.bio;
+  }
+  if (data.username) {
+    dataToUpdateInFirestore.displayName = data.username;
+  }
+
+  
+ 
+  if (snap.exists()) {
+    await updateDoc(userRef, dataToUpdateInFirestore);
+  } else {
+    
+    await setDoc(userRef, {
+      uid,
+      ...dataToUpdateInFirestore,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  if (data.username) {
+    const user = auth.currentUser;
+    if (user) {
+      await updateProfile(user, { displayName: data.username });
+    }
+  }
+};
+
 export const getUserData = async (uid: string) => {
   const userRef = doc(db, "users", uid);
   const snap = await getDoc(userRef);
@@ -92,7 +133,7 @@ export const signInWithEmail = async (email: string, password: string) => {
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
   if (!userCredential.user.emailVerified) {
-    await signOut(auth); // bloqueia acesso
+    await signOut(auth); 
     throw new Error("Verifique seu e-mail antes de acessar.");
   }
 

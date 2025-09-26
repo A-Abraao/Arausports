@@ -9,13 +9,12 @@ export default function AuthListener() {
   useEffect(() => {
     const unsubscribe = onAuth((user) => {
       if (user) {
-        // redireciona só se estiver na página de login (ou root)
-        // impede que o site se sobrescreva quando o componente de login já foi carregado já
+
         if (location.pathname === "/") {
           navigate("/homepage");
         }
       }
-      // NÃO forçar navigate("/") quando user for null — deixa rotas públicas livres
+     
     });
     return unsubscribe;
   }, [navigate, location]);
