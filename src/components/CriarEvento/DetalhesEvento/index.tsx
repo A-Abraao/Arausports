@@ -3,9 +3,12 @@ import PeopleIcon from '@mui/icons-material/People';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import LocationPinIcon from '@mui/icons-material/LocationPin';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import { useEffect } from "react";
 import { TextField, InputAdornment } from "@mui/material";
+import { CapacidadeEvento } from "./CapacidadeEvento";
+import { useState } from "react";
 
-export const DetalhesEventoContainer = styled.div`
+const DetalhesEventoContainer = styled.div`
   width: 50%;
   max-width: 600px;
   box-sizing: border-box;
@@ -161,7 +164,27 @@ const TituloWrapper = styled.div`
   }
 `;
 
-export function DetalhesEvento() {
+type EventoData = {
+  titulo: string;
+  categoria: string;
+  data: string;
+  horario: string;
+  local: string;
+  capacidade: number;
+};
+
+type Props = {
+  value: EventoData;
+  onChange: (value: EventoData) => void;
+};
+
+export function DetalhesEvento({ value, onChange }: Props) {
+  const [form, setForm] = useState<EventoData>(value);
+
+  useEffect(() => {
+    onChange(form);
+  }, [form]);
+
   return (
     <DetalhesEventoContainer>
       <span className="header">
@@ -172,16 +195,29 @@ export function DetalhesEvento() {
       <FlexDiv>
         <TituloWrapper>
           <span className="label">Titulo do Evento *</span>
-          <TituloInput placeholder="ex. jogo a tarde" />
+          <TituloInput
+            placeholder="ex. jogo a tarde"
+            value={form.titulo}
+            onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+          />
         </TituloWrapper>
       </FlexDiv>
 
       <FlexDiv>
         <TituloWrapper>
           <span className="label">Categoria do Esporte</span>
-          <TituloInput placeholder="ex. vôlei" />
+          <TituloInput
+            placeholder="ex. vôlei"
+            value={form.categoria}
+            onChange={(e) => setForm({ ...form, categoria: e.target.value })}
+          />
         </TituloWrapper>
       </FlexDiv>
+
+      <CapacidadeEvento
+        value={form.capacidade}
+        onChange={(cap) => setForm({ ...form, capacidade: cap })}
+      />
 
       <EventoHorario>
         <span className="header">
@@ -193,7 +229,10 @@ export function DetalhesEvento() {
           <div style={{ width: "100%" }}>
             <TituloWrapper>
               <span className="label">Data *</span>
-              <DataInput />
+              <DataInput
+                value={form.data}
+                onChange={(e) => setForm({ ...form, data: e.target.value })}
+              />
             </TituloWrapper>
           </div>
 
@@ -202,6 +241,8 @@ export function DetalhesEvento() {
               <span className="label">Horário</span>
               <TextField
                 type="time"
+                value={form.horario}
+                onChange={(e) => setForm({ ...form, horario: e.target.value })}
                 fullWidth
                 variant="outlined"
                 InputProps={{
@@ -238,8 +279,14 @@ export function DetalhesEvento() {
 
         <div className="localizacao">
           <TituloWrapper>
-            <span className="label"><LocationPinIcon />Localização *</span>
-            <LocationInput placeholder="ex. CSU" />
+            <span className="label">
+              <LocationPinIcon />Localização *
+            </span>
+            <LocationInput
+              placeholder="ex. CSU"
+              value={form.local}
+              onChange={(e) => setForm({ ...form, local: e.target.value })}
+            />
           </TituloWrapper>
         </div>
       </EventoHorario>
