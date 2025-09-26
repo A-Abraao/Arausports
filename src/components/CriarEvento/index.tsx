@@ -5,6 +5,7 @@ import { IconButton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { Titulo } from "./Titulo";
 import { DetalhesEvento } from "./DetalhesEvento";
+import { PreviaEvento } from "./PreviaEvento";
 import { Button } from "@mui/material";
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -70,6 +71,7 @@ export function CriarEvento() {
         <Titulo />
         <InformacoesEvento>
           <DetalhesEvento value={evento} onChange={setEvento} />
+          <PreviaEvento/>
         </InformacoesEvento>
 
         <Button

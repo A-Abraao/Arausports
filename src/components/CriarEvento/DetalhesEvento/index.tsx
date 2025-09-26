@@ -8,8 +8,8 @@ import { TextField, InputAdornment } from "@mui/material";
 import { CapacidadeEvento } from "./CapacidadeEvento";
 import { useState } from "react";
 
-const DetalhesEventoContainer = styled.div`
-  width: 50%;
+export const DetalhesEventoContainer = styled.div`
+  width: 45%;
   max-width: 600px;
   box-sizing: border-box;
   margin: 0 auto;
@@ -17,7 +17,7 @@ const DetalhesEventoContainer = styled.div`
   flex-direction: column;
   gap: 1.75rem;
   padding: 2.25rem;
-  border-radius: 0.75em; /* harmonizei com o CardEvento */
+  border-radius: 0.75em;
   background: rgba(255,255,255,0.9);
 
   
