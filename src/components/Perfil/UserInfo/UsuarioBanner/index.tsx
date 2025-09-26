@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import ImagemDePerfilSrc from '../../../../assets/img/bola-de-basquete.jpg'
-import { useState } from "react";
 import { Usuario } from "./Usuario";
 import { useUserData } from "../../../../contexts/getDadosUsuario";
 
@@ -27,13 +26,13 @@ export const ImagemDePerfil = styled.div<ImagemDePerfilProps>`
 `
 
 export function UsuarioBanner() {
-    const { photoURL, userName } = useUserData()
+    const { photoURL, userName, bio } = useUserData()
 
 
     return (
         <UsuarioBannerComponet>
             <ImagemDePerfil imagem={photoURL}/>
-            <Usuario name={userName} />
+            <Usuario name={userName} usuarioBio={bio}/>
             
         </UsuarioBannerComponet>
     )
