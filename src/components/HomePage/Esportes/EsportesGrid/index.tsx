@@ -1,100 +1,58 @@
 import styled from "styled-components";
-import futebolImage from '../../../../assets/img/evento-de-futebol.jpg'
 import { Card } from "./Card";
+import type { Evento } from ".."; 
 
 const EsportesGridComponent = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.75em;
-    flex-wrap: wrap;
-`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.75em;
+  flex-wrap: wrap;
+`;
 
-const informacoesCard = [
-    {
-        imagem: futebolImage,
-        tituloCard: "aquela partida de fut",
-        data: "23 de Março, 2025",
-        horario: "12:50",
-        localizacao: "Parque cachoeira",
-        capacidade: "12 nego",
-    },
 
-    {
-        imagem: futebolImage,
-        tituloCard: "aquela partida de fut",
-        data: "23 de Março, 2025",
-        horario: "12:50",
-        localizacao: "Parque cachoeira",
-        capacidade: "12 nego",
-    },
-    {
-        imagem: futebolImage,
-        tituloCard: "aquela partida de fut",
-        data: "23 de Março, 2025",
-        horario: "12:50",
-        localizacao: "Parque cachoeira",
-        capacidade: "12 nego",
-    },
-    {
-        imagem: futebolImage,
-        tituloCard: "aquela partida de fut",
-        data: "23 de Março, 2025",
-        horario: "12:50",
-        localizacao: "Parque cachoeira",
-        capacidade: "12 nego",
-    },
-    {
-        imagem: futebolImage,
-        tituloCard: "aquela partida de fut",
-        data: "23 de Março, 2025",
-        horario: "12:50",
-        localizacao: "Parque cachoeira",
-        capacidade: "12 nego",
-    },
-    {
-        imagem: futebolImage,
-        tituloCard: "aquela partida de fut",
-        data: "23 de Março, 2025",
-        horario: "12:50",
-        localizacao: "Parque cachoeira",
-        capacidade: "12 nego",
-    },
-    {
-        imagem: futebolImage,
-        tituloCard: "aquela partida de fut",
-        data: "23 de Março, 2025",
-        horario: "12:50",
-        localizacao: "Parque cachoeira",
-        capacidade: "12 nego",
-    },
-    {
-        imagem: futebolImage,
-        tituloCard: "aquela partida de fut",
-        data: "23 de Março, 2025",
-        horario: "12:50",
-        localizacao: "Parque cachoeira",
-        capacidade: "12 nego",
-    },
-    
-]
+function imageForCategory(cat?: string) {
+  if (!cat) return "/assets/img/evento-de-futebol.jpg";
+  const c = cat.toLowerCase();
+  if (c.includes("fut") || c.includes("futsal") || c.includes("futebol")) return "/assets/img/evento-de-futebol.jpg";
+  if (c.includes("volei") || c.includes("vôlei")) return "/assets/img/evento-de-volei.jpg";
+  if (c.includes("basquete")) return "/assets/img/evento-de-basquete.jpg";
+  return "/assets/img/evento-de-futebol.jpg";
+}
 
-export function EsportesGrid() {
+type Props = {
+  eventos: Evento[];
+};
+
+export function EsportesGrid({ eventos }: Props) {
+  if (!eventos || eventos.length === 0) {
     return (
-        <EsportesGridComponent>
-            {informacoesCard.map((item, index) => {
-                return (
-                    <Card 
-                        key={index}
-                        imageUrl={item.imagem}
-                        titulo={item.tituloCard}
-                        data={item.data}
-                        horario={item.horario}
-                        localizacao={item.localizacao}
-                        capacidade={item.capacidade}
-                    />
-                )
-            })}
-        </EsportesGridComponent>
-    )
+      <EsportesGridComponent>
+        <p>Nenhum evento encontrado.</p>
+      </EsportesGridComponent>
+    );
+  }
+
+  return (
+    <EsportesGridComponent>
+      {eventos.map((evento) => {
+        const capacidadeMaxima = evento.capacidade;
+        const participantes = evento.participantesAtuais ?? 0;
+
+        return (
+          <Card
+            key={evento.id}
+            imageUrl={imageForCategory(evento.categoria)}
+            categoria={evento.categoria}
+            titulo={evento.titulo}
+            data={evento.data}
+            horario={evento.horario}
+            localizacao={evento.local}
+            capacidadeMaxima={capacidadeMaxima}
+            participantesAtuais={participantes}
+          />
+        );
+      })}
+    </EsportesGridComponent>
+  );
 }

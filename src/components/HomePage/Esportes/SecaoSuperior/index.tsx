@@ -18,11 +18,17 @@ const Titulo = styled.h1`
     font-weight: bold;
 `
 
-export function SecaoSuperior() {
+type Props = {
+    count: number
+}
+
+export function SecaoSuperior({count}:Props) {
+    const texto = count === 1 ? "1 evento" : `${count} eventos`
+
     return (
         <DivSuperior>
             <Titulo>Eventos disponíveis</Titulo>
-            <span>6 eventos</span>
+            <span>{count === 0 ? "Nenhum evento" : texto}</span>
         </DivSuperior>
     )
 }

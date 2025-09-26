@@ -7,73 +7,87 @@ import { BarraDeProgresso } from "./BarraDeProgresso";
 import { EntrarBt } from "./EntrarBt";
 
 const InformacoesEventoComponent = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 1em;
-    flex-wrap: wrap;
-    height: 100%;
-    width: 100%;
-    padding: 1.15em;
-    font-size: 0.9em;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  flex-wrap: wrap;
+  height: 100%;
+  width: 100%;
+  padding: 1.15em;
+  font-size: 0.9em;
 
-     span {
-        color: #6E7B8B;
-        display: flex;
-        align-items: center;
-        gap: 0.6em;
-        
-    }
-
-    .icone {
-        color: var(--ring);
-    }
-`
-
-type TituloProps = {
-    hoverTitulo: boolean
-}
-
-const Titulo = styled.h2<TituloProps>`
-    font-weight: 450;
-    font-size: 1.25em;
-    color: ${props => props.hoverTitulo ? "var(--gradient-primary)" : "black"};
-    transition: color 0.3s ease;
-`
-
-const HorarioData = styled.div`
+  span {
+    color: #6E7B8B;
     display: flex;
     align-items: center;
-    gap: 1.75em;
-    width: 100%;
-   
-`
+    gap: 0.6em;
+  }
+
+  .icone {
+    color: var(--ring);
+  }
+`;
+
+type TituloProps = {
+  hoverTitulo: boolean;
+};
+
+const Titulo = styled.h2<TituloProps>`
+  font-weight: 450;
+  font-size: 1.25em;
+  color: ${(props) => (props.hoverTitulo ? "var(--gradient-primary)" : "black")};
+  transition: color 0.3s ease;
+`;
+
+const HorarioData = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1.75em;
+  width: 100%;
+`;
 
 type InformacoesEventoProps = {
-    titulo: string,
-    data: string,
-    horario: string,
-    localizacao: string,
-    capacidade: string
-    hoverTitulo: boolean
-}
+  titulo: string;
+  data: string;
+  horario: string;
+  localizacao: string;
+  capacidadeMaxima: number;
+  participantesAtuais: number;
+  hoverTitulo: boolean;
+};
 
-export function InformacoesEvento({titulo, data, horario, localizacao, capacidade, hoverTitulo}: InformacoesEventoProps) {
-    return (
-        <InformacoesEventoComponent>
-            <Titulo hoverTitulo={hoverTitulo}>{titulo}</Titulo>
+export function InformacoesEvento({
+  titulo,
+  data,
+  horario,
+  localizacao,
+  capacidadeMaxima,
+  participantesAtuais,
+  hoverTitulo,
+}: InformacoesEventoProps) {
+  
+  const max = Math.max(1, capacidadeMaxima || 1);
+  const atual = Math.max(0, participantesAtuais || 0);
+  const percentual = Math.min(100, Math.round((atual / max) * 100));
 
-            <HorarioData>
-                <span><CalendarTodayIcon className="icone"/>{data}</span>
-                <span><AccessTimeIcon className="icone"/>{horario}</span>
-            </HorarioData>
+  return (
+    <InformacoesEventoComponent>
+      <Titulo hoverTitulo={hoverTitulo}>{titulo}</Titulo>
 
-            <span><LocationOnIcon className="icone"/>{localizacao}</span>
-            <span><PersonIcon className="icone"/>{capacidade}</span>
+      <HorarioData>
+        <span><CalendarTodayIcon className="icone" />{data}</span>
+        <span><AccessTimeIcon className="icone" />{horario}</span>
+      </HorarioData>
 
-            <BarraDeProgresso valor={12}/>
+      <span><LocationOnIcon className="icone" />{localizacao}</span>
 
-            <EntrarBt/>
-            
-        </InformacoesEventoComponent>
-    )
+     
+      <span><PersonIcon className="icone" />{`${atual} / ${capacidadeMaxima} participantes`}</span>
+
+      
+      <BarraDeProgresso valor={percentual} />
+
+      <EntrarBt />
+    </InformacoesEventoComponent>
+  );
 }

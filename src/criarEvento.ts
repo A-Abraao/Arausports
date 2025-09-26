@@ -1,8 +1,8 @@
-import { doc, collection, addDoc } from "firebase/firestore";
+import { doc, collection, addDoc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
 export const addEventForUser = async (
-  uid: string, 
+  uid: string,
   eventData: {
     titulo: string;
     categoria: string;
@@ -13,18 +13,23 @@ export const addEventForUser = async (
   }
 ) => {
   
-  const userDocRef = doc(db, "users", uid);
-  
-  const eventosColRef = collection(userDocRef, "eventos");
-  
-  const docRef = await addDoc(eventosColRef, {
-    titulo: eventData.titulo,
-    categoria: eventData.categoria,
-    data: eventData.data,
-    horario: eventData.horario,
-    local: eventData.local,
-    capacidade: eventData.capacidade,
-    createdAt: new Date().toISOString()
+  const userEventsRef = collection(db, "users", uid, "eventos");
+  const userDocRef = await addDoc(userEventsRef, {
+    ...eventData,
+    createdAt: new Date().toISOString(),
+    ownerUid: uid,
   });
-  return docRef.id; 
+
+  const eventId = userDocRef.id;
+
+  const publicEventRef = doc(db, "eventos", eventId);
+  await setDoc(publicEventRef, {
+    id: eventId,
+    ...eventData,
+    createdAt: new Date().toISOString(),
+    ownerUid: uid,
+    userEventPath: `users/${uid}/eventos/${eventId}`, 
+  });
+
+  return eventId;
 };
