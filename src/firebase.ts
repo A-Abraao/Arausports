@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc, increment } from "firebase/firestore";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { 
   getAuth, 
@@ -80,8 +80,6 @@ export const updateUserProfile = async (
     dataToUpdateInFirestore.displayName = data.username;
   }
 
-  
- 
   if (snap.exists()) {
     await updateDoc(userRef, dataToUpdateInFirestore);
   } else {
@@ -144,4 +142,12 @@ export const resendVerification = async (user: User) => {
   if (user && !user.emailVerified) {
     await sendEmailVerification(user);
   }
+};
+
+export const entrarNoEvento = async (eventoId: string, userId: string) => {
+  const eventoRef = doc(db, "users", userId, "eventos", eventoId);
+  
+  await updateDoc(eventoRef, {
+    participantesAtuais: increment(1),
+  });
 };

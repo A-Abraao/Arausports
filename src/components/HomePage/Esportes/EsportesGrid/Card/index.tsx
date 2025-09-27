@@ -9,7 +9,7 @@ const CardComponent = styled.div`
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  width: 30%;
+  width: 31%;
   overflow: visible;
   position: relative;
 
@@ -73,6 +73,7 @@ type CardProps = {
   capacidadeMaxima: number;
   participantesAtuais: number;
   categoria?: string;
+  eventoId: string
 };
 
 export function Card({
@@ -83,6 +84,7 @@ export function Card({
   localizacao,
   capacidadeMaxima,
   participantesAtuais,
+  eventoId,
   categoria = "Evento",
 }: CardProps) {
   const y = useMotionValue(0);
@@ -129,6 +131,7 @@ export function Card({
           localizacao={localizacao}
           capacidadeMaxima={capacidadeMaxima}
           participantesAtuais={participantesAtuais}
+          eventoId={eventoId}
         />
       </MotionCard>
     </CardComponent>

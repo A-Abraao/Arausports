@@ -42,7 +42,7 @@ const Titulo = styled.h2<TituloProps>`
 const HorarioData = styled.div`
   display: flex;
   align-items: center;
-  gap: 1.75em;
+  gap: 2.5em;
   width: 100%;
 `;
 
@@ -54,6 +54,7 @@ type InformacoesEventoProps = {
   capacidadeMaxima: number;
   participantesAtuais: number;
   hoverTitulo: boolean;
+  eventoId: string
 };
 
 export function InformacoesEvento({
@@ -62,6 +63,7 @@ export function InformacoesEvento({
   horario,
   localizacao,
   capacidadeMaxima,
+  eventoId,
   participantesAtuais,
   hoverTitulo,
 }: InformacoesEventoProps) {
@@ -70,12 +72,25 @@ export function InformacoesEvento({
   const atual = Math.max(0, participantesAtuais || 0);
   const percentual = Math.min(100, Math.round((atual / max) * 100));
 
+  function formatarData(dataSemFormato: string) {
+    const dataPura = new Date(dataSemFormato)
+
+    const diaMes = new Intl.DateTimeFormat("pt-BR", {
+      day: "numeric",
+      month: "long"
+    }).format(dataPura);
+
+    const ano = dataPura.getFullYear();
+
+    return `${diaMes}, ${ano}`;
+  }
+
   return (
     <InformacoesEventoComponent>
       <Titulo hoverTitulo={hoverTitulo}>{titulo}</Titulo>
 
       <HorarioData>
-        <span><CalendarTodayIcon className="icone" />{data}</span>
+        <span><CalendarTodayIcon className="icone" />{formatarData(data)}</span>
         <span><AccessTimeIcon className="icone" />{horario}</span>
       </HorarioData>
 
@@ -87,7 +102,7 @@ export function InformacoesEvento({
       
       <BarraDeProgresso valor={percentual} />
 
-      <EntrarBt />
+      <EntrarBt eventoId={eventoId} />
     </InformacoesEventoComponent>
   );
 }
