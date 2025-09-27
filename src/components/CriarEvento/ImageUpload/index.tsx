@@ -1,23 +1,8 @@
 import { useRef, useState } from "react";
 import styled from "styled-components";
-import { Typography, IconButton } from "@mui/material";
+import { IconButton } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {
-  getStorage,
-  ref as storageRef,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
-import { v4 as uuidv4 } from "uuid";
-
-type Props = {
-  existingImageUrl?: string;
-  folder?: string;
-  maxFileSizeMB?: number;
-  accept?: string;
-  onUpload?: (url: string, path: string) => void;
-};
 
 const Container = styled.div`
   position: relative;
@@ -88,58 +73,31 @@ const RemoveButton = styled(IconButton)`
   }
 `;
 
-export default function ImageUpload({
-  existingImageUrl,
-  folder = "event-images",
-  maxFileSizeMB = 5,
-  accept = "image/*",
-  onUpload,
-}: Props) {
+type Props = {
+  existingImageUrl?: string;
+  accept?: string;
+  onUpload?: (file: File | null) => void; 
+};
+
+export default function ImageUpload({ existingImageUrl, accept = "image/*", onUpload }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string | undefined>(existingImageUrl);
+  const [file, setFile] = useState<File | null>(null);
 
   const pickFile = () => inputRef.current?.click();
 
   const handleFile = (file?: File) => {
     if (!file) return;
 
-    const maxBytes = maxFileSizeMB * 1024 * 1024;
-    if (file.size > maxBytes) {
-      alert(`Arquivo muito grande. Máx ${maxFileSizeMB} MB.`);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => setPreview(String(e.target?.result || ""));
-    reader.readAsDataURL(file);
-
-    const storage = getStorage();
-    const filename = `${Date.now()}-${uuidv4()}-${file.name.replace(
-      /\s+/g,
-      "_"
-    )}`;
-    const path = `${folder}/${filename}`;
-    const ref = storageRef(storage, path);
-
-    const task = uploadBytesResumable(ref, file);
-    task.on(
-      "state_changed",
-      undefined,
-      (err) => {
-        console.error("upload error", err);
-        alert("Erro ao enviar. Tente novamente.");
-      },
-      () => {
-        getDownloadURL(task.snapshot.ref).then((downloadURL) => {
-          onUpload?.(downloadURL, path);
-        });
-      }
-    );
+    setPreview(URL.createObjectURL(file));
+    setFile(file);
+    onUpload?.(file); 
   };
 
   const removeImage = () => {
     setPreview(undefined);
-    onUpload?.("", "");
+    setFile(null);
+    onUpload?.(null); 
   };
 
   return (
@@ -167,15 +125,6 @@ export default function ImageUpload({
           <UploadOverlay>
             <UploadRow>
               <CloudUploadIcon sx={{ fontSize: "2rem", color: "black" }} />
-              <Typography
-                sx={{
-                  color: "black",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                }}
-              >
-                
-              </Typography>
             </UploadRow>
           </UploadOverlay>
         )}

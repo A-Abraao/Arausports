@@ -1,35 +1,32 @@
-import { doc, collection, addDoc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
+import { collection, doc, setDoc } from "firebase/firestore";
 
-export const addEventForUser = async (
-  uid: string,
-  eventData: {
-    titulo: string;
-    categoria: string;
-    data: string;
-    horario: string;
-    local: string;
-    capacidade: number;
-  }
-) => {
-  
-  const userEventsRef = collection(db, "users", uid, "eventos");
-  const userDocRef = await addDoc(userEventsRef, {
-    ...eventData,
-    createdAt: new Date().toISOString(),
+type Evento = {
+  titulo: string;
+  categoria: string;
+  data: string;
+  horario: string;
+  local: string;
+  capacidade: number;
+  imageUrl?: string;
+  imagePath?: string;
+};
+
+export const addEventForUser = async (uid: string, evento: Evento) => {
+  // cria documento com id automático na sub-collection users/{uid}/eventos
+  const eventosColRef = collection(db, "users", uid, "eventos");
+  const newEventRef = doc(eventosColRef); // doc() sem id gera id automático
+  const id = newEventRef.id;
+
+  const payload = {
+    ...evento,
+    id,
     ownerUid: uid,
-  });
-
-  const eventId = userDocRef.id;
-
-  const publicEventRef = doc(db, "eventos", eventId);
-  await setDoc(publicEventRef, {
-    id: eventId,
-    ...eventData,
     createdAt: new Date().toISOString(),
-    ownerUid: uid,
-    userEventPath: `users/${uid}/eventos/${eventId}`, 
-  });
+    userEventPath: `users/${uid}/eventos/${id}`,
+  };
 
-  return eventId;
+  await setDoc(newEventRef, payload);
+
+  return id;
 };

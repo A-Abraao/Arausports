@@ -1,47 +1,51 @@
 import styled from "styled-components";
 import { HeaderComponent } from "../Perfil/Header";
-import VoltarSetinha from '../../assets/img/retornar-setinha.svg?react'
-import { IconButton } from "@mui/material";
+import VoltarSetinha from '../../assets/img/retornar-setinha.svg?react';
+import { IconButton, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+
 import { Titulo } from "./Titulo";
 import { DetalhesEvento } from "./DetalhesEvento";
 import { PreviaEvento } from "./PreviaEvento";
-import { Button } from "@mui/material";
-import { useState } from "react";
+import type { EventoData } from "./DetalhesEvento";
 import { useAuth } from "../../contexts/AuthContext";
 import { addEventForUser } from "../../criarEvento";
 
 const CriarEventoComponent = styled.div`
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    padding-bottom: 0.75em;
-`
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0.75em;
+`;
 
-const Header = styled(HeaderComponent)`
-
-`
+const Header = styled(HeaderComponent)``;
 
 const InformacoesEvento = styled.div`
-    display: flex;
-    align-items: center;
-    padding: 2em;
-    width: 100%;
-  
-`
+  display: flex;
+  align-items: flex-start;
+  padding: 2em;
+  width: 100%;
+  gap: 2em;
 
+  @media (max-width: 900px) {
+    flex-direction: column;
+  }
+`;
 
 export function CriarEvento() {
   const navigate = useNavigate();
   const { firebaseUser } = useAuth();
 
-  const [evento, setEvento] = useState({
+  const [evento, setEvento] = useState<EventoData>({
     titulo: "",
     categoria: "",
     data: "",
     horario: "",
     local: "",
     capacidade: 0,
+    imageUrl: "",   // ficam aqui por compatibilidade, mas não serão enviados
+    imagePath: "",
   });
 
   const handleSubmit = async () => {
@@ -51,11 +55,18 @@ export function CriarEvento() {
     }
 
     try {
-      const eventId = await addEventForUser(firebaseUser.uid, evento);
+      // cria payload sem campos de imagem
+      const payload: Partial<EventoData> = { ...evento };
+      // remove chaves de imagem se existirem
+      delete (payload as any).imageUrl;
+      delete (payload as any).imagePath;
+
+      const eventId = await addEventForUser(firebaseUser.uid, payload as EventoData);
       console.log("Evento criado com ID:", eventId);
       navigate("/perfil");
     } catch (err) {
       console.error("Erro ao salvar evento:", err);
+      alert("Erro ao criar evento. Veja o console.");
     }
   };
 
@@ -70,9 +81,11 @@ export function CriarEvento() {
 
       <CriarEventoComponent>
         <Titulo />
+
         <InformacoesEvento>
           <DetalhesEvento value={evento} onChange={setEvento} />
-          <PreviaEvento/>
+          {/* Não passamos prop de seleção/upload — PreviaEvento seguirá apenas mostrando preview local se implementado */}
+          <PreviaEvento />
         </InformacoesEvento>
 
         <Button

@@ -7,7 +7,6 @@ import { useEffect } from "react";
 import { TextField, InputAdornment } from "@mui/material";
 import { CapacidadeEvento } from "./CapacidadeEvento";
 import { useState } from "react";
-import ImageUpload from "../ImageUpload";
 
 export const DetalhesEventoContainer = styled.div`
   width: 45%;
@@ -164,13 +163,15 @@ const TituloWrapper = styled.div`
   }
 `;
 
-type EventoData = {
+export type EventoData = {
   titulo: string;
   categoria: string;
   data: string;
   horario: string;
   local: string;
   capacidade: number;
+  imageUrl?: string;   
+  imagePath?: string;  
 };
 
 type Props = {
@@ -182,9 +183,13 @@ export function DetalhesEvento({ value, onChange }: Props) {
   const [form, setForm] = useState<EventoData>(value);
 
   useEffect(() => {
+    setForm(value);
+  }, [value]);
+
+  useEffect(() => {
     onChange(form);
   }, [form]);
-
+  
   return (
     <DetalhesEventoContainer>
       <span className="header">
