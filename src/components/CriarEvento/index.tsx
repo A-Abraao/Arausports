@@ -25,8 +25,9 @@ const Header = styled(HeaderComponent)`
 const InformacoesEvento = styled.div`
     display: flex;
     align-items: center;
+    padding: 2em;
     width: 100%;
-    gap: 1em;
+  
 `
 
 

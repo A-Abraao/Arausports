@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { TextField, InputAdornment } from "@mui/material";
 import { CapacidadeEvento } from "./CapacidadeEvento";
 import { useState } from "react";
+import ImageUpload from "../ImageUpload";
 
 export const DetalhesEventoContainer = styled.div`
   width: 45%;
@@ -65,8 +66,8 @@ export const DetalhesEventoContainer = styled.div`
 
   h2 {
     margin: 0;
-    font-size: 1.05rem;
-    font-weight: 600;
+    font-size: 1.35rem;
+    font-weight: 500;
   }
 `;
 
@@ -79,7 +80,6 @@ const FlexDiv = styled.div<{ direction?: string; gap?: string; alignItems?: stri
   width: 100%;
 `;
 
-
 const TituloInput = styled.input`
   font-family: var(--font-principal);
   background: rgba(245, 245, 220, 0.5);
@@ -88,7 +88,7 @@ const TituloInput = styled.input`
   border: none;
   padding: 0.75em 1em;
   width: 100%;
-  min-width: 0; /* importante em flex containers */
+  min-width: 0; 
   font-size: 0.95rem;
 
   &::placeholder {

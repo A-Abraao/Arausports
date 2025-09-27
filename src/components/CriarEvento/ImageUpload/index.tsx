@@ -1,11 +1,15 @@
 import { useRef, useState } from "react";
 import styled from "styled-components";
-import { Button, IconButton, LinearProgress, Typography } from "@mui/material";
+import { Typography, IconButton } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
-
 
 type Props = {
   existingImageUrl?: string;
@@ -15,26 +19,72 @@ type Props = {
   onUpload?: (url: string, path: string) => void;
 };
 
-const Wrapper = styled.div`
-  display: flex;
-  gap: 1rem;
-  align-items: center;
+const Container = styled.div`
+  position: relative;
   width: 100%;
-`;
-
-const Preview = styled.div`
-  width: 96px;
-  height: 96px;
+  height: 18em;
   border-radius: 0.5rem;
-  background: #f3f3f3;
+  overflow: hidden;
+  cursor: pointer;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+
+  background: rgba(128, 128, 128, 0.4);
+  backdrop-filter: blur(8px);
+
+  transition: 0.3s;
+  &:hover {
+    background: rgba(128, 128, 128, 0.6);
+  }
+`;
+
+const PreviewWrapper = styled.div`
+  position: absolute;
+  inset: 0;
+  background: rgba(128, 128, 128, 0.4);
+  backdrop-filter: blur(8px);
+`;
+
+const Preview = styled.img`
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  position: relative;
+  z-index: 1;
+`;
+
+
+const UploadOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  pointer-events: none;
+  text-align: center;
+`;
+
+const UploadRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const RemoveButton = styled(IconButton)`
+  position: absolute !important;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(0, 0, 0, 0.5) !important;
+  color: white !important;
+  z-index: 2;
+  &:hover {
+    background: rgba(0, 0, 0, 0.8) !important;
   }
 `;
 
@@ -47,116 +97,89 @@ export default function ImageUpload({
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string | undefined>(existingImageUrl);
-  const [progress, setProgress] = useState<number | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const pickFile = () => inputRef.current?.click();
 
   const handleFile = (file?: File) => {
-    setError(null);
     if (!file) return;
 
-    
     const maxBytes = maxFileSizeMB * 1024 * 1024;
     if (file.size > maxBytes) {
-      setError(`Arquivo muito grande. Máx ${maxFileSizeMB} MB.`);
+      alert(`Arquivo muito grande. Máx ${maxFileSizeMB} MB.`);
       return;
     }
 
-    
     const reader = new FileReader();
     reader.onload = (e) => setPreview(String(e.target?.result || ""));
     reader.readAsDataURL(file);
 
-    
     const storage = getStorage();
-    const filename = `${Date.now()}-${uuidv4()}-${file.name.replace(/\s+/g, "_")}`;
+    const filename = `${Date.now()}-${uuidv4()}-${file.name.replace(
+      /\s+/g,
+      "_"
+    )}`;
     const path = `${folder}/${filename}`;
     const ref = storageRef(storage, path);
-
-    setUploading(true);
-    setProgress(0);
 
     const task = uploadBytesResumable(ref, file);
     task.on(
       "state_changed",
-      (snapshot) => {
-        const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-        setProgress(pct);
-      },
+      undefined,
       (err) => {
         console.error("upload error", err);
-        setError("Erro ao enviar. Tente novamente.");
-        setUploading(false);
-        setProgress(null);
+        alert("Erro ao enviar. Tente novamente.");
       },
       () => {
-        // finished
         getDownloadURL(task.snapshot.ref).then((downloadURL) => {
-          setUploading(false);
-          setProgress(null);
           onUpload?.(downloadURL, path);
         });
       }
     );
   };
 
+  const removeImage = () => {
+    setPreview(undefined);
+    onUpload?.("", "");
+  };
+
   return (
-    <div>
-      <Wrapper>
-        <Preview>
-          {preview ? (
-            <img src={preview} alt="preview" />
-          ) : (
-            <Typography variant="caption">Sem imagem</Typography>
-          )}
-        </Preview>
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={accept}
+        style={{ display: "none" }}
+        onChange={(e) => handleFile(e.target.files?.[0])}
+      />
 
-        <div style={{ flex: 1 }}>
-          <input
-            ref={inputRef}
-            type="file"
-            accept={accept}
-            style={{ display: "none" }}
-            onChange={(e) => handleFile(e.target.files?.[0])}
-          />
-
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <Button
-              variant="contained"
-              startIcon={<CloudUploadIcon />}
-              onClick={pickFile}
-              disabled={uploading}
-            >
-              {uploading ? "Enviando..." : "Enviar imagem"}
-            </Button>
-
-            <IconButton
-              onClick={() => {
-                setPreview(undefined);
-                onUpload?.("", ""); 
-              }}
-              size="large"
-            >
+      <Container onClick={!preview ? pickFile : undefined}>
+        {preview && (
+          <>
+            <PreviewWrapper />
+            <Preview src={preview} alt="preview" />
+            <RemoveButton onClick={removeImage}>
               <DeleteIcon />
-            </IconButton>
-          </div>
+            </RemoveButton>
+          </>
+        )}
 
-          {progress !== null && (
-            <div style={{ marginTop: 8 }}>
-              <LinearProgress variant="determinate" value={progress} />
-              <Typography variant="caption">{progress}%</Typography>
-            </div>
-          )}
-
-          {error && (
-            <Typography variant="caption" color="error" style={{ display: "block", marginTop: 6 }}>
-              {error}
-            </Typography>
-          )}
-        </div>
-      </Wrapper>
-    </div>
+        {!preview && (
+          <UploadOverlay>
+            <UploadRow>
+              <CloudUploadIcon sx={{ fontSize: "2rem", color: "black" }} />
+              <Typography
+                sx={{
+                  color: "black",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                }}
+              >
+                
+              </Typography>
+            </UploadRow>
+          </UploadOverlay>
+        )}
+      </Container>
+    </>
   );
 }
