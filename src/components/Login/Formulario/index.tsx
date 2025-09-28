@@ -17,6 +17,13 @@ const FormularioComponent = styled.form`
   flex-direction: column;
   gap: 1.1em;
   padding: 1em 1em 0.25em 1em;
+
+  .botoes {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap:0.75em;
+  }
 `;
 
 function Formulario() {
@@ -118,20 +125,35 @@ function Formulario() {
       <EmailInput value={valorEmail} onChange={setValorEmail} />
       <InputSenha value={valorSenha} onChange={setValorSenha} />
 
-      <Button
-        type="submit"
-        disabled={loading}
-        sx={{
-          background: "dodgerblue",
-          color: "white",
-          height: "2.15em",
-          width: "100%",
-          textTransform: "none",
-        }}
-      >
+      <div className="botoes">
+        <Button
+          type="submit"
+          disabled={loading}
+          sx={{
+            background: "dodgerblue",
+            color: "white",
+            height: "2.15em",
+            width: "100%",
+            textTransform: "none",
+          }}
+        >
         {loading ? "Entrando..." : "Login"}
-      </Button>
+        </Button>
 
+        <Button
+          variant="outlined"
+          onClick={() => navigate("/criar-conta")}
+          sx={{
+            width: "100%",
+            height: "2.15em",
+            textTransform: "none",
+            borderColor: "var(--secondary)",
+          }}
+        >
+          Criar Conta
+        </Button>
+      </div>
+    
       <Autenticar />
     </FormularioComponent>
   );
