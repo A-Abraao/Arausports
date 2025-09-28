@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAlert } from "../Login/Alerta/AlertProvider";
 import Header from "./Header";
@@ -19,6 +19,9 @@ export default function HomePage() {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
 
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     const state = location.state as any;
@@ -33,11 +36,19 @@ export default function HomePage() {
     }
   }, [location.state, navigate, showAlert]);
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query.trim());
+  };
+
   return (
     <HomePageComponent>
-      <Header/>
-      <Banner/>
-      <Esportes/>
+      <Header />
+      <Banner
+        value={searchTerm}
+        onChange={setSearchTerm}
+        onSearch={() => handleSearch(searchTerm)}
+      />
+      <Esportes searchQuery={searchQuery} />
     </HomePageComponent>
   );
 }
