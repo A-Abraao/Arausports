@@ -29,7 +29,7 @@ export function HistoricoUsuario() {
   const [eventos, setEventos] = useState<EventoResumo[]>([]);
   const [uid, setUid] = useState<string | null>(null);
   const [opcaoSelecionada, setOpcaoSelecionada] = useState<
-    "meusEventos" | "eventosSalvos" | "proximosEventos"
+    "meusEventos" | "eventosSalvos"
   >("meusEventos");
   const [loading, setLoading] = useState(false);
 
@@ -133,7 +133,7 @@ export function HistoricoUsuario() {
         onSelect={(op) => setOpcaoSelecionada(op)}
       />
 
-      {loading && <p>Carregando...</p>}
+      {loading && <p>Peraí, peraí...</p>}
 
       {!loading && eventos.length === 0 && (
         <p style={{ textAlign: "center", color: "rgba(0,0,0,0.6)", marginTop: "1em" }}>

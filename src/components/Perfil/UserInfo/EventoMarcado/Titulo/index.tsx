@@ -1,12 +1,12 @@
 import styled from "styled-components";
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 
 const DivTitulo = styled.div`
     width: 100%;
 `
 
 const TituloComponent = styled.h1`
-    font-size: 1.75em;
+    font-size: 1.45em;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -16,7 +16,7 @@ const TituloComponent = styled.h1`
 export function Titulo() {
     return (
         <DivTitulo>
-            <TituloComponent><AccessTimeIcon/>Próximo evento</TituloComponent>
+            <TituloComponent><TipsAndUpdatesIcon/>Dica importante</TituloComponent>
         </DivTitulo>
     )
 }

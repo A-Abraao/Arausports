@@ -8,16 +8,17 @@ type Evento = {
   horario: string;
   local: string;
   capacidade: number;
-  imageUrl?: string;
-  imagePath?: string;
+  imageUrl?: string;  
 };
 
 export const addEventForUser = async (uid: string, evento: Evento) => {
   const eventosColRef = collection(db, "users", uid, "eventos");
   const newEventRef = doc(eventosColRef);
   const id = newEventRef.id;
+
   const capacidadeValida = Math.max(1, Number(evento.capacidade ?? 1));
-  const payload = {
+
+  const payload: any = {
     ...evento,
     id,
     ownerUid: uid,

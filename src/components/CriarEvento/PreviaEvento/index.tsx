@@ -39,9 +39,10 @@ const Titulo = styled.h2`
 
 type Props = {
   onImageSelect?: (file: File | null) => void;
-}
+  existingImageUrl?: string;
+};
 
-export function PreviaEvento({ onImageSelect }: Props) {
+export function PreviaEvento({ onImageSelect, existingImageUrl }: Props) {
   return (
     <PreviaEventoContainer>
       <div className="secao-titulo">
@@ -49,7 +50,7 @@ export function PreviaEvento({ onImageSelect }: Props) {
         <span className="subtitulo">Deixe a turma ver como vai ser seu evento</span>
       </div>
 
-      <ImageUpload onUpload={onImageSelect} /> 
+      <ImageUpload existingImageUrl={existingImageUrl} onUpload={onImageSelect} />
       <PreviaPreviaInformacoes/>
     </PreviaEventoContainer>
   )

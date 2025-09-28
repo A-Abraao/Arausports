@@ -28,8 +28,8 @@ const Opcao = styled.button<{ selecionado?: boolean }>`
 `;
 
 type Props = {
-  selecionado: "meusEventos" | "eventosSalvos" | "proximosEventos";
-  onSelect: (opcao: "meusEventos" | "eventosSalvos" | "proximosEventos") => void;
+  selecionado: "meusEventos" | "eventosSalvos"
+  onSelect: (opcao: "meusEventos" | "eventosSalvos" ) => void;
 };
 
 export function FiltroHistorico({ selecionado, onSelect }: Props) {
@@ -49,12 +49,6 @@ export function FiltroHistorico({ selecionado, onSelect }: Props) {
         Eventos salvos
       </Opcao>
 
-      <Opcao
-        onClick={() => onSelect("proximosEventos")}
-        selecionado={selecionado === "proximosEventos"}
-      >
-        Próximos eventos
-      </Opcao>
     </FiltroHistoricoComponent>
   );
 }

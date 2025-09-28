@@ -47,6 +47,8 @@ export function CriarEvento() {
     imagePath: "",
   });
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
   const handleSubmit = async () => {
     if (!firebaseUser) {
       alert("Você precisa estar logado para criar um evento.");
@@ -55,14 +57,13 @@ export function CriarEvento() {
 
     try {
       const payload: Partial<EventoData> = { ...evento };
-      delete (payload as any).imageUrl;
-      delete (payload as any).imagePath;
 
       const eventId = await addEventForUser(firebaseUser.uid, payload as EventoData);
       console.log("Evento criado com id:", eventId);
       navigate("/perfil");
     } catch (err) {
       console.error("Erro ao salvar evento:", err);
+      alert("Erro ao criar evento. Veja o console.");
     }
   };
 
@@ -80,7 +81,14 @@ export function CriarEvento() {
 
         <InformacoesEvento>
           <DetalhesEvento value={evento} onChange={setEvento} />
-          <PreviaEvento />
+          <PreviaEvento onImageSelect={(file: File | null) => {
+            setImageFile(file);
+            if (file) {
+              setEvento(prev => ({ ...prev, imageUrl: URL.createObjectURL(file) }));
+            } else {
+              setEvento(prev => ({ ...prev, imageUrl: "" }));
+            }
+          }} existingImageUrl={evento.imageUrl} />
         </InformacoesEvento>
 
         <Button
