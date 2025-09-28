@@ -153,26 +153,61 @@ export const entrarNoEvento = async (
   const participanteRef = doc(db, "users", ownerId, "eventos", eventoId, "participantes", participantId);
 
   await runTransaction(db, async (tx) => {
+    const eventoSnap = await tx.get(eventoRef);
+    if (!eventoSnap.exists()) {
+      throw new Error("Evento não existe.");
+    }
+
+    const eventoData = eventoSnap.data() as any;
+    const capacidade = Number(eventoData.capacidade ?? 0);
+    const participantesAtuais = Number(eventoData.participantesAtuais ?? 0);
+
+    if (capacidade <= 0) {
+      throw new Error("Capacidade do evento inválida.");
+    }
+
+    if (participantesAtuais >= capacidade) {
+      throw new Error("Evento lotado.");
+    }
+
     const participanteSnap = await tx.get(participanteRef);
     if (participanteSnap.exists()) {
       throw new Error("Você já está inscrito nesse evento.");
     }
 
-    const eventoSnap = await tx.get(eventoRef);
-    if (!eventoSnap.exists()) {
-      tx.set(eventoRef, {
-        participantesAtuais: 1,
-        createdAt: new Date().toISOString(),
-      });
-    } else {
-      tx.update(eventoRef, {
-        participantesAtuais: increment(1),
-      });
-    }
-
+    tx.update(eventoRef, { participantesAtuais: increment(1) });
     tx.set(participanteRef, {
       userId: participantId,
       joinedAt: new Date().toISOString(),
     });
+  });
+};
+
+export const sairDoEvento = async (
+  eventoId: string,
+  ownerId: string,
+  participantId: string
+) => {
+  const eventoRef = doc(db, "users", ownerId, "eventos", eventoId);
+  const participanteRef = doc(db, "users", ownerId, "eventos", eventoId, "participantes", participantId);
+
+  await runTransaction(db, async (tx) => {
+    const participanteSnap = await tx.get(participanteRef);
+    if (!participanteSnap.exists()) {
+      throw new Error("Você não está inscrito nesse evento.");
+    }
+
+    const eventoSnap = await tx.get(eventoRef);
+    if (!eventoSnap.exists()) {
+      throw new Error("Evento não existe.");
+    }
+
+    const eventoData = eventoSnap.data() as any;
+    const participantesAtuais = Number(eventoData.participantesAtuais ?? 0);
+
+    const novoValor = Math.max(0, participantesAtuais - 1);
+
+    tx.update(eventoRef, { participantesAtuais: novoValor });
+    tx.delete(participanteRef);
   });
 };

@@ -16,11 +16,12 @@ export const addEventForUser = async (uid: string, evento: Evento) => {
   const eventosColRef = collection(db, "users", uid, "eventos");
   const newEventRef = doc(eventosColRef);
   const id = newEventRef.id;
-
+  const capacidadeValida = Math.max(1, Number(evento.capacidade ?? 1));
   const payload = {
     ...evento,
     id,
     ownerUid: uid,
+    capacidade: capacidadeValida,
     participantesAtuais: 1,
     createdAt: new Date().toISOString(),
     userEventPath: `users/${uid}/eventos/${id}`,

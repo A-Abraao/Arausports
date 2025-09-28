@@ -59,11 +59,10 @@ export function CriarEvento() {
       delete (payload as any).imagePath;
 
       const eventId = await addEventForUser(firebaseUser.uid, payload as EventoData);
-      console.log("Evento criado com ID:", eventId);
+      console.log("Evento criado com id:", eventId);
       navigate("/perfil");
     } catch (err) {
       console.error("Erro ao salvar evento:", err);
-      alert("Erro ao criar evento. Veja o console.");
     }
   };
 
