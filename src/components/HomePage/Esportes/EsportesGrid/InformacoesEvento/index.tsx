@@ -74,17 +74,25 @@ export function InformacoesEvento({
   const atual = Math.max(0, participantesAtuais || 0);
   const percentual = Math.min(100, Math.round((atual / max) * 100));
 
-  function formatarData(dataSemFormato: string) {
-    const dataPura = new Date(dataSemFormato)
+  function formatarData(data: any) {
+    if (!data) return "Data inválida";
+
+    let dataObj: Date;
+
+    if (data.toDate) {
+      dataObj = data.toDate();
+    } else {
+      dataObj = new Date(data);
+    }
+
+    if (isNaN(dataObj.getTime())) return "Data inválida";
 
     const diaMes = new Intl.DateTimeFormat("pt-BR", {
       day: "numeric",
       month: "long"
-    }).format(dataPura);
+    }).format(dataObj);
 
-    const ano = dataPura.getFullYear();
-
-    return `${diaMes}, ${ano}`;
+    return `${diaMes}, ${dataObj.getFullYear()}`;
   }
 
   return (

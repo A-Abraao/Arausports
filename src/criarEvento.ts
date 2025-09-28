@@ -1,5 +1,6 @@
 import { db } from "./firebase";
 import { collection, doc, runTransaction } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 
 type Evento = {
   titulo: string;
@@ -24,7 +25,8 @@ export const addEventForUser = async (uid: string, evento: Evento) => {
     ownerUid: uid,
     capacidade: capacidadeValida,
     participantesAtuais: 1,
-    createdAt: new Date().toISOString(),
+    createdAt: Timestamp.now(), 
+    data: Timestamp.fromDate(new Date(evento.data)), 
     userEventPath: `users/${uid}/eventos/${id}`,
   };
 

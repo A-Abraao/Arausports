@@ -126,11 +126,9 @@ export function Card({
   const imageScale = useTransform(y, [-8, 0], [1.08, 1]);
   const [hoverAtivado, setHoverAtivado] = useState(false);
 
-  // estado do bookmark
   const [ativo, setAtivo] = useState(false);
   const [loadingSalvar, setLoadingSalvar] = useState(false);
 
-  // usuário atual via onAuth (evita dependência direta do useAuth)
   const [currentUserUid, setCurrentUserUid] = useState<string | null>(null);
 
   useEffect(() => {
@@ -140,7 +138,6 @@ export function Card({
     return () => unsubAuth();
   }, []);
 
-  // checar se o evento já está salvo quando abrir/mudar user ou eventoId
   useEffect(() => {
     let mounted = true;
     const checkSaved = async () => {
@@ -163,8 +160,6 @@ export function Card({
 
   const handleSaveToggle = async () => {
     if (!currentUserUid) {
-      // seu fluxo de alerta: peça para logar (você já tem um provider de alerts no projeto)
-      // Aqui eu uso console.warn — adapte para showAlert se quiser.
       console.warn("Faça login para salvar eventos");
       return;
     }
@@ -172,7 +167,6 @@ export function Card({
     setLoadingSalvar(true);
     try {
       if (!ativo) {
-        // salvar
         await saveEventForUser(currentUserUid, {
           id: eventoId,
           ownerId: ownerId ?? "",
@@ -184,7 +178,6 @@ export function Card({
         });
         setAtivo(true);
       } else {
-        // remover salvo
         await removeSavedEventForUser(currentUserUid, eventoId);
         setAtivo(false);
       }
