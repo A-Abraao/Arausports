@@ -3,6 +3,7 @@ import { SecaoSuperior } from "./SecaoSuperior";
 import { EsportesGrid } from "./EsportesGrid";
 import { useState, useEffect } from "react";
 import { collectionGroup, onSnapshot, query, orderBy } from "firebase/firestore";
+import { differenceInWeeks, differenceInMonths } from "date-fns"; 
 import { db } from "../../../firebase";
 
 export const EsportesSectionComponent = styled.section`
@@ -34,28 +35,21 @@ export function Esportes() {
     const eventosRef = collectionGroup(db, "eventos");
     const q = query(eventosRef, orderBy("createdAt", "desc"));
 
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const arr: Evento[] = snapshot.docs.map((d) => {
-          const ownerId = d.ref.parent.parent?.id ?? undefined;
-          return {
-            id: d.id,
-            ownerId,
-            ...(d.data() as Omit<Evento, "id" | "ownerId">),
-          };
-        });
-
-
-        setEventos(arr);
-      },
-      (err) => {
-        console.error("Merrrda, não peguei o evento lá", err);
-      }
-    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const arr: Evento[] = snapshot.docs.map((d) => {
+        const ownerId = d.ref.parent.parent?.id ?? undefined;
+        return {
+          id: d.id,
+          ownerId,
+          ...(d.data() as Omit<Evento, "id" | "ownerId">),
+        };
+      });
+      setEventos(arr);
+    });
 
     return () => unsubscribe();
   }, []);
+
 
   return (
     <EsportesSectionComponent>

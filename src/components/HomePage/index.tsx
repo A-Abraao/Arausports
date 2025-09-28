@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAlert } from "../Login/Alerta/AlertProvider";
 import Header from "./Header";
 import { Banner } from "./MainBanner";
-import { Filtros } from "./Filtros";
 import { Esportes } from "./Esportes";
 
 const HomePageComponent = styled.div`
@@ -20,8 +19,8 @@ export default function HomePage() {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
 
-  useEffect(() => {
 
+  useEffect(() => {
     const state = location.state as any;
     if (state?.fromLogin) {
       showAlert("Bem-vindo! Login efetuado com sucesso.", {
@@ -38,7 +37,6 @@ export default function HomePage() {
     <HomePageComponent>
       <Header/>
       <Banner/>
-      <Filtros/>
       <Esportes/>
     </HomePageComponent>
   );
