@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { doc, setDoc, getDoc, updateDoc, increment } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc, increment, runTransaction } from "firebase/firestore";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { 
   getAuth, 
@@ -144,10 +144,41 @@ export const resendVerification = async (user: User) => {
   }
 };
 
-export const entrarNoEvento = async (eventoId: string, userId: string) => {
-  const eventoRef = doc(db, "users", userId, "eventos", eventoId);
-  
-  await updateDoc(eventoRef, {
-    participantesAtuais: increment(1),
+export const entrarNoEvento = async (
+  eventoId: string,
+  ownerId: string,
+  participantUserId?: string
+) => {
+  const eventoRef = doc(db, "users", ownerId, "eventos", eventoId);
+
+  if (!participantUserId) {
+    // se não quiser registrar participante, só incrementa (cria/merge)
+    await setDoc(
+      eventoRef,
+      { participantesAtuais: increment(1) },
+      { merge: true }
+    );
+    return;
+  }
+
+
+  await runTransaction(db, async (tx) => {
+    const partRef = doc(db, "users", participantUserId, "participacoes", eventoId);
+    const partSnap = await tx.get(partRef);
+    if (partSnap.exists()) {
+      throw new Error("Usuário já entrou neste evento");
+    }
+
+    tx.set(
+      eventoRef,
+      { participantesAtuais: increment(1) },
+      { merge: true }
+    );
+
+    tx.set(partRef, {
+      eventoId,
+      ownerId,
+      joinedAt: new Date().toISOString(),
+    });
   });
 };

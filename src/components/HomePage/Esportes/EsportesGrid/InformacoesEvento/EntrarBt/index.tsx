@@ -11,9 +11,10 @@ const ButtonContainer = styled.div`
 
 type EntrarBtProps = {
   eventoId: string;
+  ownerId?: string;
 };
 
-export function EntrarBt({ eventoId }: EntrarBtProps) {
+export function EntrarBt({ eventoId, ownerId }: EntrarBtProps) {
   const handleEntrar = async () => {
     try {
       const user = auth.currentUser;
@@ -22,7 +23,12 @@ export function EntrarBt({ eventoId }: EntrarBtProps) {
         return;
       }
 
-      await entrarNoEvento(eventoId, user.uid);
+      if (!ownerId) {
+        console.error("OwnerId do evento não informado — não é possível entrar.");
+        return;
+      }
+
+      await entrarNoEvento(eventoId, ownerId, user.uid);
       console.log("Entrou no evento com sucesso!");
     } catch (error) {
       console.error("Não deu para entrar no evento:", error);

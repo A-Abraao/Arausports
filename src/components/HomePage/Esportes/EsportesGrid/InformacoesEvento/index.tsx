@@ -54,7 +54,8 @@ type InformacoesEventoProps = {
   capacidadeMaxima: number;
   participantesAtuais: number;
   hoverTitulo: boolean;
-  eventoId: string
+  eventoId: string;
+  ownerId?: string;
 };
 
 export function InformacoesEvento({
@@ -66,6 +67,7 @@ export function InformacoesEvento({
   eventoId,
   participantesAtuais,
   hoverTitulo,
+  ownerId,
 }: InformacoesEventoProps) {
   
   const max = Math.max(1, capacidadeMaxima || 1);
@@ -100,9 +102,9 @@ export function InformacoesEvento({
       <span><PersonIcon className="icone" />{`${atual} / ${capacidadeMaxima} participantes`}</span>
 
       
-      <BarraDeProgresso valor={percentual} />
+      <BarraDeProgresso valor={percentual}/>
 
-      <EntrarBt eventoId={eventoId} />
+      <EntrarBt eventoId={eventoId} ownerId={ownerId} />
     </InformacoesEventoComponent>
   );
 }

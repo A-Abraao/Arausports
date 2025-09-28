@@ -60,6 +60,7 @@ export function EsportesGrid({ eventos }: Props) {
             localizacao={evento.local}
             capacidadeMaxima={capacidadeMaxima}
             eventoId={evento.id}
+            ownerId={evento.ownerId}
             participantesAtuais={participantes}
           />
         );

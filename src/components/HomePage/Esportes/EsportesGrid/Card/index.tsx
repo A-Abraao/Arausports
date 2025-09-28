@@ -73,7 +73,8 @@ type CardProps = {
   capacidadeMaxima: number;
   participantesAtuais: number;
   categoria?: string;
-  eventoId: string
+  eventoId: string;
+  ownerId?: string;
 };
 
 export function Card({
@@ -85,6 +86,7 @@ export function Card({
   capacidadeMaxima,
   participantesAtuais,
   eventoId,
+  ownerId,
   categoria = "Evento",
 }: CardProps) {
   const y = useMotionValue(0);
@@ -132,6 +134,7 @@ export function Card({
           capacidadeMaxima={capacidadeMaxima}
           participantesAtuais={participantesAtuais}
           eventoId={eventoId}
+          ownerId={ownerId}
         />
       </MotionCard>
     </CardComponent>

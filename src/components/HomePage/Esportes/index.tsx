@@ -16,6 +16,7 @@ export const EsportesSectionComponent = styled.section`
 
 export type Evento = {
   id: string;
+  ownerId?: string;
   titulo: string;
   categoria: string;
   data: string;
@@ -24,6 +25,7 @@ export type Evento = {
   capacidade: number;
   participantesAtuais?: number;
 };
+
 
 export function Esportes() {
   const [eventos, setEventos] = useState<Evento[]>([]);
@@ -35,10 +37,16 @@ export function Esportes() {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const arr: Evento[] = snapshot.docs.map((d) => ({
-          id: d.id,
-          ...(d.data() as Omit<Evento, "id">),
-        }));
+        const arr: Evento[] = snapshot.docs.map((d) => {
+          const ownerId = d.ref.parent.parent?.id ?? undefined;
+          return {
+            id: d.id,
+            ownerId,
+            ...(d.data() as Omit<Evento, "id" | "ownerId">),
+          };
+        });
+
+
         setEventos(arr);
       },
       (err) => {
