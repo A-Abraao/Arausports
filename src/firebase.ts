@@ -8,6 +8,9 @@ import {
   type User, 
   createUserWithEmailAndPassword,
   sendEmailVerification,
+  linkWithCredential,
+  EmailAuthProvider,
+  fetchSignInMethodsForEmail,
   signInWithEmailAndPassword,
   signOut
 } from "firebase/auth";
@@ -105,25 +108,88 @@ export const getUserData = async (uid: string) => {
   return snap.exists() ? snap.data() : null;
 };
 
-export const signUpWithEmail = async (email: string, password: string) => {
+export const signUpWithEmail = async (username: string, email: string, password: string) => {
+  const methods = await fetchSignInMethodsForEmail(auth, email);
+
+  if (methods.length > 0) {
+    if (methods.includes("password")) {
+      throw new Error("E-mail já cadastrado com e-mail/senha. Faça login ou recupere a senha.");
+    }
+
+    if (methods.includes("google.com")) {
+      const current = auth.currentUser;
+
+      if (current && current.email?.toLowerCase() === email.toLowerCase()) {
+        const credential = EmailAuthProvider.credential(email, password);
+        try {
+          const linkedUserCred = await linkWithCredential(current as User, credential);
+
+          if (!linkedUserCred.user.emailVerified) {
+            await sendEmailVerification(linkedUserCred.user);
+          }
+          return linkedUserCred.user;
+        } catch (err: any) {
+          throw new Error(err?.message ?? "Erro ao vincular credencial.");
+        }
+      } else {
+        throw new Error(
+          "Já existe uma conta com esse e-mail usando Google. Faça login com Google para vincular uma senha."
+        );
+      }
+    }
+
+    throw new Error(
+      `E-mail já cadastrado com outro provedor: ${methods.join(", ")}. Utilize esse provedor para entrar.`
+    );
+  }
+
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
   if (userCredential.user) {
+    await updateProfile(userCredential.user, { displayName: username });
+
     await sendEmailVerification(userCredential.user);
   }
+
   return userCredential.user;
 };
 
-export const createUserDocIfNotExists = async (user: User, extraData?: { username?: string; photoURL?: string }) => {
+export const createUserDocIfNotExists = async (
+  user: User,
+  extraData?: { username?: string; photoURL?: string }
+) => {
   const userRef = doc(db, "users", user.uid);
   const snap = await getDoc(userRef);
+
+  
+  const displayName = extraData?.username ?? user.displayName ?? null;
+  const photoURL = extraData?.photoURL ?? user.photoURL ?? null;
+
   if (!snap.exists()) {
     await setDoc(userRef, {
       uid: user.uid,
       email: user.email ?? null,
+      displayName,
       username: extraData?.username ?? null,
-      photoURL: extraData?.photoURL ?? null,
+      photoURL,
       createdAt: new Date().toISOString(),
     });
+  } else {
+    const existing = snap.data() as any;
+    const updates: any = {};
+    if (displayName && !existing.displayName) updates.displayName = displayName;
+    if (photoURL && !existing.photoURL) updates.photoURL = photoURL;
+    if (Object.keys(updates).length) {
+      await updateDoc(userRef, updates);
+    }
+  }
+
+  if (displayName && user.displayName !== displayName) {
+    try {
+      await updateProfile(user, { displayName });
+    } catch (err) {
+    
+    }
   }
 };
 

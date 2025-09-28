@@ -4,16 +4,23 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import { signUpWithEmail } from "../../../../firebase";
+import {
+  EmailAuthProvider,
+  linkWithCredential,
+  signInWithPopup,
+} from "firebase/auth";
+import { auth, googleProvider } from "../../../../firebase";
+import { useNavigate } from "react-router-dom";
 
 export const FormContainer = styled.div`
-  width: 50%;       
-  height: auto;     
+  width: 50%;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   box-sizing: border-box;
-  /* sem box-shadow nem borda por padrão */
 `;
 
 interface FormState {
@@ -24,6 +31,8 @@ interface FormState {
 }
 
 export default function Formulario() {
+  const navigate = useNavigate()
+
   const [form, setForm] = useState<FormState>({
     username: "",
     email: "",
@@ -34,6 +43,10 @@ export default function Formulario() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const [showGoogleLinkPrompt, setShowGoogleLinkPrompt] = useState(false);
 
   const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -42,6 +55,7 @@ export default function Formulario() {
     setForm((s) => ({ ...s, [name]: value }));
     setError(null);
     setSuccess(null);
+    setShowGoogleLinkPrompt(false);
   };
 
   const emailLooksValid = (email: string): boolean => {
@@ -58,62 +72,91 @@ export default function Formulario() {
     return null;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSignInWithGoogleAndLink = async () => {
     setError(null);
     setSuccess(null);
-
-    const validationError = validate();
-    if (validationError) return setError(validationError);
-
     setLoading(true);
 
     try {
-      const payload = {
-        username: form.username.trim(),
-        email: form.email.trim(),
-        password: form.password,
-      };
+      const result = await signInWithPopup(auth, googleProvider);
+      const current = result.user; 
 
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.message || "Erro ao criar conta.");
+      if (!current || !current.email) {
+        throw new Error("Não foi possível identificar usuário Google.");
       }
 
-      setSuccess("Criamos sua contaaaa, mas antes bora ver esse email aí");
-
-      try {
-        const nav: any = navigator;
-        const win: any = window;
-        if (nav.credentials && win.PasswordCredential && formRef.current) {
-          try {
-            const cred = new win.PasswordCredential(formRef.current);
-            await nav.credentials.store(cred).catch(() => {});
-          } catch (err) {
-
-          }
-        }
-      } catch (err) {
-
+      if (current.email.toLowerCase() !== form.email.trim().toLowerCase()) {
+        throw new Error(
+          "O e-mail do Google não corresponde ao e-mail informado no formulário. Confirme estar usando o mesmo e-mail."
+        );
       }
 
-      setForm((s) => ({ ...s, password: "", confirmPassword: "" }));
+      const credential = EmailAuthProvider.credential(form.email.trim(), form.password);
+
+      await linkWithCredential(current, credential);
+
+      setSuccess("Senha vinculada à conta Google com sucesso — agora você pode logar também por e-mail/senha.");
+      setShowGoogleLinkPrompt(false);
     } catch (err: any) {
-      setError(err?.message ?? String(err));
+
+      const code = err?.code ?? "";
+      if (code === "auth/credential-already-in-use") {
+        setError("Essa senha/credencial já está ligada a outra conta.");
+      } else if (code === "auth/provider-already-linked") {
+        setError("Esse provedor já está vinculado a essa conta.");
+      } else if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") {
+        setError("Popup do Google foi fechado. Tente novamente.");
+      } else {
+        setError(err?.message ?? String(err));
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const inputWidth = "65%"; 
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError(null);
+  setSuccess(null);
+  setShowGoogleLinkPrompt(false);
+
+  const validationError = validate();
+  if (validationError) return setError(validationError);
+
+  setLoading(true);
+
+  try {
+    const emailTrim = form.email.trim();
+
+    await signUpWithEmail(
+      form.username.trim(),
+      emailTrim,
+      form.password
+    );
+
+    setSuccess("Vamo verifica esse email aí");
+    setForm((s) => ({ ...s, password: "", confirmPassword: "" }));
+    setFile(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+  } catch (err: any) {
+    const code = err?.code ?? "";
+    if (code === "auth/email-already-in-use") {
+      setError("Já temos esse email aqui na firma");
+    } else {
+      setError(err?.message ?? String(err));
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  const inputWidth = "65%";
   const inputHeight = 36;
-  const inputRadius = "8px"; 
+  const inputRadius = "8px";
 
   return (
     <FormContainer>
@@ -122,7 +165,6 @@ export default function Formulario() {
         ref={formRef}
         onSubmit={handleSubmit}
         method="post"
-        action="/api/register"
         aria-label="Formulário de registro"
         sx={{
           width: "100%",
@@ -137,6 +179,7 @@ export default function Formulario() {
           p: 0,
         }}
       >
+        
         <Typography variant="h6" component="h2" align="center">
           Criar conta..
         </Typography>
@@ -147,7 +190,7 @@ export default function Formulario() {
           label="Nome de usuário"
           value={form.username}
           onChange={onChange}
-          placeholder="Seu nome público"
+          placeholder="voce será chamado assim"
           autoComplete="username"
           required
           size="small"
@@ -171,7 +214,7 @@ export default function Formulario() {
         <TextField
           id="email"
           name="email"
-          label="E‑mail"
+          label="E-mail"
           type="email"
           value={form.email}
           onChange={onChange}
@@ -203,7 +246,7 @@ export default function Formulario() {
           type="password"
           value={form.password}
           onChange={onChange}
-          placeholder="Crie uma senha forte"
+          placeholder="Crie uma senha cara"
           autoComplete="new-password"
           inputProps={{ minLength: 8, style: { height: inputHeight } }}
           required
@@ -227,11 +270,11 @@ export default function Formulario() {
         <TextField
           id="confirmPassword"
           name="confirmPassword"
-          label="Confirmar senha"
+          label="confirma a senha"
           type="password"
           value={form.confirmPassword}
           onChange={onChange}
-          placeholder="Repita a senha"
+          placeholder="Repita a senha zé"
           autoComplete="new-password"
           inputProps={{ minLength: 8, style: { height: inputHeight } }}
           required
@@ -264,7 +307,7 @@ export default function Formulario() {
           </Typography>
         )}
 
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1, alignItems: "center" }}>
           <Button
             type="submit"
             variant="contained"
@@ -275,11 +318,22 @@ export default function Formulario() {
               background: "var(--gradient-hero)",
               textTransform: "none",
               height: 36,
-              
             }}
           >
             {loading ? "Criando..." : "Criar conta"}
           </Button>
+
+          {showGoogleLinkPrompt && (
+            <Button
+              type="button"
+              variant="outlined"
+              onClick={handleSignInWithGoogleAndLink}
+              disabled={loading}
+              sx={{ textTransform: "none", height: 36 }}
+            >
+              Entrar com Google e vincular senha
+            </Button>
+          )}
         </Box>
       </Box>
     </FormContainer>

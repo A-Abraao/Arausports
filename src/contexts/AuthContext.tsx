@@ -8,7 +8,7 @@ import { signOut as firebaseSignOut } from "firebase/auth";
 import { auth } from "../firebase";
 import { updateUserProfile } from "../firebase";
 
-type SignupProps = { email: string; password: string; username?: string; file?: File | null };
+type SignupProps = { email: string; password: string; username: string; file?: File | null };
 
 interface AuthContextType {
   firebaseUser: FirebaseUser | null;
@@ -44,17 +44,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signUp = async ({ email, password, username, file }: SignupProps) => {
-    const user = await signUpWithEmail(email, password);
-    if (!user) throw new Error("Erro ao criar usuário.");
+    setLoading(true);
+    try {
+      const user = await signUpWithEmail(username, email, password);
 
-    let photoURL: string | null = null;
-    if (file) {
-      photoURL = await uploadProfileImage(user.uid, file);
+      if (!user) throw new Error("Erro ao criar usuário.");
+
+      let photoURL: string | undefined = undefined;
+      if (file) {
+        photoURL = await uploadProfileImage(user.uid, file);
+      }
+
+      const safeUsername = username ?? undefined;
+      const safePhotoURL = photoURL ?? undefined;
+      await createUserDocIfNotExists(user, { username: safeUsername, photoURL: safePhotoURL });
+
+      setFirebaseUser(user);
+      const data = await getUserData(user.uid);
+      setUserData(data ?? null);
+    } finally {
+      setLoading(false);
     }
-
-    const safeUsername = username ?? undefined;
-    const safePhotoURL = photoURL ?? undefined;
-    await createUserDocIfNotExists(user, { username: safeUsername, photoURL: safePhotoURL });
   };
 
   const signIn = async (email: string, password: string) => {
