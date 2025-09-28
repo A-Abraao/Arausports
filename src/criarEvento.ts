@@ -1,5 +1,5 @@
 import { db } from "./firebase";
-import { collection, doc, setDoc } from "firebase/firestore";
+import { collection, doc, runTransaction } from "firebase/firestore";
 
 type Evento = {
   titulo: string;
@@ -13,20 +13,28 @@ type Evento = {
 };
 
 export const addEventForUser = async (uid: string, evento: Evento) => {
-  // cria documento com id automático na sub-collection users/{uid}/eventos
   const eventosColRef = collection(db, "users", uid, "eventos");
-  const newEventRef = doc(eventosColRef); // doc() sem id gera id automático
+  const newEventRef = doc(eventosColRef);
   const id = newEventRef.id;
 
   const payload = {
     ...evento,
     id,
     ownerUid: uid,
+    participantesAtuais: 1,
     createdAt: new Date().toISOString(),
     userEventPath: `users/${uid}/eventos/${id}`,
   };
 
-  await setDoc(newEventRef, payload);
+  const participanteRef = doc(db, "users", uid, "eventos", id, "participantes", uid);
+
+  await runTransaction(db, async (tx) => {
+    tx.set(newEventRef, payload);
+    tx.set(participanteRef, {
+      userId: uid,
+      joinedAt: new Date().toISOString(),
+    });
+  });
 
   return id;
 };

@@ -147,37 +147,31 @@ export const resendVerification = async (user: User) => {
 export const entrarNoEvento = async (
   eventoId: string,
   ownerId: string,
-  participantUserId?: string
+  participantId: string
 ) => {
   const eventoRef = doc(db, "users", ownerId, "eventos", eventoId);
-
-  if (!participantUserId) {
-    // se não quiser registrar participante, só incrementa (cria/merge)
-    await setDoc(
-      eventoRef,
-      { participantesAtuais: increment(1) },
-      { merge: true }
-    );
-    return;
-  }
-
+  const participanteRef = doc(db, "users", ownerId, "eventos", eventoId, "participantes", participantId);
 
   await runTransaction(db, async (tx) => {
-    const partRef = doc(db, "users", participantUserId, "participacoes", eventoId);
-    const partSnap = await tx.get(partRef);
-    if (partSnap.exists()) {
-      throw new Error("Usuário já entrou neste evento");
+    const participanteSnap = await tx.get(participanteRef);
+    if (participanteSnap.exists()) {
+      throw new Error("Você já está inscrito nesse evento.");
     }
 
-    tx.set(
-      eventoRef,
-      { participantesAtuais: increment(1) },
-      { merge: true }
-    );
+    const eventoSnap = await tx.get(eventoRef);
+    if (!eventoSnap.exists()) {
+      tx.set(eventoRef, {
+        participantesAtuais: 1,
+        createdAt: new Date().toISOString(),
+      });
+    } else {
+      tx.update(eventoRef, {
+        participantesAtuais: increment(1),
+      });
+    }
 
-    tx.set(partRef, {
-      eventoId,
-      ownerId,
+    tx.set(participanteRef, {
+      userId: participantId,
       joinedAt: new Date().toISOString(),
     });
   });

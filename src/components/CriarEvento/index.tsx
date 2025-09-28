@@ -4,7 +4,6 @@ import VoltarSetinha from '../../assets/img/retornar-setinha.svg?react';
 import { IconButton, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-
 import { Titulo } from "./Titulo";
 import { DetalhesEvento } from "./DetalhesEvento";
 import { PreviaEvento } from "./PreviaEvento";
@@ -44,7 +43,7 @@ export function CriarEvento() {
     horario: "",
     local: "",
     capacidade: 0,
-    imageUrl: "",   // ficam aqui por compatibilidade, mas não serão enviados
+    imageUrl: "",
     imagePath: "",
   });
 
@@ -55,9 +54,7 @@ export function CriarEvento() {
     }
 
     try {
-      // cria payload sem campos de imagem
       const payload: Partial<EventoData> = { ...evento };
-      // remove chaves de imagem se existirem
       delete (payload as any).imageUrl;
       delete (payload as any).imagePath;
 
@@ -84,7 +81,6 @@ export function CriarEvento() {
 
         <InformacoesEvento>
           <DetalhesEvento value={evento} onChange={setEvento} />
-          {/* Não passamos prop de seleção/upload — PreviaEvento seguirá apenas mostrando preview local se implementado */}
           <PreviaEvento />
         </InformacoesEvento>
 

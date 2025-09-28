@@ -1,7 +1,5 @@
 import styled from "styled-components";
 import { useState } from "react";
-import tenisPng from '../../../../../assets/img/tennis-event.jpg'
-
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { InformacoesEvento } from "../InformacoesEvento";
 
