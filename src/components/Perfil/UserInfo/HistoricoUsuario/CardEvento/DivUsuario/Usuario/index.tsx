@@ -33,7 +33,12 @@ const EventoEData = styled.div`
     }
 `
 
-export function Usuario() {
+type UsuarioProps = {
+    data:string
+    foiSalvo: boolean
+}
+
+export function Usuario({data, foiSalvo}: UsuarioProps) {
     const { photoURL } = useUserData()
 
 
@@ -41,8 +46,8 @@ export function Usuario() {
         <UsuarioComponent>
             <DivImagem src={photoURL || bolaDeBasquete}/>
             <EventoEData>
-                <span><StarSvg height="0.9em" width="0.9em"/>Evento criado</span>
-                <span className="data">24-01-2025</span>
+                <span><StarSvg height="0.9em" width="0.9em"/>{foiSalvo ? "Evento Salvado" : "Evento Criado"}</span>
+                <span className="data">{data}</span>
             </EventoEData>
         </UsuarioComponent>
     )

@@ -1,7 +1,15 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { InformacoesEvento } from "../InformacoesEvento";
+import { IconButton } from "@mui/material";
+import SalvarSvg from '../../../../../assets/img/salvar.svg?react'
+import { onAuth } from "../../../../../firebase"; 
+import {
+  saveEventForUser,
+  removeSavedEventForUser,
+  isEventSavedForUser,
+} from "../../../../../servicos/eventosSalvos"
 
 const CardComponent = styled.div`
   display: flex;
@@ -36,7 +44,6 @@ const ImageWrapper = styled.div`
   height: 40vh;
   width: 100%;
   overflow: hidden;
-  display: block;
 `;
 
 const MotionImage = styled(motion.img)`
@@ -49,17 +56,45 @@ const MotionImage = styled(motion.img)`
   user-select: none;
 `;
 
-const TipoDoEsporte = styled.span`
+const SecaoSuperiorDiv = styled.span`
   position: absolute;
   top: 0.5em;
   left: 0.5em;
   z-index: 5;
-  border-radius: 9999px;
-  background: rgba(255,255,255,0.95);
-  padding: 0.45em 0.95em;
+  display: flex;
+  padding-right: 0.5em;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
   font-size: 0.75em;
   font-weight: 450;
-  pointer-events: none;
+
+  .tipo-esporte {
+    border-radius: 9999px;
+    background: rgba(255,255,255,0.95);
+    padding: 0.45em 0.95em;
+    transition: background-color 0.5s ease-in-out;
+
+    &: hover {
+      background: var(--ring);
+      color: white;
+    }
+  }
+`;
+
+export const BlurButton = styled(IconButton)<{ ativo: boolean }>`
+  backdrop-filter: blur(6px);
+  background-color: ${({ ativo }) => (ativo ? "white" : "transparent")};
+  border-radius: 4px;
+  padding: 4px;
+  transition: background-color 0.2s ease-in-out;
+
+  svg {
+    width: 0.9em;
+    height: 0.9em;
+    color: ${({ ativo }) => (ativo ? "#000" : "#080341")}; /* usa currentColor */
+    transition: color 0.2s ease-in-out;
+  }
 `;
 
 type CardProps = {
@@ -91,6 +126,75 @@ export function Card({
   const imageScale = useTransform(y, [-8, 0], [1.08, 1]);
   const [hoverAtivado, setHoverAtivado] = useState(false);
 
+  // estado do bookmark
+  const [ativo, setAtivo] = useState(false);
+  const [loadingSalvar, setLoadingSalvar] = useState(false);
+
+  // usuário atual via onAuth (evita dependência direta do useAuth)
+  const [currentUserUid, setCurrentUserUid] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubAuth = onAuth((user) => {
+      setCurrentUserUid(user?.uid ?? null);
+    });
+    return () => unsubAuth();
+  }, []);
+
+  // checar se o evento já está salvo quando abrir/mudar user ou eventoId
+  useEffect(() => {
+    let mounted = true;
+    const checkSaved = async () => {
+      if (!currentUserUid) {
+        if (mounted) setAtivo(false);
+        return;
+      }
+      try {
+        const saved = await isEventSavedForUser(currentUserUid, eventoId);
+        if (mounted) setAtivo(saved);
+      } catch (err) {
+        console.error("Erro checando saved:", err);
+      }
+    };
+    checkSaved();
+    return () => {
+      mounted = false;
+    };
+  }, [currentUserUid, eventoId]);
+
+  const handleSaveToggle = async () => {
+    if (!currentUserUid) {
+      // seu fluxo de alerta: peça para logar (você já tem um provider de alerts no projeto)
+      // Aqui eu uso console.warn — adapte para showAlert se quiser.
+      console.warn("Faça login para salvar eventos");
+      return;
+    }
+
+    setLoadingSalvar(true);
+    try {
+      if (!ativo) {
+        // salvar
+        await saveEventForUser(currentUserUid, {
+          id: eventoId,
+          ownerId: ownerId ?? "",
+          titulo,
+          categoria,
+          local: localizacao,
+          data,
+          capacidade: capacidadeMaxima,
+        });
+        setAtivo(true);
+      } else {
+        // remover salvo
+        await removeSavedEventForUser(currentUserUid, eventoId);
+        setAtivo(false);
+      }
+    } catch (err) {
+      console.error("Erro ao salvar/desalvar evento:", err);
+    } finally {
+      setLoadingSalvar(false);
+    }
+  };
+
   return (
     <CardComponent>
       <MotionCard
@@ -120,7 +224,16 @@ export function Card({
             style={{ scale: imageScale }}
             draggable={false}
           />
-          <TipoDoEsporte>{categoria}</TipoDoEsporte>
+          <SecaoSuperiorDiv>
+            <span className="tipo-esporte">{categoria}</span>  
+            <BlurButton
+              ativo={ativo}
+              onClick={handleSaveToggle}
+              disabled={loadingSalvar}
+            >
+              <SalvarSvg height="0.9em" width="0.9em"/> 
+            </BlurButton>
+          </SecaoSuperiorDiv>
         </ImageWrapper>
 
         <InformacoesEvento

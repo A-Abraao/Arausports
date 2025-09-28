@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { useState } from "react";
 
 const FiltroHistoricoComponent = styled.div`
   width: 100%;
@@ -7,7 +6,6 @@ const FiltroHistoricoComponent = styled.div`
   align-items: center;
   gap: 1em;
   justify-content: center;
- 
 `;
 
 const Opcao = styled.button<{ selecionado?: boolean }>`
@@ -29,32 +27,31 @@ const Opcao = styled.button<{ selecionado?: boolean }>`
   `}
 `;
 
-export function FiltroHistorico() {
-  const [opcaoSelecionada, setOpcaoSelecionada] = useState("meusEventos");
+type Props = {
+  selecionado: "meusEventos" | "eventosSalvos" | "proximosEventos";
+  onSelect: (opcao: "meusEventos" | "eventosSalvos" | "proximosEventos") => void;
+};
 
-  const handleOpcaoSelect = (opcao: string) => {
-    setOpcaoSelecionada(opcao);
-  };
-
+export function FiltroHistorico({ selecionado, onSelect }: Props) {
   return (
     <FiltroHistoricoComponent>
       <Opcao
-        onClick={() => handleOpcaoSelect("meusEventos")}
-        selecionado={opcaoSelecionada === "meusEventos"}
+        onClick={() => onSelect("meusEventos")}
+        selecionado={selecionado === "meusEventos"}
       >
         Meus eventos
       </Opcao>
 
       <Opcao
-        onClick={() => handleOpcaoSelect("eventosSalvos")}
-        selecionado={opcaoSelecionada === "eventosSalvos"}
+        onClick={() => onSelect("eventosSalvos")}
+        selecionado={selecionado === "eventosSalvos"}
       >
         Eventos salvos
       </Opcao>
 
       <Opcao
-        onClick={() => handleOpcaoSelect("proximosEventos")}
-        selecionado={opcaoSelecionada === "proximosEventos"}
+        onClick={() => onSelect("proximosEventos")}
+        selecionado={selecionado === "proximosEventos"}
       >
         Próximos eventos
       </Opcao>
