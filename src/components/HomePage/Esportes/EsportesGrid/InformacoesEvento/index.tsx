@@ -4,6 +4,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import { BarraDeProgresso } from "./BarraDeProgresso";
+import { formatDateBR } from "../../../../../servicos/FormatarData";
 import { EntrarBt } from "./EntrarBt";
 
 const InformacoesEventoComponent = styled.div`
@@ -74,33 +75,12 @@ export function InformacoesEvento({
   const atual = Math.max(0, participantesAtuais || 0);
   const percentual = Math.min(100, Math.round((atual / max) * 100));
 
-  function formatarData(data: any) {
-    if (!data) return "Data inválida";
-
-    let dataObj: Date;
-
-    if (data.toDate) {
-      dataObj = data.toDate();
-    } else {
-      dataObj = new Date(data);
-    }
-
-    if (isNaN(dataObj.getTime())) return "Data inválida";
-
-    const diaMes = new Intl.DateTimeFormat("pt-BR", {
-      day: "numeric",
-      month: "long"
-    }).format(dataObj);
-
-    return `${diaMes}, ${dataObj.getFullYear()}`;
-  }
-
   return (
     <InformacoesEventoComponent>
       <Titulo hoverTitulo={hoverTitulo}>{titulo}</Titulo>
 
       <HorarioData>
-        <span><CalendarTodayIcon className="icone" />{formatarData(data)}</span>
+        <span><CalendarTodayIcon className="icone" />{formatDateBR(data)}</span>
         <span><AccessTimeIcon className="icone" />{horario}</span>
       </HorarioData>
 

@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { Usuario } from "./Usuario";
 import { BlurButton } from "../../../../../HomePage/Esportes/EsportesGrid/Card"; 
 import SalvarSvg from '../../../../../../assets/img/salvar.svg?react';
+import { formatarDataDMA } from "../../../../../../servicos/FormatarData";
 
 const DivUsuarioComponent = styled.div`
   width: 100%;
@@ -51,7 +52,7 @@ export function DivUsuario({ data, esporte, foiSalvo = false, onToggleSave }: Di
 
   return (
     <DivUsuarioComponent>
-      <Usuario data={data} foiSalvo={foiSalvo} />
+      <Usuario data={formatarDataDMA(data)} foiSalvo={foiSalvo} />
       <RightGroup>
         {foiSalvo && onToggleSave && (
           <BlurButton
