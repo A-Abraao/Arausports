@@ -2,10 +2,10 @@ import styled from "styled-components";
 import { useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { InformacoesEvento } from "../InformacoesEvento";
-import { IconButton } from "@mui/material";
-import salvarImageUrl from '../../../../../assets/img/salvar.png'
-import foiSalvoImageUrl from '../../../../../assets/img/foiSalvo.png'
 import { useSalvarEvento } from "../../../../../firebase"; 
+import { IconButton } from "@mui/material";
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import BookmarkIcon from '@mui/icons-material/Bookmark'; 
 
 const CardComponent = styled.div`
   display: flex;
@@ -78,20 +78,35 @@ const SecaoSuperiorDiv = styled.span`
   }
 `;
 
-export const BlurButton = styled(IconButton)<{ ativo: boolean }>`
-  backdrop-filter: blur(6px);
-  background-color: ${({ ativo }) => (ativo ? "white" : "transparent")};
-  border-radius: 4px;
-  padding: 4px;
-  transition: background-color 0.2s ease-in-out;
+type SalvarButtonProps = {
+  ativo:boolean,
+  loading: boolean,
+  onClick: React.MouseEventHandler<HTMLButtonElement>
+}
 
-  svg {
-    width: 0.9em;
-    height: 0.9em;
-    color: ${({ ativo }) => (ativo ? "#000" : "#080341")};
-    transition: color 0.2s ease-in-out;
-  }
-`;
+export const SalvarButton = ({ativo, loading, onClick}: SalvarButtonProps) => {
+  const bgcolor = ativo ? "#e91e63" : "white";
+  const bgcoloractived = "#c2185b"
+  return (
+    <IconButton
+      onClick={onClick}
+      disabled={loading}
+      sx={{
+        background: bgcolor,
+        borderRadius: "9999px",
+        marginRight: "0.45em",
+        padding: "6px",
+
+         '&:hover': {
+           background: ativo ? bgcoloractived : 'rgba(0, 0, 0, 0.04)',
+         }
+      }}
+    >
+      {ativo ? <BookmarkIcon sx={{ fontSize: '1.2rem', color: "white" }}/> : <BookmarkBorderIcon sx={{ fontSize: '1.2rem' }}/>}
+      
+    </IconButton>
+  )
+}
 
 type CardProps = {
   imageUrl: string;
@@ -124,7 +139,6 @@ export function Card({
 
   
   const { salvo: ativo, salvarEvento, loading } = useSalvarEvento(eventoId);
-
 
   const handleSaveClick = async () => {
   if (!eventoId) return;
@@ -175,13 +189,11 @@ export function Card({
           />
           <SecaoSuperiorDiv>
             <span className="tipo-esporte">{categoria}</span>
-            <BlurButton
+            <SalvarButton
               ativo={ativo}
-              onClick={handleSaveClick}
-              disabled={loading || ativo}
-            >
-              <img src={ativo ? foiSalvoImageUrl : salvarImageUrl} alt="salvar icone" />
-            </BlurButton> 
+              loading={loading}
+              onClick={() => handleSaveClick()}
+            />
           </SecaoSuperiorDiv>
         </ImageWrapper>
 

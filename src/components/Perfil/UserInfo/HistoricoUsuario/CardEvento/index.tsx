@@ -54,6 +54,7 @@ type CardEventoProps = {
   data: string;
   esporte: string;
   capacidade: string;
+  loadingSalvo: boolean
   foiSalvo?: boolean;
   savedFrom?: "eventosSalvos" | "meusEventos" | string;
   onUnsave?: () => Promise<void> | void;
@@ -64,13 +65,14 @@ export function CardEvento({
   local,
   data,
   esporte,
+  loadingSalvo,
   capacidade,
   foiSalvo = false,
   onUnsave,
 }: CardEventoProps) {
   return (
     <CardEventoComponent>
-      <DivUsuario data={data} esporte={esporte} foiSalvo={!!foiSalvo} onToggleSave={onUnsave} />
+      <DivUsuario data={data} esporte={esporte} foiSalvo={!!foiSalvo} onToggleSave={onUnsave} loading={loadingSalvo}/>
 
       <TituloEvento>{titulo}</TituloEvento>
 

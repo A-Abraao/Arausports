@@ -38,13 +38,14 @@ export function HistoricoUsuario() {
         capacidade: e.participantesTotais ?? 0,
       }))
     : salvos.map(s => ({
-        id: s.id,
-        titulo: s.titulo ?? "",
-        local: s.localizacao ?? "",
-        data: s.data ?? "",
-        categoria: s.categoria ?? "",
-        capacidade: s.participantesTotais ?? 0,
-      }));
+      id: s.savedId, 
+      titulo: s.titulo ?? "",
+      local: s.localizacao ?? "",
+      data: s.data ?? "",
+      categoria: s.categoria ?? "",
+      capacidade: s.participantesTotais ?? 0,
+    }));
+
 
   return (
     <HistoricoUsuarioComponent>
@@ -69,10 +70,12 @@ export function HistoricoUsuario() {
           data={evento.data}
           esporte={evento.categoria}
           capacidade={String(evento.capacidade ?? 0)}
+          loadingSalvo={loadingSalvo}
           foiSalvo={opcaoSelecionada === "eventosSalvos"}
           onUnsave={async () => {
             try {
               await removerEvento(evento.id);
+              console.log("evento removido" + evento.id)
             } catch (err) {
               console.error("Erro removendo evento salvo:", err);
             }

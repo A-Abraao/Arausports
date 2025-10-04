@@ -5,7 +5,6 @@ import {
   where,
   onSnapshot,
   addDoc,
-  getDocs,
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../config";
@@ -34,12 +33,9 @@ export function useSalvarEvento(eventoId: string | null) {
       return;
     }
 
-    const col = collection(db, "eventosSalvos");
-    const q = query(
-      col,
-      where("eventoId", "==", eventoId),
-      where("savedBy", "==", firebaseUser.uid)
-    );
+    const colRef = collection(db, "usuarios", firebaseUser.uid, "eventosSalvos");
+    
+    const q = query(colRef, where("eventoId", "==", eventoId));
 
     const unsubscribe = onSnapshot(
       q,
@@ -64,28 +60,22 @@ export function useSalvarEvento(eventoId: string | null) {
     async (payload?: SalvarPayload) => {
       if (!firebaseUser || !eventoId) return;
       if (!payload) {
-        console.warn("salvarEvento: payload");
+        console.warn("salvarEvento: payload ausente.");
         return;
+      }
+
+      if (salvo) {
+          console.log("Evento já está salvo. Ignorando a tentativa de salvar novamente.");
+          return;
       }
 
       setLoading(true);
       setErro(null);
 
       try {
-        const col = collection(db, "usuarios", firebaseUser.uid, "eventosSalvos");
-
-        const q = query(
-          col,
-          where("eventoId", "==", eventoId),
-          where("savedBy", "==", firebaseUser.uid)
-        );
-        const existing = await getDocs(q);
-        if (!existing.empty) {
-          setLoading(false);
-          return;
-        }
-
-        await addDoc(col, {
+        const colRef = collection(db, "usuarios", firebaseUser.uid, "eventosSalvos");
+        
+        await addDoc(colRef, {
           eventoId,
           titulo: payload.titulo,
           localizacao: payload.localizacao,
@@ -98,13 +88,13 @@ export function useSalvarEvento(eventoId: string | null) {
         });
 
       } catch (err) {
-        console.error("Erro eo envriar os dados do evento pro firebase lá", err);
+        console.error("Erro ao processar dados do evento no Firebase:", err);
         setErro(err as Error);
       } finally {
         setLoading(false);
       }
     },
-    [firebaseUser, eventoId]
+    [firebaseUser, eventoId, salvo] 
   );
 
   return { salvo, salvarEvento, loading, erro, savedDocId };

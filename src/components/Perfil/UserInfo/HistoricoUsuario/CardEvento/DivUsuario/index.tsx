@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import { Usuario } from "./Usuario";
-import { BlurButton } from "../../../../../HomePage/Esportes/EsportesGrid/Card"; 
+import { Usuario } from "./Usuario"; 
 import { formatarDataDMA } from "../../../../../../firebase";
+import { SalvarButton } from "../../../../../HomePage/Esportes/EsportesGrid/Card";
 
 const DivUsuarioComponent = styled.div`
   width: 100%;
@@ -34,10 +34,11 @@ type DivUsuarioProps = {
   data: string;
   esporte: string;
   foiSalvo?: boolean;
+  loading: boolean
   onToggleSave?: () => Promise<void> | void;
 };
 
-export function DivUsuario({ data, esporte, foiSalvo = false, onToggleSave }: DivUsuarioProps) {
+export function DivUsuario({ data, esporte, loading,foiSalvo = false, onToggleSave }: DivUsuarioProps) {
   const handleClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onToggleSave) {
@@ -54,13 +55,11 @@ export function DivUsuario({ data, esporte, foiSalvo = false, onToggleSave }: Di
       <Usuario data={formatarDataDMA(data)} foiSalvo={foiSalvo} />
       <RightGroup>
         {foiSalvo && onToggleSave && (
-          <BlurButton
+          <SalvarButton
             ativo={!!foiSalvo}
             onClick={handleClick}
-            aria-label={foiSalvo ? "Remover evento salvo" : "Salvar evento"}
-          >
-            
-          </BlurButton>
+            loading={loading}
+          />
         )}
         <TipoDoEsporte>{esporte}</TipoDoEsporte>
       </RightGroup>
