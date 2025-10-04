@@ -1,15 +1,11 @@
 import styled from "styled-components";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { InformacoesEvento } from "../InformacoesEvento";
 import { IconButton } from "@mui/material";
-import SalvarSvg from '../../../../../assets/img/salvar.svg?react'
-import { onAuth } from "../../../../../firebase"; 
-import {
-  saveEventForUser,
-  removeSavedEventForUser,
-  isEventSavedForUser,
-} from "../../../../../servicos/eventosSalvos"
+import salvarImageUrl from '../../../../../assets/img/salvar.png'
+import foiSalvoImageUrl from '../../../../../assets/img/foiSalvo.png'
+import { useSalvarEvento } from "../../../../../firebase"; 
 
 const CardComponent = styled.div`
   display: flex;
@@ -75,7 +71,7 @@ const SecaoSuperiorDiv = styled.span`
     padding: 0.45em 0.95em;
     transition: background-color 0.5s ease-in-out;
 
-    &: hover {
+    &:hover {
       background: var(--ring);
       color: white;
     }
@@ -92,7 +88,7 @@ export const BlurButton = styled(IconButton)<{ ativo: boolean }>`
   svg {
     width: 0.9em;
     height: 0.9em;
-    color: ${({ ativo }) => (ativo ? "#000" : "#080341")}; /* usa currentColor */
+    color: ${({ ativo }) => (ativo ? "#000" : "#080341")};
     transition: color 0.2s ease-in-out;
   }
 `;
@@ -126,67 +122,27 @@ export function Card({
   const imageScale = useTransform(y, [-8, 0], [1.08, 1]);
   const [hoverAtivado, setHoverAtivado] = useState(false);
 
-  const [ativo, setAtivo] = useState(false);
-  const [loadingSalvar, setLoadingSalvar] = useState(false);
+  
+  const { salvo: ativo, salvarEvento, loading } = useSalvarEvento(eventoId);
 
-  const [currentUserUid, setCurrentUserUid] = useState<string | null>(null);
 
-  useEffect(() => {
-    const unsubAuth = onAuth((user) => {
-      setCurrentUserUid(user?.uid ?? null);
+  const handleSaveClick = async () => {
+  if (!eventoId) return;
+  
+  try {
+    await salvarEvento({
+      titulo,
+      localizacao,
+      data: data,
+      participantesAtuais,
+      categoria,
+      ownerId: ownerId ?? null,
     });
-    return () => unsubAuth();
-  }, []);
-
-  useEffect(() => {
-    let mounted = true;
-    const checkSaved = async () => {
-      if (!currentUserUid) {
-        if (mounted) setAtivo(false);
-        return;
-      }
-      try {
-        const saved = await isEventSavedForUser(currentUserUid, eventoId);
-        if (mounted) setAtivo(saved);
-      } catch (err) {
-        console.error("Erro checando saved:", err);
-      }
-    };
-    checkSaved();
-    return () => {
-      mounted = false;
-    };
-  }, [currentUserUid, eventoId]);
-
-  const handleSaveToggle = async () => {
-    if (!currentUserUid) {
-      console.warn("Faça login para salvar eventos");
-      return;
-    }
-
-    setLoadingSalvar(true);
-    try {
-      if (!ativo) {
-        await saveEventForUser(currentUserUid, {
-          id: eventoId,
-          ownerId: ownerId ?? "",
-          titulo,
-          categoria,
-          local: localizacao,
-          data,
-          capacidade: capacidadeMaxima,
-        });
-        setAtivo(true);
-      } else {
-        await removeSavedEventForUser(currentUserUid, eventoId);
-        setAtivo(false);
-      }
-    } catch (err) {
-      console.error("Erro ao salvar/desalvar evento:", err);
-    } finally {
-      setLoadingSalvar(false);
+    } catch (error) {
+      console.error("Erro ao salvar o evento:", error);
     }
   };
+
 
   return (
     <CardComponent>
@@ -218,14 +174,14 @@ export function Card({
             draggable={false}
           />
           <SecaoSuperiorDiv>
-            <span className="tipo-esporte">{categoria}</span>  
+            <span className="tipo-esporte">{categoria}</span>
             <BlurButton
               ativo={ativo}
-              onClick={handleSaveToggle}
-              disabled={loadingSalvar}
+              onClick={handleSaveClick}
+              disabled={loading || ativo}
             >
-              <SalvarSvg height="0.9em" width="0.9em"/> 
-            </BlurButton>
+              <img src={ativo ? foiSalvoImageUrl : salvarImageUrl} alt="salvar icone" />
+            </BlurButton> 
           </SecaoSuperiorDiv>
         </ImageWrapper>
 

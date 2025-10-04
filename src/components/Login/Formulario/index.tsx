@@ -38,15 +38,7 @@ function Formulario() {
     e.preventDefault();
 
     const emailTrim = valorEmail.trim();
-    const senhaVal = valorSenha; // mantenha a senha como está para checar comprimento (não trim por padrão)
-
-    // DEBUG: mostra o que está sendo enviado (remova em produção)
-    console.log("DEBUG login ->", {
-      email: emailTrim,
-      emailLength: String(emailTrim).length,
-      passwordType: typeof senhaVal,
-      passwordLength: String(senhaVal).length,
-    });
+    const senhaVal = valorSenha; // mantenha a senha como está para checar comprimento
 
     const emailOk = verificaEmail(emailTrim);
     const senhaOk = verificaSenha(senhaVal);
@@ -85,7 +77,6 @@ function Formulario() {
 
     setLoading(true);
     try {
-      // use emailTrim e senhaVal (se quiser trim na senha, troque senhaVal por senhaVal.trim())
       await signIn(emailTrim, senhaVal);
 
       showAlert("Login realizado com sucesso!", {

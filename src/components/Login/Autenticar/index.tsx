@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginWithGoogle } from "./GoogleAuth";
+import { useGoogleAuth } from "../../../firebase";
 import GoogleLogoSRC from "../../../assets/img/google-logo.png";
 import FcebookLogoSRC from "../../../assets/img/facebook-logo.png";
 import { IconButton } from "@mui/material";
@@ -27,21 +26,19 @@ const AutenticarComponent = styled.div`
 
 function Autenticar() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const { showAlert } = useAlert();
+  const { loading, login } = useGoogleAuth()
 
   const handleGoogle = async () => {
     try {
-      setLoading(true);
-      await loginWithGoogle();
-      // navega pra homepage e passa flag para mostrar o alerta apenas lá
-      navigate("/homepage", { state: { fromLogin: true } });
+      await login();
     } catch (err) {
       console.error(err);
       showAlert("Erro ao autenticar com o Google.", { severity: "error", duration: 4000 });
     } finally {
-      setLoading(false);
+      navigate("/homepage", { state: { fromLogin: true } });
     }
+    
   };
 
   return (

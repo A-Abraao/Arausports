@@ -4,13 +4,13 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { signUpWithEmail } from "../../../../firebase";
+import { useSignUpWithEmail } from "../../../../firebase";
 import {
   EmailAuthProvider,
   linkWithCredential,
   signInWithPopup,
 } from "firebase/auth";
-import { auth, googleProvider } from "../../../../firebase";
+import { auth, googleProvider } from "../../../../firebase/config";
 import { useNavigate } from "react-router-dom";
 
 export const FormContainer = styled.div`
@@ -24,36 +24,32 @@ export const FormContainer = styled.div`
 `;
 
 interface FormState {
-  username: string;
   email: string;
   password: string;
   confirmPassword: string;
 }
 
 export default function Formulario() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [form, setForm] = useState<FormState>({
-    username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
   const [showGoogleLinkPrompt, setShowGoogleLinkPrompt] = useState(false);
 
   const formRef = useRef<HTMLFormElement | null>(null);
 
+  const { signUp, loading, error } = useSignUpWithEmail();
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((s) => ({ ...s, [name]: value }));
-    setError(null);
     setSuccess(null);
     setShowGoogleLinkPrompt(false);
   };
@@ -65,21 +61,18 @@ export default function Formulario() {
   };
 
   const validate = (): string | null => {
-    if (!form.username.trim()) return "Escolhe um nome ae.";
-    if (!form.email.trim() || !emailLooksValid(form.email)) return "esse email não da não.";
+    if (!form.email.trim() || !emailLooksValid(form.email))
+      return "esse email não da não.";
     if (form.password.length < 8) return "A senha deve ter uns 8 caracteres.";
-    if (form.password !== form.confirmPassword) return "As senhas não coincidem cara.";
+    if (form.password !== form.confirmPassword)
+      return "As senhas não coincidem cara.";
     return null;
   };
 
   const handleSignInWithGoogleAndLink = async () => {
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
-
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      const current = result.user; 
+      const current = result.user;
 
       if (!current || !current.email) {
         throw new Error("Não foi possível identificar usuário Google.");
@@ -87,72 +80,47 @@ export default function Formulario() {
 
       if (current.email.toLowerCase() !== form.email.trim().toLowerCase()) {
         throw new Error(
-          "O e-mail do Google não corresponde ao e-mail informado no formulário. Confirme estar usando o mesmo e-mail."
+          "esse email aí ta meio errado.."
         );
       }
 
-      const credential = EmailAuthProvider.credential(form.email.trim(), form.password);
+      const credential = EmailAuthProvider.credential(
+        form.email.trim(),
+        form.password
+      );
 
       await linkWithCredential(current, credential);
 
-      setSuccess("Senha vinculada à conta Google com sucesso — agora você pode logar também por e-mail/senha.");
+      setSuccess(
+        "agora é logar com email e senha, vê se não esquece a senha"
+      );
       setShowGoogleLinkPrompt(false);
     } catch (err: any) {
-
-      const code = err?.code ?? "";
-      if (code === "auth/credential-already-in-use") {
-        setError("Essa senha/credencial já está ligada a outra conta.");
-      } else if (code === "auth/provider-already-linked") {
-        setError("Esse provedor já está vinculado a essa conta.");
-      } else if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") {
-        setError("Popup do Google foi fechado. Tente novamente.");
-      } else {
-        setError(err?.message ?? String(err));
-      }
-    } finally {
-      setLoading(false);
+      console.error(err);
     }
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError(null);
-  setSuccess(null);
-  setShowGoogleLinkPrompt(false);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSuccess(null);
+    setShowGoogleLinkPrompt(false);
 
-  const validationError = validate();
-  if (validationError) return setError(validationError);
+    const validationError = validate();
+    if (validationError) return alert(validationError);
 
-  setLoading(true);
-
-  try {
-    const emailTrim = form.email.trim();
-
-    await signUpWithEmail(
-      form.username.trim(),
-      emailTrim,
-      form.password
-    );
-
-    setSuccess("Vamo verifica esse email aí");
-    setForm((s) => ({ ...s, password: "", confirmPassword: "" }));
-    setFile(null);
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
+    try {
+      await signUp(form.email.trim(), form.password);
+      setSuccess("Verica esse email aí rapaz..");
+      setForm((s) => ({ ...s, password: "", confirmPassword: "" }));
+      setFile(null);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err: any) {
-    const code = err?.code ?? "";
-    if (code === "auth/email-already-in-use") {
-      setError("Já temos esse email aqui na firma");
-    } else {
-      setError(err?.message ?? String(err));
-    }
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const inputWidth = "65%";
   const inputHeight = 36;
@@ -179,37 +147,9 @@ const handleSubmit = async (e: React.FormEvent) => {
           p: 0,
         }}
       >
-        
         <Typography variant="h6" component="h2" align="center">
           Criar conta..
         </Typography>
-
-        <TextField
-          id="username"
-          name="username"
-          label="Nome de usuário"
-          value={form.username}
-          onChange={onChange}
-          placeholder="voce será chamado assim"
-          autoComplete="username"
-          required
-          size="small"
-          sx={{
-            width: inputWidth,
-            mx: "auto",
-            "& .MuiOutlinedInput-root": {
-              borderRadius: inputRadius,
-              "&:hover fieldset": {
-                borderColor: "#dcdcdc",
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: "var(--ring)",
-                boxShadow: "0 0 0 4px rgba(0,0,0,0.04)",
-              },
-            },
-          }}
-          inputProps={{ style: { height: inputHeight } }}
-        />
 
         <TextField
           id="email"
@@ -297,7 +237,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
         {error && (
           <Typography color="error" role="alert" align="center">
-            {error}
+            {error.message}
           </Typography>
         )}
 
@@ -307,7 +247,14 @@ const handleSubmit = async (e: React.FormEvent) => {
           </Typography>
         )}
 
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 1, alignItems: "center" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 1,
+            alignItems: "center",
+          }}
+        >
           <Button
             type="submit"
             variant="contained"

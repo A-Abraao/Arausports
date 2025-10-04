@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import bolaDeBasquete from '../../../../../../../assets/img/bola-de-basquete.jpg'
 import StarSvg from '../../../../../../../assets/img/trofeu.svg?react'
-import { useUserData } from "../../../../../../../contexts/getDadosUsuario";
+import { useUserData } from "../../../../../../../firebase";
 
 const UsuarioComponent = styled.div`
     display: flex;

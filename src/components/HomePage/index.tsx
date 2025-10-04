@@ -23,6 +23,7 @@ export default function HomePage() {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
 
+
   useEffect(() => {
     const state = location.state as any;
     if (state?.fromLogin) {
@@ -48,7 +49,7 @@ export default function HomePage() {
         onChange={setSearchTerm}
         onSearch={() => handleSearch(searchTerm)}
       />
-      <Esportes searchQuery={searchQuery} />
+      <Esportes searchQuery={searchQuery}/>
     </HomePageComponent>
   );
 }

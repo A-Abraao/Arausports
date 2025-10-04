@@ -102,7 +102,7 @@ export const updateUserProfile = async (
   }
 };
 
-export const getUserData = async (uid: string) => {
+const getUserData = async (uid: string) => {
   const userRef = doc(db, "users", uid);
   const snap = await getDoc(userRef);
   return snap.exists() ? snap.data() : null;

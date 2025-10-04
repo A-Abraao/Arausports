@@ -1,9 +1,9 @@
-import { auth, db } from "../../../firebase";
+import { auth, db } from "../../../firebase/config";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 // Registrar novo usuário com email/senha e salvar no Firestore
-export const registerWithEmail = async (email: string, password: string) => {
+const registerWithEmail = async (email: string, password: string) => {
   const result = await createUserWithEmailAndPassword(auth, email, password);
   const user = result.user;
 

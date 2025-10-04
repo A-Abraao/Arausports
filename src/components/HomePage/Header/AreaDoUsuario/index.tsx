@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import bolaDeBasqueteUrl from '../../../../assets/img/bola-de-basquete.jpg';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconButton } from "@mui/material";
-import { useUserData } from "../../../../contexts/getDadosUsuario";
+import { onAuthListener, useGetProfilePhoto } from "../../../../firebase";
 
 const AreaDoUsuarioComponent = styled.div`
     display: flex;
@@ -26,13 +27,27 @@ const PerfilImg= styled(IconButton)`
     }
 `;
 
+
 export function AreaDoUsuario() {
+
+    const [ userId, setUserId ] = useState<string | null>(null)
+
+    useEffect(() => {
+        const unsubscribe = onAuthListener((user) => {
+            setUserId(user ? user.uid : null)
+        })
+
+        return () => unsubscribe()
+    }, [])
+
+    const { userPhoto, erro } = useGetProfilePhoto(userId)
+
+    if(erro) console.log("deu erro" + erro)
+
     const navigate = useNavigate();
     const handleNavigate = () => {
         navigate("/perfil");
     };
-
-    const { photoURL } = useUserData()
 
     return (
         <AreaDoUsuarioComponent>
@@ -48,7 +63,7 @@ export function AreaDoUsuario() {
             </IconButton>
 
             <PerfilImg onClick={handleNavigate}>
-                <img src={photoURL || bolaDeBasqueteUrl} alt="Perfil" />
+                <img src={userPhoto || bolaDeBasqueteUrl} alt="Perfil" />
             </PerfilImg>
         </AreaDoUsuarioComponent>
     );

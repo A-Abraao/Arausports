@@ -1,127 +1,118 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import type { User as FirebaseUser } from "firebase/auth";
-import { onAuth } from "../firebase";
-import { signUpWithEmail, resendVerification as resendVerificationFn, signInWithEmail } from "../firebase"; 
-import { getUserData, createUserDocIfNotExists, uploadProfileImage } from "../firebase";
+import { onAuthListener } from "../firebase";
+import { auth } from "../firebase/config";
 import { signOut as firebaseSignOut } from "firebase/auth";
-import { auth } from "../firebase";
-import { updateUserProfile } from "../firebase";
+import { useSignUpWithEmail, resendVerification as resendVerificationFn, signInWithEmail } from "../firebase";
+import { createUserIfNotExist, uploadProfileImage, useUpdateUserProfile } from "../firebase";
+import { useUserData, type UserDataProfile } from "../firebase";
 
 type SignupProps = { email: string; password: string; username: string; file?: File | null };
 
 interface AuthContextType {
   firebaseUser: FirebaseUser | null;
-  userData: any | null;
+  userData: UserDataProfile | null;
   loading: boolean;
   signUp: (props: SignupProps) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   resendVerification: () => Promise<void>;
   uploadProfilePicture: (file: File) => Promise<string>;
-  updateProfile: (profile: { bio?: string; username?: string }) => Promise<void>; 
+  updateProfile: (profile: { bio?: string; username?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
-  const [userData, setUserData] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [authInitialized, setAuthInitialized] = useState(false);
+
+  const { userData, loading: userDataLoading } = useUserData(firebaseUser?.uid ?? null);
+
+  const { signUp: signUpWithEmail } = useSignUpWithEmail();
+  const { updateProfile: updateUserProfile } = useUpdateUserProfile(firebaseUser);
 
   useEffect(() => {
-    const unsubscribe = onAuth(async (user) => {
+    const unsubscribe = onAuthListener((user) => {
       setFirebaseUser(user);
-      if (user) {
-        const data = await getUserData(user.uid);
-        setUserData(data);
-      } else {
-        setUserData(null);
-      }
-      setLoading(false);
+      setAuthInitialized(true);
     });
     return () => unsubscribe();
   }, []);
 
+  const loading = useMemo(() => !authInitialized || userDataLoading, [authInitialized, userDataLoading]);
+
   const signUp = async ({ email, password, username, file }: SignupProps) => {
-    setLoading(true);
     try {
-      const user = await signUpWithEmail(username, email, password);
+      await signUpWithEmail(email, password);
 
-      if (!user) throw new Error("Erro ao criar usuário.");
+      const currentUser = auth.currentUser;
+      if (!currentUser) throw new Error("Erro ao criar usuário.");
 
-      let photoURL: string | undefined = undefined;
-      if (file) {
-        photoURL = await uploadProfileImage(user.uid, file);
-      }
+      let photoURL: string | undefined;
+      if (file) photoURL = await uploadProfileImage(currentUser.uid, file);
 
-      const safeUsername = username ?? undefined;
-      const safePhotoURL = photoURL ?? undefined;
-      await createUserDocIfNotExists(user, { username: safeUsername, photoURL: safePhotoURL });
+      await createUserIfNotExist(currentUser, { username: username ?? undefined, photoURL });
 
-      setFirebaseUser(user);
-      const data = await getUserData(user.uid);
-      setUserData(data ?? null);
-    } finally {
-      setLoading(false);
+      setFirebaseUser(auth.currentUser);
+    } catch (err) {
+      console.error("signUp error:", err);
+      throw err;
     }
   };
 
   const signIn = async (email: string, password: string) => {
-    const user = await signInWithEmail(email, password);
-    if (!user) throw new Error("Erro no login.");
-    const data = await getUserData(user.uid);
-    setUserData(data);
-    setFirebaseUser(user);
+    try {
+      const user = await signInWithEmail(email, password);
+      if (!user) throw new Error("Erro no login :(.");
+      setFirebaseUser(user);
+    } catch (err) {
+      console.error("signIn error:", err);
+      throw err;
+    }
   };
 
   const signOut = async () => {
     await firebaseSignOut(auth);
     setFirebaseUser(null);
-    setUserData(null);
   };
 
   const resendVerification = async () => {
-    if (!firebaseUser) throw new Error("Nenhum usuário logado.");
+    if (!firebaseUser) throw new Error("Sem conta.");
     await resendVerificationFn(firebaseUser);
   };
 
   const uploadProfilePicture = async (file: File) => {
-    if (!firebaseUser) throw new Error("Nenhum usuário logado.");
+    if (!firebaseUser) throw new Error("Sem conta cara!.");
     const url = await uploadProfileImage(firebaseUser.uid, file);
-    const data = await getUserData(firebaseUser.uid);
-    setUserData(data);
     return url;
   };
 
   const updateProfile = async (profile: { bio?: string; username?: string }) => {
-    if (!firebaseUser) throw new Error("Nenhum usuário logado.");
-    await updateUserProfile(firebaseUser.uid, profile);
-    const data = await getUserData(firebaseUser.uid); 
-    setUserData(data ?? null); 
+    if (!firebaseUser) throw new Error("Sem conta não dá viado..");
+    await updateUserProfile(profile, () => {
+      Object.assign(firebaseUser, { displayName: profile.username ?? firebaseUser.displayName });
+    });
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        firebaseUser,
-        userData,
-        loading,
-        signUp,
-        signIn,
-        signOut,
-        resendVerification,
-        uploadProfilePicture,
-        updateProfile,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  const value: AuthContextType = {
+    firebaseUser,
+    userData,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+    resendVerification,
+    uploadProfilePicture,
+    updateProfile,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  if (!ctx) throw new Error("useAuth tem que ser usado com AuthProvider...");
   return ctx;
 };

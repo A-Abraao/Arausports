@@ -23,15 +23,18 @@ const TextoDescricaoUsuario = styled.p`
 
 interface UsuarioProps {
     name: string;
-    usuarioBio: string
+    usuarioBio: string;
+    eventosCriados: string;
+    participacoes: string;
+    conexoes: string
 }
 
-export function Usuario({name, usuarioBio}: UsuarioProps) {
+export function Usuario({ name, usuarioBio, eventosCriados, participacoes, conexoes }: UsuarioProps) {
     return (
         <UsarioComponent>
             <Titulo>{name}</Titulo>
             <TextoDescricaoUsuario>{usuarioBio}</TextoDescricaoUsuario>
-            <Estastisticas/>
+            <Estastisticas eventosCriados={eventosCriados} participacoes={participacoes} conexoes={conexoes}/>
             <ButtonContainer/>
         </UsarioComponent>
     )

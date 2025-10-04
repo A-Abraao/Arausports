@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { estatisticasUsuario } from "./estatisticasUsuario";
 
 const EstastisticasComponent = styled.div`
   display: flex;
@@ -24,23 +23,30 @@ const Estastistica = styled.span`
   }
 `;
 
-export function Estastisticas() {
-  const { created, joined } = estatisticasUsuario();
+type EstastisticaProps = {
+  eventosCriados: string;
+  participacoes: string
+  conexoes: string
+}
+
+export function Estastisticas({eventosCriados = "0", participacoes = "0", conexoes="0"}: EstastisticaProps) {
 
   const userEstastics = [
-    { quantidade: created, acao: "Eventos criados" },
-    { quantidade: joined, acao: "Participações" },
-    { quantidade: 0, acao: "Conexões" },
+    { quantidade: eventosCriados, acao: "Eventos criados" },
+    { quantidade: participacoes, acao: "Participações" },
+    { quantidade: conexoes, acao: "Conexões" },
   ];
 
   return (
     <EstastisticasComponent>
-      {userEstastics.map((item, index) => (
-        <Estastistica key={index}>
-          <span className="numero">{item.quantidade}</span>
-          <span className="acao">{item.acao}</span>
-        </Estastistica>
-      ))}
+      {
+        userEstastics.map((item, index) => (
+          <Estastistica key={index}>
+            <span className="numero">{item.quantidade}</span>
+            <span className="acao">{item.acao}</span>
+          </Estastistica>
+        ))
+      }
     </EstastisticasComponent>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../../../../../contexts/AuthContext";
+
 import {
   Dialog,
   DialogTitle,
@@ -15,9 +16,10 @@ interface EditarPerfilPopupProps {
 }
 
 export function EditarPerfilPopup({ open, onClose }: EditarPerfilPopupProps) {
-  const { updateProfile } = useAuth();
   const [nome, setNome] = useState("");
   const [bio, setBio] = useState("");
+  const { updateProfile } = useAuth();
+
 
   const palavrasBio = bio.trim().split(/\s+/).filter(Boolean).length;
   const limiteAtingido = palavrasBio > 45;
@@ -39,7 +41,6 @@ export function EditarPerfilPopup({ open, onClose }: EditarPerfilPopupProps) {
       onClose();
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);
-      alert("Erro ao atualizar perfil. Tente novamente.");
     }
   };
 

@@ -14,7 +14,6 @@ const EsportesGridComponent = styled.div`
 `;
 
 
- 
 type Props = {
   eventos: Evento[];
 };

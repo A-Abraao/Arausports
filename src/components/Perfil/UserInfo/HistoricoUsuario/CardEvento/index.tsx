@@ -55,7 +55,7 @@ type CardEventoProps = {
   esporte: string;
   capacidade: string;
   foiSalvo?: boolean;
-  savedFrom?: "eventosSalvos" | "meusEventos" | "proximosEventos" | string;
+  savedFrom?: "eventosSalvos" | "meusEventos" | string;
   onUnsave?: () => Promise<void> | void;
 };
 

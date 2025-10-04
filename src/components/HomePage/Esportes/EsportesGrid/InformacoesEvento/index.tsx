@@ -4,7 +4,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import { BarraDeProgresso } from "./BarraDeProgresso";
-import { formatDateBR } from "../../../../../servicos/FormatarData";
+import { formatDateBR } from "../../../../../firebase";
 import { EntrarBt } from "./EntrarBt";
 
 const InformacoesEventoComponent = styled.div`

@@ -1,8 +1,7 @@
 import styled from "styled-components";
 import { Usuario } from "./Usuario";
 import { BlurButton } from "../../../../../HomePage/Esportes/EsportesGrid/Card"; 
-import SalvarSvg from '../../../../../../assets/img/salvar.svg?react';
-import { formatarDataDMA } from "../../../../../../servicos/FormatarData";
+import { formatarDataDMA } from "../../../../../../firebase";
 
 const DivUsuarioComponent = styled.div`
   width: 100%;
@@ -60,7 +59,7 @@ export function DivUsuario({ data, esporte, foiSalvo = false, onToggleSave }: Di
             onClick={handleClick}
             aria-label={foiSalvo ? "Remover evento salvo" : "Salvar evento"}
           >
-            <SalvarSvg height="0.9em" width="0.9em" />
+            
           </BlurButton>
         )}
         <TipoDoEsporte>{esporte}</TipoDoEsporte>
