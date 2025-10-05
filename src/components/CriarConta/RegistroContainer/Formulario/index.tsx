@@ -5,6 +5,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { useSignUpWithEmail } from "../../../../firebase";
+import { useAlert } from "../../../Alerta/AlertProvider";
 import {
   EmailAuthProvider,
   linkWithCredential,
@@ -31,6 +32,7 @@ interface FormState {
 
 export default function Formulario() {
   const navigate = useNavigate();
+  const { showAlert } = useAlert()
 
   const [form, setForm] = useState<FormState>({
     email: "",
@@ -61,11 +63,41 @@ export default function Formulario() {
   };
 
   const validate = (): string | null => {
-    if (!form.email.trim() || !emailLooksValid(form.email))
-      return "esse email não da não.";
-    if (form.password.length < 8) return "A senha deve ter uns 8 caracteres.";
-    if (form.password !== form.confirmPassword)
-      return "As senhas não coincidem cara.";
+    if (!form.email.trim()) {
+      showAlert("acho que tem alguma coisa faltando no email", {
+        severity: "error",
+        duration: 3800,
+        variant: "standard"
+      })
+      return ""
+    }
+
+    if (!form.email.trim() || !emailLooksValid(form.email)) {
+      showAlert("esse email aí não da", {
+        severity: "error",
+        duration: 3800,
+        variant: "standard"
+      })
+
+      return ""
+    }
+      
+    if (form.password.length < 8){
+      showAlert("a senha tem que ter uns 8 caracteres", {
+        severity: "error",
+        duration: 3800,
+        variant: "standard"
+      })
+      return ""
+    };
+    if (form.password !== form.confirmPassword) {
+      showAlert("as senhas não coincidem cara!", {
+        severity: "error",
+        duration: 3800,
+        variant: "standard"
+      })
+      return ""
+    }
     return null;
   };
 
@@ -75,13 +107,20 @@ export default function Formulario() {
       const current = result.user;
 
       if (!current || !current.email) {
+        showAlert("usuário google não identificado", {
+          severity: "error",
+          duration: 3800,
+          variant: "standard"
+        })
         throw new Error("Não foi possível identificar usuário Google.");
       }
 
       if (current.email.toLowerCase() !== form.email.trim().toLowerCase()) {
-        throw new Error(
-          "esse email aí ta meio errado.."
-        );
+        showAlert("esse email aí ta estranho...", {
+          severity: "error",
+          duration: 3800,
+          variant: "standard"
+        })
       }
 
       const credential = EmailAuthProvider.credential(
@@ -92,7 +131,7 @@ export default function Formulario() {
       await linkWithCredential(current, credential);
 
       setSuccess(
-        "agora é logar com email e senha, vê se não esquece a senha"
+        "agora é logar com email e senha, vê se não esquece a senha zezão"
       );
       setShowGoogleLinkPrompt(false);
     } catch (err: any) {
@@ -110,7 +149,7 @@ export default function Formulario() {
 
     try {
       await signUp(form.email.trim(), form.password);
-      setSuccess("Verica esse email aí rapaz..");
+      setSuccess("Só verificar o email agora..");
       setForm((s) => ({ ...s, password: "", confirmPassword: "" }));
       setFile(null);
       if (previewUrl) {
@@ -118,6 +157,11 @@ export default function Formulario() {
         setPreviewUrl(null);
       }
     } catch (err) {
+      showAlert("deu erro no console..", {
+        severity: "error",
+        duration: 3800,
+        variant: "standard"
+      })
       console.error(err);
     }
   };
@@ -134,6 +178,7 @@ export default function Formulario() {
         onSubmit={handleSubmit}
         method="post"
         aria-label="Formulário de registro"
+        noValidate
         sx={{
           width: "100%",
           maxWidth: 480,
@@ -234,18 +279,6 @@ export default function Formulario() {
             },
           }}
         />
-
-        {error && (
-          <Typography color="error" role="alert" align="center">
-            {error.message}
-          </Typography>
-        )}
-
-        {success && (
-          <Typography color="textSecondary" align="center">
-            {success}
-          </Typography>
-        )}
 
         <Box
           sx={{

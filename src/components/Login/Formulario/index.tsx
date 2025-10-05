@@ -7,7 +7,7 @@ import { verificaEmail } from "../Autenticar/emailLoginController";
 import { verificaSenha } from "../Autenticar/senhaLoginController";
 import Autenticar from "../Autenticar";
 import { useNavigate } from "react-router-dom";
-import { useAlert } from "../Alerta/AlertProvider";
+import { useAlert } from "../../Alerta/AlertProvider";
 import { useAuth } from "../../../contexts/AuthContext";
 
 // componente do formulario
@@ -60,7 +60,7 @@ function Formulario() {
     }
 
     if (!senhaOk) {
-      showAlert("ops, ta sem senha aí", {
+      showAlert("ops, ta sem senha..", {
         severity: "error",
         duration: 4500,
         variant: "standard",
@@ -79,7 +79,7 @@ function Formulario() {
     try {
       await signIn(emailTrim, senhaVal);
 
-      showAlert("Login realizado com sucesso!", {
+      showAlert("Bem-vindo", {
         severity: "success",
         duration: 2500,
         variant: "standard",
@@ -92,9 +92,7 @@ function Formulario() {
 
       navigate("/homepage");
     } catch (err: any) {
-      console.error("Erro ao logar (front):", err);
-      const message = err?.message ?? "Erro ao autenticar";
-      showAlert(message, {
+      showAlert("login deu errado..", {
         severity: "error",
         duration: 4500,
         variant: "standard",

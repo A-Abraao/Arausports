@@ -18,7 +18,7 @@ const AlertContext = createContext<AlertContextType | undefined>(undefined);
 
 export const useAlert = () => {
   const ctx = useContext(AlertContext);
-  if (!ctx) throw new Error("useAlert must be used within AlertProvider");
+  if (!ctx) throw new Error("userAlert precisa do AuthProvider");
   return ctx;
 };
 

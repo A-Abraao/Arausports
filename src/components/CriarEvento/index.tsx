@@ -1,8 +1,9 @@
 import styled from "styled-components";
 import { HeaderComponent } from "../Perfil/Header";
 import VoltarSetinha from '../../assets/img/retornar-setinha.svg?react';
-import { IconButton, Button } from "@mui/material";
+import { IconButton, Button, duration } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useAlert } from "../Alerta/AlertProvider";
 import { useState } from "react";
 import { Titulo } from "./Titulo";
 import { DetalhesEvento } from "./DetalhesEvento";
@@ -35,6 +36,7 @@ const InformacoesEvento = styled.div`
 export function CriarEvento() {
   const navigate = useNavigate();
   const { firebaseUser } = useAuth();
+  const { showAlert } = useAlert()
 
   const [evento, setEvento] = useState<EventoData>({
     titulo: "",
@@ -54,7 +56,34 @@ export function CriarEvento() {
 
   const handleSubmit = async () => {
     if (!firebaseUser) {
-      alert("Faça login primeiro zé");
+      showAlert("Faça login primeiro zé", {
+        severity: "error",
+        duration: 2800,
+        variant: "standard"
+      });
+    
+    if (eventId) {
+      showAlert("evento criado carai!", {
+        severity: "success",
+        duration: 2800,
+        variant: "standard"
+      })
+    } else {
+      showAlert("Id do evento deve estar faltando..", {
+        severity: "error",
+        duration: 2800,
+        variant: "standard"
+      })
+      
+      if (error) {
+        showAlert("viado... olha o console...", {
+          severity: "error",
+          duration: 2800,
+          variant: "standard"
+        })
+        console.error("Que cagada!!" + error)
+      }
+    }
       return;
     }
 
@@ -64,7 +93,12 @@ export function CriarEvento() {
       const id = await addEventForUser(firebaseUser.uid, payload as EventoData);
       navigate("/perfil");
     } catch (err) {
-      console.error("Erro ao salvar evento:", err);
+      showAlert("Por algum motivo não foi, veja o console", {
+        severity: "error",
+        duration: 2800,
+        variant: "standard"
+      }),
+      console.error("acho que deu isso aqui", err);
     }
   };
 
@@ -113,7 +147,7 @@ export function CriarEvento() {
         </Button>
 
         {error && <p style={{ color: "red" }}>❌ Erro: {error.message}</p>}
-        {eventId && <p>evento criado carai {eventId}</p>}
+        
       </CriarEventoComponent>
     </div>
   );

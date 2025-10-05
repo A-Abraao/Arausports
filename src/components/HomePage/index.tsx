@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAlert } from "../Login/Alerta/AlertProvider";
+import { useAlert } from "../Alerta/AlertProvider";
 import Header from "./Header";
 import { Banner } from "./MainBanner";
 import { Esportes } from "./Esportes";
@@ -23,11 +23,10 @@ export default function HomePage() {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-
   useEffect(() => {
     const state = location.state as any;
     if (state?.fromLogin) {
-      showAlert("Bem-vindo! Login efetuado com sucesso.", {
+      showAlert("salve rapax", {
         severity: "success",
         duration: 2800,
         variant: "standard",

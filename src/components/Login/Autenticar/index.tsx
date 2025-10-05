@@ -4,7 +4,7 @@ import GoogleLogoSRC from "../../../assets/img/google-logo.png";
 import FcebookLogoSRC from "../../../assets/img/facebook-logo.png";
 import { IconButton } from "@mui/material";
 import styled from "styled-components";
-import { useAlert } from "../Alerta/AlertProvider";
+import { useAlert } from "../../Alerta/AlertProvider";
 
 //criaremos o componente de autenticação
 const AutenticarComponent = styled.div`
