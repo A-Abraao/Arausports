@@ -5,6 +5,7 @@ import { auth, db } from "../../../../../../firebase/config";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useJoinEvent } from "../../../../../../firebase";
 import { useExitEvent } from "../../../../../../firebase";
+import { useIcrementParticipation } from "../../../../../../firebase";
 
 const ButtonContainer = styled.div`
   margin-top: 0.75em;
@@ -26,7 +27,7 @@ export function EntrarBt({ eventoId, ownerId }: EntrarBtProps) {
 
   const { joinEvent, loading: loadingJoin, error: errorJoin } = useJoinEvent();
   const { exitEvent, loading: loadingExit, error: errorExit } = useExitEvent();
-
+  const { incrementParticipacoes, decrementParticipacoes } = useIcrementParticipation(user?.uid)
   useEffect(() => {
     if (!ownerId || !user) return;
 
@@ -67,13 +68,15 @@ export function EntrarBt({ eventoId, ownerId }: EntrarBtProps) {
     try {
       if (isParticipando) {
         await exitEvent(eventoId, ownerId, user.uid);
+        decrementParticipacoes(1)
         setIsParticipando(false);
       } else {
         await joinEvent(eventoId, ownerId, user.uid);
+        await incrementParticipacoes(1)
         setIsParticipando(true);
       }
     } catch (err: any) {
-      alert(err.message ?? "Deu erro na requisição do firebase");
+      alert(err.message ?? "Deu erro para entrar no evento");
     }
   };
 
