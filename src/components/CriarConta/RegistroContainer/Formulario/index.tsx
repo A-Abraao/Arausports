@@ -40,19 +40,17 @@ export default function Formulario() {
     confirmPassword: "",
   });
 
-  const [success, setSuccess] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showGoogleLinkPrompt, setShowGoogleLinkPrompt] = useState(false);
 
   const formRef = useRef<HTMLFormElement | null>(null);
 
-  const { signUp, loading, error } = useSignUpWithEmail();
+  const { signUp, loading } = useSignUpWithEmail();
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((s) => ({ ...s, [name]: value }));
-    setSuccess(null);
     setShowGoogleLinkPrompt(false);
   };
 
@@ -130,9 +128,12 @@ export default function Formulario() {
 
       await linkWithCredential(current, credential);
 
-      setSuccess(
-        "agora é logar com email e senha, vê se não esquece a senha zezão"
-      );
+      showAlert("agora é logar com email e senha e vê se não esquece a senha zezão", {
+        severity: "warning",
+        duration: 3800,
+        variant: "standard"
+      })
+
       setShowGoogleLinkPrompt(false);
     } catch (err: any) {
       console.error(err);
@@ -141,7 +142,6 @@ export default function Formulario() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSuccess(null);
     setShowGoogleLinkPrompt(false);
 
     const validationError = validate();
@@ -149,7 +149,12 @@ export default function Formulario() {
 
     try {
       await signUp(form.email.trim(), form.password);
-      setSuccess("Só verificar o email agora..");
+      showAlert("Só verificar o email agora..", {
+        severity: "success",
+        duration: 3800,
+        variant: "standard"
+      })
+
       setForm((s) => ({ ...s, password: "", confirmPassword: "" }));
       setFile(null);
       if (previewUrl) {

@@ -55,50 +55,43 @@ export function CriarEvento() {
   const { addEventForUser, loading, error, eventId } = useAddEvent();
 
   const handleSubmit = async () => {
+
     if (!firebaseUser) {
       showAlert("Faça login primeiro zé", {
         severity: "error",
-        duration: 2800,
+        duration: 3800,
         variant: "standard"
       });
-    
-    if (eventId) {
-      showAlert("evento criado carai!", {
-        severity: "success",
-        duration: 2800,
-        variant: "standard"
-      })
-    } else {
-      showAlert("Id do evento deve estar faltando..", {
-        severity: "error",
-        duration: 2800,
-        variant: "standard"
-      })
-      
-      if (error) {
-        showAlert("viado... olha o console...", {
-          severity: "error",
-          duration: 2800,
-          variant: "standard"
-        })
-        console.error("Que cagada!!" + error)
-      }
-    }
-      return;
+      return
     }
 
     try {
       const payload: Partial<EventoData> = { ...evento };
 
       const id = await addEventForUser(firebaseUser.uid, payload as EventoData);
-      navigate("/perfil");
+
+      if (!id) {
+        showAlert("Id do evento deve estar faltando..", {
+          severity: "error",
+          duration: 3800,
+          variant: "standard"
+        })
+        return
+      }
+    
+      navigate("/perfil", {
+        state: {
+          from: "criar-evento",
+        },
+      });
+
     } catch (err) {
-      showAlert("Por algum motivo não foi, veja o console", {
+      showAlert("viado... olha o console...", {
         severity: "error",
         duration: 2800,
         variant: "standard"
       }),
-      console.error("acho que deu isso aqui", err);
+      console.error("Que cagada!!", err);
     }
   };
 
@@ -145,8 +138,6 @@ export function CriarEvento() {
         >
           {loading ? "Criando..." : "Criar Evento"}
         </Button>
-
-        {error && <p style={{ color: "red" }}>❌ Erro: {error.message}</p>}
         
       </CriarEventoComponent>
     </div>

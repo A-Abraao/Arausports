@@ -1,15 +1,21 @@
 import { useState, useCallback } from "react";
 import { db } from "../config";
-import { collection, doc, runTransaction, Timestamp } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  runTransaction,
+  Timestamp,
+  increment,
+} from "firebase/firestore";
 
 type Evento = {
   titulo: string;
   categoria: string;
-  data: string;
+  data: string; // string vindo do form (ex: "2025-10-05")
   horario: string;
   local: string;
   capacidade: number;
-  imageUrl?: string;  
+  imageUrl?: string;
 };
 
 export function useAddEvent() {
@@ -32,6 +38,12 @@ export function useAddEvent() {
 
       const capacidadeValida = Math.max(1, Number(evento.capacidade ?? 1));
 
+      // validação simples da data
+      const eventDate = evento.data ? new Date(evento.data) : null;
+      if (!eventDate || isNaN(eventDate.getTime())) {
+        throw new Error("Data do evento inválida");
+      }
+
       // payload
       const payload: any = {
         ...evento,
@@ -40,7 +52,7 @@ export function useAddEvent() {
         capacidade: capacidadeValida,
         participantesAtuais: 1,
         createdAt: Timestamp.now(),
-        data: Timestamp.fromDate(new Date(evento.data)),
+        data: Timestamp.fromDate(eventDate),
         userEventPath: `usuarios/${uid}/eventos/${id}`,
         foiSalvo: false,
       };
@@ -56,19 +68,32 @@ export function useAddEvent() {
         uid
       );
 
-      // criar o evento de fato
+      // referencia do documento do usuário
+      const userDocRef = doc(db, "usuarios", uid);
+
       await runTransaction(db, async (tx) => {
+        const userSnap = await tx.get(userDocRef);
+
         tx.set(newEventRef, payload);
+
+        // adiciona o participante
         tx.set(participanteRef, {
           userId: uid,
           joinedAt: new Date().toISOString(),
         });
+
+        if (userSnap.exists()) {
+          tx.update(userDocRef, { eventosCriados: increment(1) });
+        } else {
+          tx.set(userDocRef, { eventosCriados: 1 }, { merge: true });
+        }
       });
 
       setEventId(id);
       return id;
     } catch (err: any) {
-      setError(err);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      throw err;
     } finally {
       setLoading(false);
     }

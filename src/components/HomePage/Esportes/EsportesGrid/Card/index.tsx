@@ -86,7 +86,7 @@ type SalvarButtonProps = {
 
 export const SalvarButton = ({ativo, loading, onClick}: SalvarButtonProps) => {
   const bgcolor = ativo ? "#e91e63" : "white";
-  const bgcoloractived = "#c2185b"
+  const bgcoloractived = "rgba(194, 24, 91, 1)"
   return (
     <IconButton
       onClick={onClick}
@@ -98,7 +98,7 @@ export const SalvarButton = ({ativo, loading, onClick}: SalvarButtonProps) => {
         padding: "6px",
 
          '&:hover': {
-           background: ativo ? bgcoloractived : 'rgba(0, 0, 0, 0.04)',
+           background: ativo ? bgcoloractived : 'rgba(255, 255, 255, 0.6)',
          }
       }}
     >
