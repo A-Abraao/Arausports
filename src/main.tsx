@@ -23,6 +23,7 @@ const GlobalStyle = createGlobalStyle`
     --accent-foreground: hsl(0 0% 100%);
     --background: hsl(35 100% 98%);
     --muted-foreground: hsl(210 15% 45%);
+    --google-gradient: linear-gradient( to-right, hsl(217, 89%, 61%) 0%, hsl(4, 83%, 57%) 25%, hsl(48, 96%, 58%) 50%, hsl(142, 54%, 47%) 75%, hsl(217, 89%, 61%) 100% );
   }
 
   html, body, div, span, applet, object, iframe,

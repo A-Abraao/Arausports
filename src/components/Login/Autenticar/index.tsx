@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useGoogleAuth } from "../../../firebase";
 import GoogleLogoSRC from "../../../assets/img/google-logo.png";
-import FcebookLogoSRC from "../../../assets/img/facebook-logo.png";
 import { IconButton } from "@mui/material";
 import styled from "styled-components";
 import { useAlert } from "../../Alerta/AlertProvider";
@@ -22,6 +21,7 @@ const AutenticarComponent = styled.div`
     height: 1.3em;
     width: 1.3em;
   }
+
 `;
 
 function Autenticar() {
@@ -45,12 +45,12 @@ function Autenticar() {
     <AutenticarComponent>
       <h2>entre também com:</h2>
       <div style={{ display: "flex", gap: ".65em", justifyContent: "center" }}>
-        <IconButton size="small" onClick={handleGoogle} disabled={loading}>
+        <IconButton size="small" onClick={handleGoogle} disabled={loading} sx={{ 
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5em"
+         }}>
           <img src={GoogleLogoSRC} alt="logo do google" />
-        </IconButton>
-
-        <IconButton size="small">
-          <img src={FcebookLogoSRC} alt="logo do facebook" />
         </IconButton>
       </div>
     </AutenticarComponent>
