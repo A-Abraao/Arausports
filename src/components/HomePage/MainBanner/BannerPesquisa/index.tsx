@@ -19,7 +19,7 @@ export default function BannerPesquisa({
 }: Props) {
   const handleSearch = () => {
     if (onSearch) {
-      onSearch(value); 
+      onSearch(value);
     }
   };
 
@@ -27,16 +27,16 @@ export default function BannerPesquisa({
     <Box
       sx={{
         width: '100%',
-        maxWidth: { xs: 170, sm: 330, md: 490 },
+        maxWidth: 'clamp(170px, 40vw, 490px)',
         mx: 'auto',
-        p: 2,
-        borderRadius: 2,
+        p: 'clamp(0.45rem, 1.6vw, 1rem)', 
+        borderRadius: 'clamp(6px, 1.6vw, 12px)',
         border: '1px solid rgba(255,255,255,0.2)',
         bgcolor: 'rgba(255,255,255,0.06)',
         backdropFilter: 'blur(6px)',
       }}
     >
-      <Box sx={{ display: 'flex', gap: 1 }}>
+      <Box sx={{ display: 'flex', gap: 'clamp(0.5rem, 1.6vw, 1rem)' }}>
         <Box sx={{ flex: 1 }}>
           <TextField
             fullWidth
@@ -47,14 +47,17 @@ export default function BannerPesquisa({
             placeholder={placeholder}
             InputProps={{
               startAdornment: (
-                <InputAdornment position="start" sx={{ mr: 1 }}>
-                  <SearchIcon sx={{ fontSize: 24, color: 'rgba(255,255,255,0.7)' }} />
+                <InputAdornment
+                  position="start"
+                  sx={{ mr: 'clamp(6px, 1.5vw, 10px)' }}
+                >
+                  <SearchIcon sx={{ fontSize: 'clamp(14px, 2.2vw, 24px)', color: 'rgba(255,255,255,0.7)' }} />
                 </InputAdornment>
               ),
             }}
             sx={{
               '& .MuiOutlinedInput-root': {
-                borderRadius: 1,
+                borderRadius: 'clamp(6px, 1.6vw, 12px)',
                 bgcolor: 'rgba(255,255,255,0.20)',
                 color: 'white',
 
@@ -78,25 +81,29 @@ export default function BannerPesquisa({
               },
 
               '& .MuiOutlinedInput-input': {
-                padding: '0.58em 1em',
+                padding: 'clamp(0.45rem, 1.2vw, 0.75rem) clamp(0.6rem, 1.8vw, 1rem)',
+                fontSize: 'clamp(0.9rem, 1.6vw, 1rem)',
               },
             }}
           />
         </Box>
-        
+
         <IconButton
           aria-label="search"
           size="large"
           onClick={handleSearch}
           sx={{
-            borderRadius: '0.20em',
+            borderRadius: 'clamp(4px, 0.8vw, 6px)',
             background: 'dodgerblue',
+            minWidth: 'clamp(36px, 6.5vw, 44px)',
+            minHeight: 'clamp(36px, 6.5vw, 44px)',
+            px: 'clamp(6px, 1.8vw, 8px)',
             '&:hover': {
               background: '#1f6feb',
             },
           }}
         >
-          <SearchIcon sx={{ fontSize: 18, color: 'white' }} />
+          <SearchIcon sx={{ fontSize: 'clamp(14px, 2.2vw, 18px)', color: 'white' }} />
         </IconButton>
       </Box>
     </Box>

@@ -15,8 +15,9 @@ const FormularioComponent = styled.form`
   align-items: center;
   display: flex;
   flex-direction: column;
-  gap: 1.1em;
-  padding: 1em 1em 0.25em 1em;
+  width: 100%;
+  gap: 1em;
+  padding: 0.75em 1.75em 0.75em 1.75em;
 
   .botoes {
     display: flex;

@@ -1,29 +1,25 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { createGlobalStyle } from 'styled-components'
-import { HashRouter } from 'react-router-dom';
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
-import { GoogleOAuthProvider } from "@react-oauth/google";
-import { AlertProvider } from './components/Alerta/AlertProvider.tsx';
-import { AuthProvider } from './contexts/AuthContext.tsx';
+import { createGlobalStyle, ThemeProvider as StyledThemeProvider } from 'styled-components'
+import { HashRouter } from 'react-router-dom'
+import { ThemeProvider, createTheme, CssBaseline } from '@mui/material'
+import { GoogleOAuthProvider } from "@react-oauth/google"
+import { AlertProvider } from './components/Alerta/AlertProvider.tsx'
+import { AuthProvider } from './contexts/AuthContext.tsx'
 import App from './App.tsx'
 
 const GlobalStyle = createGlobalStyle`
-
   :root {
     --font-principal: 'Poppins', sans-serif;
     --gradient-hero: linear-gradient(135deg, hsl(25 95% 53%), hsl(200 95% 60%));
     --ring: #f3740dff;
     --gradient-primary: linear-gradient(135deg, hsl(25 95% 53%), hsl(35 95% 60%));
     --gradient-secondary: linear-gradient(135deg, hsl(200 95% 60%), hsl(210 90% 65%));
-    --cinza: rgba(245, 245, 220, 1)	;
-    --sidebar-ring: hsl(217.2 91.2% 59.8%);
-    --accent: hsl(140 85% 55%);
-    --secondary: hsl(200 95% 60%);
-    --accent-foreground: hsl(0 0% 100%);
     --background: hsl(35 100% 98%);
-    --muted-foreground: hsl(210 15% 45%);
-    --google-gradient: linear-gradient( to-right, hsl(217, 89%, 61%) 0%, hsl(4, 83%, 57%) 25%, hsl(48, 96%, 58%) 50%, hsl(142, 54%, 47%) 75%, hsl(217, 89%, 61%) 100% );
+  }
+
+  * {
+    box-sizing: border-box;
   }
 
   html, body, div, span, applet, object, iframe,
@@ -38,19 +34,14 @@ const GlobalStyle = createGlobalStyle`
   article, aside, canvas, details, embed, 
   figure, figcaption, footer, header, hgroup, 
   menu, nav, output, ruby, section, summary,
-  time, mark, audio, video, button {
-    font-family: var(--font-principal);
+  time, mark, audio, video {
     margin: 0;
     padding: 0;
     border: 0;
-    font-weight: 450;
+    font-size: 100%;
+    font: inherit;
     vertical-align: baseline;
   }
-  
-  #root {
-    background: var(--background);
-  }
-
   article, aside, details, figcaption, figure, 
   footer, header, hgroup, menu, nav, section {
     display: block;
@@ -73,27 +64,54 @@ const GlobalStyle = createGlobalStyle`
     border-collapse: collapse;
     border-spacing: 0;
   }
+
+  html, body, #root {
+    min-height: 100vh;
+    width: 100%;
+    font-family: var(--font-principal);
+    background: var(--background);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* garante imagens e mídias não extrapolem */
+  img, picture, svg, video, iframe {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
 `
 
 const theme = createTheme({
   typography: {
     fontFamily: 'Montserrat, sans-serif',
   },
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
 });
-
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HashRouter>
       <AuthProvider>
         <ThemeProvider theme={theme}>
-          <GoogleOAuthProvider clientId="912477332805-51cp3chm479l1v5lin174b4fravp7okg.apps.googleusercontent.com">
-            <AlertProvider>
-              <CssBaseline />
-              <GlobalStyle />
-              <App />
-            </AlertProvider>
-          </GoogleOAuthProvider>
+          <StyledThemeProvider theme={theme}>
+            <GoogleOAuthProvider clientId="912477332805-51cp3chm479l1v5lin174b4fravp7okg.apps.googleusercontent.com">
+              <AlertProvider>
+                <CssBaseline />
+                <GlobalStyle />
+                <App />
+              </AlertProvider>
+            </GoogleOAuthProvider>
+          </StyledThemeProvider>
         </ThemeProvider>
       </AuthProvider>
     </HashRouter>

@@ -7,64 +7,66 @@ import { IconButton } from "@mui/material";
 import { onAuthListener, useGetProfilePhoto } from "../../../../firebase";
 
 const AreaDoUsuarioComponent = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 1.15em;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.5rem, 2vw, 1.15rem);
 `;
 
-const PerfilImg= styled(IconButton)`
-    height: 2.55em;
-    width: 2.55em;
+const PerfilImg = styled(IconButton)`
+  height: clamp(2.0rem, 5.5vw, 2.55rem);
+  width: clamp(2.0rem, 5.5vw, 2.55rem);
+  border-radius: 100%;
+  padding: clamp(2px, 0.6vw, 4px);
+  overflow: hidden;
+
+  img {
+    width: clamp(1.3rem, 4.2vw, 1.85rem);
+    height: clamp(1.3rem, 4.2vw, 1.85rem);
     border-radius: 100%;
-    padding: 1px; 
-    overflow: hidden;
-
-    img {
-        width: 1.85em;
-        height: 1.85em;
-        border-radius: 100%;
-        object-fit: cover;
-    }
+    object-fit: cover;
+    display: block;
+  }
 `;
-
 
 export function AreaDoUsuario() {
+  const [ userId, setUserId ] = useState<string | null>(null)
 
-    const [ userId, setUserId ] = useState<string | null>(null)
+  useEffect(() => {
+    const unsubscribe = onAuthListener((user) => {
+      setUserId(user ? user.uid : null)
+    })
 
-    useEffect(() => {
-        const unsubscribe = onAuthListener((user) => {
-            setUserId(user ? user.uid : null)
-        })
+    return () => unsubscribe()
+  }, [])
 
-        return () => unsubscribe()
-    }, [])
+  const { userPhoto, erro } = useGetProfilePhoto(userId)
 
-    const { userPhoto, erro } = useGetProfilePhoto(userId)
+  if (erro) console.log("deu erro" + erro)
 
-    if(erro) console.log("deu erro" + erro)
+  const navigate = useNavigate();
+  const handleNavigate = () => {
+    navigate("/perfil");
+  };
 
-    const navigate = useNavigate();
-    const handleNavigate = () => {
-        navigate("/perfil");
-    };
+  return (
+    <AreaDoUsuarioComponent>
+      <IconButton
+        color="primary"
+        aria-label="ícone de notificações"
+        onClick={() => alert('Você clicou no ícone de sino!')}
+        sx={{
+          fontSize: 'clamp(20px, 2.5vw, 26px)',
+        }}
+      >
+        <NotificationsIcon sx={{
+          fontSize: 'inherit',
+          color: "var(--ring)",
+        }} />
+      </IconButton>
 
-    return (
-        <AreaDoUsuarioComponent>
-            <IconButton
-                color="primary"
-                aria-label="ícone de notificações"
-                onClick={() => alert('Você clicou no ícone de sino!')}
-            >
-                <NotificationsIcon sx={{ 
-                    fontSize: 26,
-                    color: "var(--ring)",
-                }} />
-            </IconButton>
-
-            <PerfilImg onClick={handleNavigate}>
-                <img src={userPhoto || bolaDeBasqueteUrl} alt="Perfil" />
-            </PerfilImg>
-        </AreaDoUsuarioComponent>
-    );
+      <PerfilImg onClick={handleNavigate}>
+        <img src={userPhoto || bolaDeBasqueteUrl} alt="Perfil" />
+      </PerfilImg>
+    </AreaDoUsuarioComponent>
+  );
 }
