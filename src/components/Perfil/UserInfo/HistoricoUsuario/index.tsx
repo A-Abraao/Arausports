@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { CardEvento } from "./CardEvento";
 import { FiltroHistorico } from "./FiltroHistorico";
 import { useUserCreatedEvents } from "../../../../firebase";
-import { useEventosSalvosComParticipantes } from "../../../../firebase/eventos/useEventosSalvos";
+import { useEventosSalvosComParticipantes } from "../../../../firebase/eventos/useEventosSalvosComParticipantes";
 import { useRemoverEventoSalvo } from "../../../../firebase";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useState } from "react";
@@ -43,7 +43,7 @@ export function HistoricoUsuario() {
       local: s.localizacao ?? "",
       data: s.data ?? "",
       categoria: s.categoria ?? "",
-      capacidade: s.participantesTotais ?? 0,
+      capacidade: s.participantes ?? 0,
     }));
 
   return (
@@ -72,14 +72,10 @@ export function HistoricoUsuario() {
           loadingSalvo={loadingSalvo}
           foiSalvo={opcaoSelecionada === "eventosSalvos"}
           onUnsave={async () => {
-            try {
-              await removerEvento(evento.id);
-              console.log("evento removido" + evento.id)
-            } catch (err) {
-              console.error("Erro removendo evento salvo:", err);
-            }
+            await removerEvento(evento.id);
           }}
         />
+
       ))}
     </HistoricoUsuarioComponent>
   );

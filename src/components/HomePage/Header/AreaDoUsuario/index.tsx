@@ -13,15 +13,15 @@ const AreaDoUsuarioComponent = styled.div`
 `;
 
 const PerfilImg = styled(IconButton)`
-  height: clamp(2.0rem, 5.5vw, 2.55rem);
-  width: clamp(2.0rem, 5.5vw, 2.55rem);
+  height: clamp(2.9rem, 6.9vw, 3.45rem);
+  width: clamp(2.9rem, 6.9vw, 3.45rem);
   border-radius: 100%;
   padding: clamp(2px, 0.6vw, 4px);
   overflow: hidden;
 
   img {
-    width: clamp(1.3rem, 4.2vw, 1.85rem);
-    height: clamp(1.3rem, 4.2vw, 1.85rem);
+    width: 100%;
+    height: 100%;
     border-radius: 100%;
     object-fit: cover;
     display: block;

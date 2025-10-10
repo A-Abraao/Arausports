@@ -8,10 +8,10 @@ const HeaderComponent = styled.header`
   padding: clamp(0.5rem, 1.6vw, 0.65rem) clamp(0.75rem, 4vw, 1.75rem);
   justify-content: space-between;
   display: flex;
-  position: sticky;
+  position: fixed;
   top: 0;
   z-index: 50;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
   background-color: rgba(255, 255, 255, 0.3);
 
   backdrop-filter: blur(8px);

@@ -10,6 +10,7 @@ const HomePageComponent = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
+  padding-top: 5em;
   flex-direction: column;
 `;
 

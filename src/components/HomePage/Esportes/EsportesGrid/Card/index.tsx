@@ -2,7 +2,8 @@ import styled from "styled-components";
 import { useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { InformacoesEvento } from "../InformacoesEvento";
-import { useSalvarEvento } from "../../../../../firebase"; 
+import { useSalvarEvento } from "../../../../../firebase";
+import { useRemoverEventoSalvo } from "../../../../../firebase";
 import { IconButton } from "@mui/material";
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark'; 
@@ -38,7 +39,6 @@ const ImageWrapper = styled.div`
   position: relative;
   border-top-right-radius: 0.5rem;
   border-top-left-radius: 0.5rem;
-  /* altura responsiva: não deixe muito pequena nem muito grande. usa var(--vh) se disponível */
   height: clamp(12rem, calc(var(--vh, 1vh) * 40), 22rem);
   width: 100%;
   overflow: hidden;
@@ -56,7 +56,6 @@ const MotionImage = styled(motion.img)`
 
 const SecaoSuperiorDiv = styled.span`
   position: absolute;
-  /* espaçamentos responsivos */
   top: clamp(0.35rem, 1.2vh, 0.6rem);
   left: clamp(0.35rem, 1.2vw, 0.6rem);
   z-index: 5;
@@ -71,7 +70,6 @@ const SecaoSuperiorDiv = styled.span`
   .tipo-esporte {
     border-radius: 9999px;
     background: rgba(255,255,255,0.95);
-    /* padding responsivo */
     padding: clamp(0.25rem, 0.6vw, 0.45rem) clamp(0.55rem, 1.8vw, 0.95rem);
     transition: background-color 0.5s ease-in-out;
 
@@ -98,9 +96,8 @@ export const SalvarButton = ({ativo, loading, onClick}: SalvarButtonProps) => {
       sx={{
         background: bgcolor,
         borderRadius: "9999px",
-        /* margem/padding responsivos usando rem */
         mr: "0.45rem",
-        p: "0.375rem", /* ~6px */
+        p: "0.375rem", 
         '&:hover': {
           background: ativo ? bgcoloractived : 'rgba(255, 255, 255, 0.6)',
         }
@@ -140,23 +137,30 @@ export function Card({
   const imageScale = useTransform(y, [-8, 0], [1.08, 1]);
   const [hoverAtivado, setHoverAtivado] = useState(false);
 
-  const { salvo: ativo, salvarEvento, loading } = useSalvarEvento(eventoId);
+  const { salvo: ativo, setSalvo,salvarEvento, loading } = useSalvarEvento(eventoId);
+  const { removerPorEventoId, loadingSalvo } = useRemoverEventoSalvo();
 
   const handleSaveClick = async () => {
     if (!eventoId) return;
 
     try {
-      await salvarEvento({
-        titulo,
-        localizacao,
-        data: data,
-        participantesAtuais,
-        categoria,
-        ownerId: ownerId ?? null,
-      });
+      if (ativo) {
+        await removerPorEventoId(eventoId);
+        setSalvo(false)
+      } else {
+        await salvarEvento({
+          titulo,
+          localizacao,
+          data: data,
+          participantesAtuais,
+          categoria,
+          ownerId: ownerId ?? null,
+        });
+      }
     } catch (error) {
       console.error("Erro ao salvar o evento:", error);
     }
+  
   };
 
   return (

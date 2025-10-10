@@ -97,5 +97,5 @@ export function useSalvarEvento(eventoId: string | null) {
     [firebaseUser, eventoId, salvo] 
   );
 
-  return { salvo, salvarEvento, loading, erro, savedDocId };
+  return { salvo, setSalvo ,salvarEvento, loading, erro, savedDocId };
 }
