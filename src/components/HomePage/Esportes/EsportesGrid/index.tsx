@@ -9,10 +9,9 @@ const EsportesGridComponent = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.65em;
+  gap: clamp(0.75rem, 1.2vw, 1.65rem);
   flex-wrap: wrap;
 `;
-
 
 type Props = {
   eventos: Evento[];

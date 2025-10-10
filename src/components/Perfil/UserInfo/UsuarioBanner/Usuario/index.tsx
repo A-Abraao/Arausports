@@ -5,20 +5,19 @@ import { ButtonContainer } from "./Botoes";
 const UsarioComponent = styled.div`
     display: flex;
     flex-direction: column;
-    width: 55%;
-    gap: 1.35em;
+    width: min(55%, 100%);
+    gap: clamp(0.6rem, 1.4vw, 1.35rem);
     flex-wrap: wrap;
 `
 
 const Titulo = styled.h1`
-    font-size: 2.25em;
+    font-size: clamp(1.125rem, 3.2vw, 2.25rem);
     font-weight: 500;
-    `
+`
     
 const TextoDescricaoUsuario = styled.p`
-
-    font-size: 0.9em;
-    
+    font-size: clamp(0.8rem, 1.4vw, 0.9rem);
+    margin: 0;
 `
 
 interface UsuarioProps {

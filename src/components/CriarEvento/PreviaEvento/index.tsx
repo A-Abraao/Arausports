@@ -5,6 +5,8 @@ import ImageUpload from "../ImageUpload";
 import { PreviaPreviaInformacoes } from "./PreviaInformacoes";
 
 const PreviaEventoContainer = styled(DetalhesEventoContainer)`
+  flex: 1 1 48%;
+  max-width: clamp(280px, 48%, 560px);
   width: 100%;
   min-height: 400px;
   height: auto;

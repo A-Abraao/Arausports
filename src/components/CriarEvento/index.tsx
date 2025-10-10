@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { HeaderComponent } from "../Perfil/Header";
 import VoltarSetinha from '../../assets/img/retornar-setinha.svg?react';
-import { IconButton, Button, duration } from "@mui/material";
+import { IconButton, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAlert } from "../Alerta/AlertProvider";
 import { useState } from "react";
@@ -16,27 +16,32 @@ const CriarEventoComponent = styled.div`
   align-items: center;
   display: flex;
   flex-direction: column;
-  padding-bottom: 0.75em;
+  padding-bottom: clamp(0.5rem, 1.5vh, 1rem);
+  min-height: calc(var(--vh, 1vh) * 100);
 `;
 
 const Header = styled(HeaderComponent)``;
 
 const InformacoesEvento = styled.div`
   display: flex;
+  flex-wrap: nowrap;
   align-items: flex-start;
-  padding: 2em;
+  gap: clamp(0.8rem, 2vw, 2rem);
   width: 100%;
-  gap: 2em;
+  padding: clamp(0.8rem, 2vw, 2rem);
 
   @media (max-width: 900px) {
     flex-direction: column;
+    flex-wrap: wrap;
   }
-`;
+`
+
+
 
 export function CriarEvento() {
   const navigate = useNavigate();
   const { firebaseUser } = useAuth();
-  const { showAlert } = useAlert()
+  const { showAlert } = useAlert();
 
   const [evento, setEvento] = useState<EventoData>({
     titulo: "",
@@ -50,24 +55,20 @@ export function CriarEvento() {
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
-
-  // hook que cria o evento
-  const { addEventForUser, loading, error, eventId } = useAddEvent();
+  const { addEventForUser, loading } = useAddEvent();
 
   const handleSubmit = async () => {
-
     if (!firebaseUser) {
       showAlert("Faça login primeiro zé", {
         severity: "error",
         duration: 3800,
         variant: "standard"
       });
-      return
+      return;
     }
 
     try {
       const payload: Partial<EventoData> = { ...evento };
-
       const id = await addEventForUser(firebaseUser.uid, payload as EventoData);
 
       if (!id) {
@@ -75,16 +76,13 @@ export function CriarEvento() {
           severity: "error",
           duration: 3800,
           variant: "standard"
-        })
-        return
+        });
+        return;
       }
-    
-      navigate("/perfil", {
-        state: {
-          from: "criar-evento",
-        },
-      });
 
+      navigate("/perfil", {
+        state: { from: "criar-evento" },
+      });
     } catch (err) {
       showAlert("viado... olha o console...", {
         severity: "error",
@@ -99,9 +97,9 @@ export function CriarEvento() {
     <div>
       <Header>
         <IconButton onClick={() => navigate("/perfil")}>
-          <VoltarSetinha width={"1.75em"} height={"1.75em"} />
+          <VoltarSetinha width={"clamp(1.5rem, 1.8vw, 2rem)"} height={"clamp(1.5rem, 1.8vw, 2rem)"} />
         </IconButton>
-        <h1>Criar Evento</h1>
+        <h1 style={{ fontSize: "clamp(1.25rem, 2vw, 1.75rem)" }}>Criar Evento</h1>
       </Header>
 
       <CriarEventoComponent>
@@ -124,21 +122,22 @@ export function CriarEvento() {
 
         <Button
           sx={{
-            width: "22%",
+            width: { xs: "100%", sm: "46%", md: "30%", lg: "22%" },
             textTransform: "none",
             background: "var(--gradient-hero)",
             color: "white",
-            padding: "0.25em 0.25em",
-            fontWeight: "550",
-            fontSize: "1em",
-            marginTop: "1.15em",
+            padding: { xs: "clamp(0.4rem, 1.2vh, 0.6rem)", sm: "clamp(0.5rem, 1.5vh, 0.75rem)" },
+            fontWeight: 550,
+            fontSize: "clamp(0.9rem, 1.2vw, 1rem)",
+            marginTop: "clamp(0.6rem, 1.8vh, 1.15rem)",
+            borderRadius: "clamp(0.35rem, 0.6vw, 0.5rem)",
           }}
           onClick={handleSubmit}
           disabled={loading}
+          variant="contained"
         >
           {loading ? "Criando..." : "Criar Evento"}
         </Button>
-        
       </CriarEventoComponent>
     </div>
   );

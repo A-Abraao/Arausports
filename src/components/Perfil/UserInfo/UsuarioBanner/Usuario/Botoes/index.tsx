@@ -19,7 +19,7 @@ export function ButtonContainer() {
     return (
         <ButtonContainerComponent>
             <EditarPerfilButton atualizarEstado={handleMostrarPopUp}/>
-            <EditarPerfilPopup open={mostrarPopUp} onClose={() => setMostrarPopUp(false)} onSalvar={() => setMostrarPopUp(false)}/>
+            <EditarPerfilPopup open={mostrarPopUp} onClose={() => setMostrarPopUp(false)} onSalvar={() => setMostrarPopUp(false)} />
         </ButtonContainerComponent>
     )
 }

@@ -6,10 +6,11 @@ const ImagemCardComponent = styled.div`
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    border-radius: 0.5em;
+    border-radius: 0.5rem;
     width: 100%;
-    height: 100%;
-`
+    height: calc(var(--vh, 1vh) * 95);
+    will-change: transform;
+`;
 
 export function CardImagem() {
     return (

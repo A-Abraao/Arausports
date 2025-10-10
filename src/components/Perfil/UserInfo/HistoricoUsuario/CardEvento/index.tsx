@@ -7,11 +7,10 @@ import { CardImagem } from "./CardImagem";
 const CardEventoComponent = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 1.65em;
+  padding: clamp(0.9rem, 2.2vw, 1.5rem);
   color: black;
-  padding: 1.5em;
-  border-radius: 0.5em;
-  gap: 0.65em;
+  border-radius: 0.5rem;
+  gap: clamp(0.45rem, 1.0vw, 0.65rem);
   overflow: visible;
   overflow-wrap: break-word;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -20,30 +19,31 @@ const CardEventoComponent = styled.div`
   transform-origin: center;
   user-select: none;
   width: 100%;
-  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
 `;
 
 const TituloEvento = styled.h3`
-  font-size: 1.1em;
+  font-size: clamp(1rem, 2.2vw, 1.1rem);
   font-weight: 400;
+  margin: 0;
 `;
 
 const InformacoesEvento = styled.div`
   color: var(--muted-foreground);
   display: flex;
-  gap: 1em;
+  gap: clamp(0.6rem, 1.2vw, 1rem);
 
   span {
     display: flex;
     align-items: center;
-    gap: 0.25em;
-    font-size: 0.9em;
+    gap: clamp(0.25rem, 0.6vw, 0.25rem);
+    font-size: clamp(0.85rem, 1.6vw, 0.9rem);
     font-weight: 400;
   }
 `;
 
 const DivInferior = styled.div`
-  padding: 0.5em;
+  padding: clamp(0.35rem, 0.7vw, 0.5rem);
   text-align: center;
   margin-top: 1px solid var(--muted-foreground);
 `;
@@ -78,11 +78,11 @@ export function CardEvento({
 
       <InformacoesEvento>
         <span>
-          <LocationOnIcon sx={{ fontSize: "1.25em" }} />
+          <LocationOnIcon sx={{ fontSize: "1.25rem" }} />
           {local}
         </span>
         <span>
-          <PersonIcon sx={{ fontSize: "1.25em" }} />
+          <PersonIcon sx={{ fontSize: "1.25rem" }} />
           {`${capacidade} pessoas`}
         </span>
       </InformacoesEvento>

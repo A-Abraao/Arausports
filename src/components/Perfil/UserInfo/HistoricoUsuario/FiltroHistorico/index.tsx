@@ -4,19 +4,19 @@ const FiltroHistoricoComponent = styled.div`
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 1em;
+  gap: clamp(0.6rem, 1.4vw, 1rem);
   justify-content: center;
 `;
 
 const Opcao = styled.button<{ selecionado?: boolean }>`
-  padding: 0.75em;
-  border-radius: 0.35em;
+  padding: clamp(0.45rem, 1.1vw, 0.75rem);
+  border-radius: 0.35rem;
   cursor: pointer;
   background-color: transparent;
   border: 1px solid transparent;
   color: rgba(0, 0, 0, 0.6);
   font-weight: 420;
-  font-size: 0.85em;
+  font-size: clamp(0.8rem, 1.6vw, 0.85rem);
   width: 100%;
 
   ${(props) =>

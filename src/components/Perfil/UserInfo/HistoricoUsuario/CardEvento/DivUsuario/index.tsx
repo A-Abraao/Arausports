@@ -13,15 +13,15 @@ const DivUsuarioComponent = styled.div`
 const RightGroup = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5em;
+  gap: clamp(0.35rem, 0.8vw, 0.5rem);
 `;
 
 const TipoDoEsporte = styled.span`
   color: white;
   background: var(--secondary);
   border-radius: 9999px;
-  padding: 0.45em 0.95em;
-  font-size: 0.75em;
+  padding: clamp(0.25rem, 0.6vw, 0.45rem) clamp(0.55rem, 1.4vw, 0.95rem);
+  font-size: clamp(0.65rem, 1.2vw, 0.75rem);
   font-weight: 450;
   transition: background-color 0.5s ease-in-out;
 

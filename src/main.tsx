@@ -13,6 +13,7 @@ const GlobalStyle = createGlobalStyle`
     --font-principal: 'Poppins', sans-serif;
     --gradient-hero: linear-gradient(135deg, hsl(25 95% 53%), hsl(200 95% 60%));
     --ring: #f3740dff;
+    --secondary: hsl(200 95% 60%);
     --gradient-primary: linear-gradient(135deg, hsl(25 95% 53%), hsl(35 95% 60%));
     --gradient-secondary: linear-gradient(135deg, hsl(200 95% 60%), hsl(210 90% 65%));
     --background: hsl(35 100% 98%);
@@ -75,7 +76,6 @@ const GlobalStyle = createGlobalStyle`
     overflow-x: hidden;
   }
 
-  /* garante imagens e mídias não extrapolem */
   img, picture, svg, video, iframe {
     max-width: 100%;
     height: auto;

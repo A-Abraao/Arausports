@@ -4,9 +4,8 @@ const DivSuperior = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0em 1.75em 0em 1.75em;
+    padding: 0 clamp(0.75rem, 1.8vw, 1.75rem);
     
-
     span {
         color: #696969;
         font-weight: 450;
@@ -14,7 +13,7 @@ const DivSuperior = styled.div`
 `
 
 const Titulo = styled.h1`
-    font-size: 2.05em;
+    font-size: clamp(1.25rem, 2.2vw, 2.05rem);
     font-weight: bold;
 `
 

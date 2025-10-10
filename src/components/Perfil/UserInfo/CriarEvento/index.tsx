@@ -3,21 +3,26 @@ import { ButtonDeAcao } from "../EventoMarcado/MaisDetalhesButton";
 import Textos from "./Textos";
 
 const CriarEventoComponent = styled.div`
-    background: springgreen;
-    border-radius: 0.5em;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 1em;
-    padding: 2.25em;
-    width: 100%;
-`
+  background: springgreen;
+  border-radius: 0.5rem; /* 0.5em -> 0.5rem */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: clamp(0.6rem, 1.6vw, 1rem);
+  padding: clamp(0.9rem, 2.6vw, 2.25rem);
+  width: 100%;
+
+  @media (max-width: 720px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+`;
 
 export function CriarEvento() {
-    return (
-        <CriarEventoComponent>
-            <Textos/>
-            <ButtonDeAcao children={"Criar evento"}/>
-        </CriarEventoComponent>
-    )
+  return (
+    <CriarEventoComponent>
+      <Textos />
+      <ButtonDeAcao>Criar evento</ButtonDeAcao>
+    </CriarEventoComponent>
+  );
 }

@@ -8,8 +8,8 @@ const UserInfoComponent = styled.div`
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    gap: 1.25em;
-    padding: 2.5em 13em 0em 13em;
+    gap: clamp(0.75rem, 1.4vw, 1.25rem);
+    padding: clamp(0.75rem, 1.8vh, 2.5rem) clamp(1rem, 6vw, 13rem) 0 clamp(1rem, 6vw, 13rem);
     overflow-wrap: break-word;
     width: 100%;
 `

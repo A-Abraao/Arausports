@@ -7,7 +7,7 @@ interface ButtonDeAcaoProps {
 }
 
 export function ButtonDeAcao({ children }: ButtonDeAcaoProps) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
     <Button
@@ -15,10 +15,16 @@ export function ButtonDeAcao({ children }: ButtonDeAcaoProps) {
       sx={{
         background: "var(--gradient-hero)",
         textTransform: "none",
-        height: "",
-        padding: "0.5em",
         color: "white",
+        padding: {
+          xs: "0.4rem 0.75rem",
+          sm: "0.5rem 1rem",
+        },
+
+        minWidth: { xs: "100%", sm: "9rem" },
+        
       }}
+      variant="contained"
     >
       {children}
     </Button>

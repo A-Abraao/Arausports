@@ -10,10 +10,10 @@ import { useState } from "react";
 const HistoricoUsuarioComponent = styled.section`
   width: 100%;
   display: flex;
-  min-height: 50vh;
+  min-height: calc(var(--vh, 1vh) * 50);
   flex-direction: column;
-  gap: 0.9em;
-  margin-top: 2em;
+  gap: clamp(0.6rem, 1.4vw, 0.9rem);
+  margin-top: clamp(0.9rem, 1.8vw, 2rem);
 `;
 
 export function HistoricoUsuario() {
@@ -45,7 +45,6 @@ export function HistoricoUsuario() {
       categoria: s.categoria ?? "",
       capacidade: s.participantesTotais ?? 0,
     }));
-
 
   return (
     <HistoricoUsuarioComponent>

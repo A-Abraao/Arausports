@@ -8,10 +8,11 @@ export const EsportesSectionComponent = styled.section`
   justify-content: center;
   flex-direction: column;
   border-top: 1px solid rgba(105, 105, 105, 0.2);
-  padding: 1.75em 2em;
-  gap: 1.25em;
-  margin-top: 3.5em;
-  
+  /* padding responsivo: entre 1rem e 2rem, crescendo com a viewport */
+  padding: clamp(1rem, 1.5vw, 1.75rem) clamp(1rem, 2.2vw, 2rem);
+  gap: clamp(0.75rem, 1.2vw, 1.25rem);
+  margin-top: clamp(1.5rem, 3.2vw, 3.5rem);
+
   .h2 {
     color: var(--muted-foreground);
   }

@@ -11,7 +11,8 @@ const CardComponent = styled.div`
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  width: 31%;
+  /* largura responsiva: mínimo 14rem (~224px), preferido 31% do container, máximo 22rem (~352px) */
+  width: clamp(14rem, 31%, 22rem);
   overflow: visible;
   position: relative;
 
@@ -24,7 +25,7 @@ const MotionCard = styled(motion.div)`
   display: flex;
   flex-direction: column;
   background: #fff;
-  border-radius: 0.5em;
+  border-radius: 0.5rem; /* antes 0.5em */
   overflow: visible;
   box-shadow: 0 6px 18px rgba(0,0,0,0.06);
   will-change: transform;
@@ -35,9 +36,10 @@ const MotionCard = styled(motion.div)`
 
 const ImageWrapper = styled.div`
   position: relative;
-  border-top-right-radius: 0.5em;
-  border-top-left-radius: 0.5em;
-  height: 40vh;
+  border-top-right-radius: 0.5rem;
+  border-top-left-radius: 0.5rem;
+  /* altura responsiva: não deixe muito pequena nem muito grande. usa var(--vh) se disponível */
+  height: clamp(12rem, calc(var(--vh, 1vh) * 40), 22rem);
   width: 100%;
   overflow: hidden;
 `;
@@ -54,21 +56,23 @@ const MotionImage = styled(motion.img)`
 
 const SecaoSuperiorDiv = styled.span`
   position: absolute;
-  top: 0.5em;
-  left: 0.5em;
+  /* espaçamentos responsivos */
+  top: clamp(0.35rem, 1.2vh, 0.6rem);
+  left: clamp(0.35rem, 1.2vw, 0.6rem);
   z-index: 5;
   display: flex;
-  padding-right: 0.5em;
+  padding-right: clamp(0.35rem, 0.9vw, 0.5rem);
   align-items: center;
   width: 100%;
   justify-content: space-between;
-  font-size: 0.75em;
+  font-size: clamp(0.65rem, 0.9vw, 0.9rem);
   font-weight: 450;
 
   .tipo-esporte {
     border-radius: 9999px;
     background: rgba(255,255,255,0.95);
-    padding: 0.45em 0.95em;
+    /* padding responsivo */
+    padding: clamp(0.25rem, 0.6vw, 0.45rem) clamp(0.55rem, 1.8vw, 0.95rem);
     transition: background-color 0.5s ease-in-out;
 
     &:hover {
@@ -94,16 +98,15 @@ export const SalvarButton = ({ativo, loading, onClick}: SalvarButtonProps) => {
       sx={{
         background: bgcolor,
         borderRadius: "9999px",
-        marginRight: "0.45em",
-        padding: "6px",
-
-         '&:hover': {
-           background: ativo ? bgcoloractived : 'rgba(255, 255, 255, 0.6)',
-         }
+        /* margem/padding responsivos usando rem */
+        mr: "0.45rem",
+        p: "0.375rem", /* ~6px */
+        '&:hover': {
+          background: ativo ? bgcoloractived : 'rgba(255, 255, 255, 0.6)',
+        }
       }}
     >
       {ativo ? <BookmarkIcon sx={{ fontSize: '1.2rem', color: "white" }}/> : <BookmarkBorderIcon sx={{ fontSize: '1.2rem' }}/>}
-      
     </IconButton>
   )
 }
@@ -137,26 +140,24 @@ export function Card({
   const imageScale = useTransform(y, [-8, 0], [1.08, 1]);
   const [hoverAtivado, setHoverAtivado] = useState(false);
 
-  
   const { salvo: ativo, salvarEvento, loading } = useSalvarEvento(eventoId);
 
   const handleSaveClick = async () => {
-  if (!eventoId) return;
-  
-  try {
-    await salvarEvento({
-      titulo,
-      localizacao,
-      data: data,
-      participantesAtuais,
-      categoria,
-      ownerId: ownerId ?? null,
-    });
+    if (!eventoId) return;
+
+    try {
+      await salvarEvento({
+        titulo,
+        localizacao,
+        data: data,
+        participantesAtuais,
+        categoria,
+        ownerId: ownerId ?? null,
+      });
     } catch (error) {
       console.error("Erro ao salvar o evento:", error);
     }
   };
-
 
   return (
     <CardComponent>
