@@ -28,9 +28,38 @@ export function useDeleteEvent() {
         const participantsSnap = await getDocs(participantsCol);
         const participantsRefs = participantsSnap.docs.map((d) => d.ref);
 
-        const savedQ = query(collectionGroup(db, "eventosSalvos"), where("eventoId", "==", eventId));
-        const savedSnap = await getDocs(savedQ);
-        const savedRefs = savedSnap.docs.map((d) => d.ref);
+        let savedRefs: any[] = [];
+        try {
+          const savedQ = query(collectionGroup(db, "eventosSalvos"), where("eventoId", "==", eventId));
+          const savedSnap = await getDocs(savedQ);
+          savedRefs = savedSnap.docs.map((d) => d.ref);
+        } catch (innerErr: any) {
+          const msg = String(innerErr?.message ?? innerErr).toLowerCase();
+          const needsIndex = msg.includes("collection_group") || msg.includes("requires a collection_group") || msg.includes("index");
+          console.warn("collectionGroup query falhou (provável motivo: índice ausente). Fallback ativado.", innerErr);
+
+          if (needsIndex) {
+            const usuariosCol = collection(db, "usuarios");
+            const usuariosSnap = await getDocs(usuariosCol);
+            const candidateSavedRefs: any[] = [];
+
+            for (const u of usuariosSnap.docs) {
+              try {
+                const uid = u.id;
+                const col = collection(db, "usuarios", uid, "eventosSalvos");
+                const q = query(col, where("eventoId", "==", eventId));
+                const snaps = await getDocs(q);
+                snaps.forEach((s) => candidateSavedRefs.push(s.ref));
+              } catch (qErr) {
+                console.error("Erro ao checar eventosSalvos do usuário", u.id, qErr);
+              }
+            }
+
+            savedRefs = candidateSavedRefs;
+          } else {
+            throw innerErr;
+          }
+        }
 
         const allRefsToDelete = [...participantsRefs, ...savedRefs, eventRef];
 

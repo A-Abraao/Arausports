@@ -90,7 +90,6 @@ export function CardEvento({
       await onDelete();
     } catch (err) {
       console.error("Erro ao deletar evento:", err);
-      window.alert("Não foi possível deletar o evento. Veja o console para detalhes.");
     } finally {
       setDeleting(false);
     }
@@ -100,7 +99,6 @@ export function CardEvento({
     <CardEventoComponent>
       <DivUsuario data={data} esporte={esporte} foiSalvo={!!foiSalvo} onToggleSave={onUnsave} loading={loadingSalvo} />
 
-      {/* Botão de deletar aparece apenas se onDelete foi passado */}
       {onDelete && (
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "-0.5rem" }}>
           <IconButton
