@@ -2,6 +2,10 @@ import styled from "styled-components";
 import { DivUsuario } from "./DivUsuario";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import { IconButton } from "@mui/material";
+import { useState } from "react";
+import CircularProgress from "@mui/material/CircularProgress";
 import { CardImagem } from "./CardImagem";
 
 const CardEventoComponent = styled.div`
@@ -54,10 +58,11 @@ type CardEventoProps = {
   data: string;
   esporte: string;
   capacidade: string;
-  loadingSalvo: boolean
+  loadingSalvo: boolean;
   foiSalvo?: boolean;
   savedFrom?: "eventosSalvos" | "meusEventos" | string;
   onUnsave?: () => Promise<void> | void;
+  onDelete?: () => Promise<void> | void; // <--- novo
 };
 
 export function CardEvento({
@@ -69,10 +74,50 @@ export function CardEvento({
   capacidade,
   foiSalvo = false,
   onUnsave,
+  onDelete,
 }: CardEventoProps) {
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!onDelete) return;
+
+    const ok = window.confirm("Tem certeza que deseja apagar esse evento? Essa ação é irreversível.");
+    if (!ok) return;
+
+    try {
+      setDeleting(true);
+      await onDelete();
+    } catch (err) {
+      console.error("Erro ao deletar evento:", err);
+      window.alert("Não foi possível deletar o evento. Veja o console para detalhes.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <CardEventoComponent>
-      <DivUsuario data={data} esporte={esporte} foiSalvo={!!foiSalvo} onToggleSave={onUnsave} loading={loadingSalvo}/>
+      <DivUsuario data={data} esporte={esporte} foiSalvo={!!foiSalvo} onToggleSave={onUnsave} loading={loadingSalvo} />
+
+      {/* Botão de deletar aparece apenas se onDelete foi passado */}
+      {onDelete && (
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "-0.5rem" }}>
+          <IconButton
+            aria-label="deletar evento"
+            onClick={handleDeleteClick}
+            size="small"
+            title="Apagar evento"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            {deleting ? (
+              <CircularProgress size={18} />
+            ) : (
+              <DeleteOutlineIcon sx={{ fontSize: "1.05rem" }} />
+            )}
+          </IconButton>
+        </div>
+      )}
 
       <TituloEvento>{titulo}</TituloEvento>
 
@@ -89,9 +134,7 @@ export function CardEvento({
 
       <CardImagem />
 
-      <DivInferior>
-        
-      </DivInferior>
+      <DivInferior></DivInferior>
     </CardEventoComponent>
   );
 }

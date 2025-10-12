@@ -4,6 +4,7 @@ import { FiltroHistorico } from "./FiltroHistorico";
 import { useUserCreatedEvents } from "../../../../firebase";
 import { useEventosSalvosComParticipantes } from "../../../../firebase/eventos/useEventosSalvosComParticipantes";
 import { useRemoverEventoSalvo } from "../../../../firebase";
+import { useDeleteEvent } from "../../../../firebase/eventos/useDeleteEvent";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useState } from "react";
 
@@ -27,6 +28,7 @@ export function HistoricoUsuario() {
   const { removerEvento, loadingSalvo } = useRemoverEventoSalvo();
 
   const loading = loadingCreated || loadingSalvos;
+  const { deleteEvent } = useDeleteEvent();
 
   const listaParaRender = opcaoSelecionada === "meusEventos"
     ? createdEvents.map(e => ({
@@ -74,8 +76,14 @@ export function HistoricoUsuario() {
           onUnsave={async () => {
             await removerEvento(evento.id);
           }}
+          onDelete={
+            opcaoSelecionada === "meusEventos" && userId
+              ? async () => {
+                  await deleteEvent(userId, evento.id);
+                }
+              : undefined
+          }
         />
-
       ))}
     </HistoricoUsuarioComponent>
   );
