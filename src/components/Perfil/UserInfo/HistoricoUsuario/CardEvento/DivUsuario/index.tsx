@@ -1,8 +1,8 @@
 import styled from "styled-components";
-import { Usuario } from "./Usuario"; 
+import { Usuario } from "./Usuario";
 import { formatarDataDMA } from "../../../../../../firebase";
 import { SalvarButton } from "../../../../../HomePage/Esportes/EsportesGrid/Card";
-import { IconButton, CircularProgress } from "@mui/material";
+import { IconButton, CircularProgress, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useState } from "react";
 
@@ -49,7 +49,6 @@ const DeleteButton = styled(IconButton)`
   }
 `;
 
-
 type DivUsuarioProps = {
   data: string;
   esporte: string;
@@ -68,14 +67,15 @@ export function DivUsuario({
   onDelete,
 }: DivUsuarioProps) {
   const [deleting, setDeleting] = useState(false);
+  const [openPopup, setOpenPopup] = useState(false);
 
-  const handleDeleteClick = async (e: React.MouseEvent) => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setOpenPopup(true);
+  };
+
+  const handleConfirmDelete = async () => {
     if (!onDelete) return;
-
-    const ok = window.confirm("Tem certeza que deseja apagar esse evento? Essa ação é irreversível.");
-    if (!ok) return;
-
     try {
       setDeleting(true);
       await onDelete();
@@ -83,7 +83,12 @@ export function DivUsuario({
       console.error("Erro ao deletar evento:", err);
     } finally {
       setDeleting(false);
+      setOpenPopup(false);
     }
+  };
+
+  const handleCancel = () => {
+    setOpenPopup(false);
   };
 
   const handleSaveClick = async (e: React.MouseEvent) => {
@@ -98,32 +103,107 @@ export function DivUsuario({
   };
 
   return (
-    <DivUsuarioComponent>
-      <Usuario data={formatarDataDMA(data)} foiSalvo={foiSalvo} />
-      <RightGroup>
-        {foiSalvo && onToggleSave && (
-          <SalvarButton ativo={!!foiSalvo} onClick={handleSaveClick} loading={loading} />
-        )}
+    <>
+      <DivUsuarioComponent>
+        <Usuario data={formatarDataDMA(data)} foiSalvo={foiSalvo} />
+        <RightGroup>
+          {foiSalvo && onToggleSave && (
+            <SalvarButton ativo={!!foiSalvo} onClick={handleSaveClick} loading={loading} />
+          )}
 
+          {onDelete && (
+            <DeleteButton
+              aria-label="deletar evento"
+              onClick={handleDeleteClick}
+              size="small"
+              title="Apagar evento"
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              {deleting ? (
+                <CircularProgress size={18} sx={{ color: "white" }} />
+              ) : (
+                <DeleteOutlineIcon />
+              )}
+            </DeleteButton>
+          )}
 
-        {onDelete && (
-          <DeleteButton
-            aria-label="deletar evento"
-            onClick={handleDeleteClick}
-            size="small"
-            title="Apagar evento"
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            {deleting ? (
-              <CircularProgress size={18} sx={{ color: "white" }} />
-            ) : (
-              <DeleteOutlineIcon />
-            )}
-          </DeleteButton>
-        )}
+          <TipoDoEsporte>{esporte}</TipoDoEsporte>
+        </RightGroup>
+      </DivUsuarioComponent>
 
-        <TipoDoEsporte>{esporte}</TipoDoEsporte>
-      </RightGroup>
-    </DivUsuarioComponent>
+      <Dialog
+        open={openPopup}
+        onClose={handleCancel}
+        PaperProps={{
+          sx: {
+            background: "var(--background)",
+            color: "black",
+            borderRadius: "1rem",
+            minWidth: "clamp(250px, 35vw, 380px)",
+            padding: "0.5rem 0.5rem",
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 600, fontSize: "1.1rem" }}>
+          Certeza que você quer apagar esse evento?
+        </DialogTitle>
+
+        <DialogContent>
+        <DialogContentText
+          sx={{
+            opacity: 0.95,
+            fontWeight: 600,
+            display: "flex",
+            flexDirection: "column",
+            
+          }}
+        >
+          <span style={{ fontWeight: 700 }}>
+            Não vai ter como voltar atrás se tu fizer isso...
+          </span>
+        </DialogContentText>
+      </DialogContent>
+
+      <DialogActions
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: "0.25rem",
+          padding: "0.5rem 1rem 1rem",
+        }}
+      >
+        <Button
+          onClick={handleCancel}
+          sx={{
+            border: "1px solid dodgerblue",
+            textTransform: "none",
+            fontSize: "0.85rem",
+            padding: "4px 10px",
+            minHeight: "32px",
+            "&:hover": { backgroundColor: "rgba(255,255,255,0.08)" },
+          }}
+        >
+          Deixa quieto..
+        </Button>
+
+        <Button
+          onClick={handleConfirmDelete}
+          variant="contained"
+          color="error"
+          disabled={deleting}
+          sx={{
+            textTransform: "none",
+            fontWeight: 600,
+            fontSize: "0.85rem",
+            padding: "4px 10px",
+            minHeight: "32px",
+            "&:hover": { backgroundColor: "#b22222" },
+          }}
+        >
+          {deleting ? <CircularProgress size={18} /> : "Apagar"}
+        </Button>
+      </DialogActions>
+      </Dialog>
+    </>
   );
 }
