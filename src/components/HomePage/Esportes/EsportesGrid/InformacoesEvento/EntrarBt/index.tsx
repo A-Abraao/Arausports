@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Button } from "@mui/material";
+import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, CircularProgress } from "@mui/material";
 import { useEffect, useState } from "react";
 import { auth, db } from "../../../../../../firebase/config";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
@@ -22,12 +22,14 @@ type EntrarBtProps = {
 export function EntrarBt({ eventoId, ownerId }: EntrarBtProps) {
   const [isParticipando, setIsParticipando] = useState(false);
   const [isFull, setIsFull] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
 
   const user = auth.currentUser;
 
-  const { joinEvent, loading: loadingJoin, error: errorJoin } = useJoinEvent();
-  const { exitEvent, loading: loadingExit, error: errorExit } = useExitEvent();
-  const { incrementParticipacoes, decrementParticipacoes } = useIcrementParticipation(user?.uid)
+  const { joinEvent, loading: loadingJoin } = useJoinEvent();
+  const { exitEvent, loading: loadingExit } = useExitEvent();
+  const { incrementParticipacoes, decrementParticipacoes } = useIcrementParticipation(user?.uid);
+
   useEffect(() => {
     if (!ownerId || !user) return;
 
@@ -55,29 +57,48 @@ export function EntrarBt({ eventoId, ownerId }: EntrarBtProps) {
         setIsFull(atuais >= capacidade);
       },
       (err) => {
-        console.error("Erro ao observar evento cara:", err);
+        console.error("Erro ao observar evento:", err);
       }
     );
 
     return () => unsub();
   }, [ownerId, eventoId]);
 
-  const handleClick = async () => {
+  const handlePrimaryClick = async () => {
+    if (!user || !ownerId) return;
+
+    if (isParticipando) {
+      setOpenConfirm(true);
+      return;
+    }
+
+    try {
+      await joinEvent(eventoId, ownerId, user.uid);
+      if (incrementParticipacoes) await incrementParticipacoes(1);
+      setIsParticipando(true);
+    } catch (err: any) {
+      console.error("Erro ao entrar no evento:", err);
+      throw err;
+    }
+  };
+
+  const handleConfirmExit = async () => {
     if (!user || !ownerId) return;
 
     try {
-      if (isParticipando) {
-        await exitEvent(eventoId, ownerId, user.uid);
-        decrementParticipacoes(1)
-        setIsParticipando(false);
-      } else {
-        await joinEvent(eventoId, ownerId, user.uid);
-        await incrementParticipacoes(1)
-        setIsParticipando(true);
-      }
+      await exitEvent(eventoId, ownerId, user.uid);
+      if (decrementParticipacoes) await decrementParticipacoes(1);
+      setIsParticipando(false);
+      setOpenConfirm(false);
     } catch (err: any) {
-      alert(err.message ?? "Deu erro para entrar no evento");
+      console.error("Erro ao sair do evento:", err);
+      setOpenConfirm(false);
+      throw err;
     }
+  };
+
+  const handleCancelExit = () => {
+    setOpenConfirm(false);
   };
 
   const loadingAction = loadingJoin || loadingExit;
@@ -88,33 +109,133 @@ export function EntrarBt({ eventoId, ownerId }: EntrarBtProps) {
       <Button
         disabled={disabledBecauseFull || loadingAction || !user}
         sx={{
-          background: isParticipando
-            ? "crimson"
-            : disabledBecauseFull
-            ? "#999"
-            : "springgreen",
-          height: "2.5em",
-          borderRadius: "0.5em",
+          background: isParticipando ? "crimson" : disabledBecauseFull ? "#999" : "springgreen",
+          height: "2.5em", 
+          borderRadius: "0.5em", 
           textTransform: "none",
           color: "white",
+          fontWeight: 500,
           "&:hover": {
-            background: isParticipando
-              ? "darkred"
-              : disabledBecauseFull
-              ? "#999"
-              : "mediumseagreen",
+            background: isParticipando ? "darkred" : disabledBecauseFull ? "#999" : "mediumseagreen",
           },
         }}
-        onClick={handleClick}
+        onClick={handlePrimaryClick}
       >
-        {loadingAction
-          ? "Processando..."
-          : isParticipando
-          ? "Sair do evento"
-          : disabledBecauseFull
-          ? "Já era.."
-          : "Se juntar"}
+        {loadingAction ? "Processando..." : isParticipando ? "Sair do evento" : disabledBecauseFull ? "Já era.." : "Se juntar"}
       </Button>
+
+      <Dialog
+        open={openConfirm}
+        onClose={handleCancelExit}
+        aria-labelledby="confirm-exit-title"
+        aria-describedby="confirm-exit-description"
+        BackdropProps={{
+          sx: {
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
+            backgroundColor: "rgba(0,0,0,0.25)",
+            transition: "all 200ms ease",
+          },
+        }}
+        PaperProps={{
+          sx: {
+            width: "min(420px, 90%)",
+            maxWidth: "420px",
+            borderRadius: "1.25rem",
+            overflow: "hidden",
+            position: "relative",
+            display: "flex",
+            flexDirection: "column",
+            gap: 1.5, 
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              height: "6px",
+              background: "var(--gradient-hero)", 
+              zIndex: 10,
+            },
+            boxShadow: "0 18px 50px rgba(0,0,0,0.12)",
+            paddingBottom: "0.5em",
+          },
+        }}
+      >
+        <DialogTitle
+          id="confirm-exit-title"
+          sx={{
+            pt: 3.5,
+            pb: 0.5,
+            fontWeight: 600,
+            textAlign: "left",
+          }}
+        >
+          Não quer ir mesmo?
+        </DialogTitle>
+
+        <DialogContent
+          sx={{
+            px: 3,
+            py: 1,
+            textAlign: "left",
+            fontSize: "0.95rem",
+            color: "rgba(0,0,0,0.8)",
+          }}
+        >
+          <DialogContentText id="confirm-exit-description">
+            Sua presença vai ser muito importante nesse evento mano. Eu iria se fosse você..
+          </DialogContentText>
+        </DialogContent>
+
+        <DialogActions
+          sx={{
+            px: 3,
+            pb: 2.2,
+            pt: 1,
+            gap: 0.5,
+            justifyContent: "flex-end",
+          }}
+        >
+          <Button
+            onClick={handleCancelExit}
+            disabled={loadingExit}
+            sx={{
+              textTransform: "none",
+              color: "white",
+              background: "var(--gradient-hero)",
+              "&:hover": { filter: "brightness(0.9)" },
+              fontWeight: 500,
+              height: "2.4em",
+              fontSize: "0.9rem",
+              px: 2.8,
+              
+            }}
+          >
+            Deixa quieto
+          </Button>
+
+          <Button
+            onClick={handleConfirmExit}
+            variant="contained"
+            disabled={loadingExit}
+            sx={{
+              textTransform: "none",
+              color: "white",
+              background: "#FF4757",
+              "&:hover": { background: "#e03b4c" },
+              fontWeight: 700,
+              height: "2.4em",
+              fontSize: "0.9rem",
+              px: 2.8,
+            }}
+            autoFocus
+          >
+            {loadingExit ? <CircularProgress size={20} color="inherit" /> : "Sim"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </ButtonContainer>
   );
 }
