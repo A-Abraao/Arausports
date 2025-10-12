@@ -2,10 +2,6 @@ import styled from "styled-components";
 import { DivUsuario } from "./DivUsuario";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { IconButton } from "@mui/material";
-import { useState } from "react";
-import CircularProgress from "@mui/material/CircularProgress";
 import { CardImagem } from "./CardImagem";
 
 const CardEventoComponent = styled.div`
@@ -19,8 +15,6 @@ const CardEventoComponent = styled.div`
   overflow-wrap: break-word;
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  will-change: transform;
-  transform-origin: center;
   user-select: none;
   width: 100%;
   height: calc(var(--vh, 1vh) * 100);
@@ -62,7 +56,7 @@ type CardEventoProps = {
   foiSalvo?: boolean;
   savedFrom?: "eventosSalvos" | "meusEventos" | string;
   onUnsave?: () => Promise<void> | void;
-  onDelete?: () => Promise<void> | void; // <--- novo
+  onDelete?: () => Promise<void> | void;
 };
 
 export function CardEvento({
@@ -76,46 +70,16 @@ export function CardEvento({
   onUnsave,
   onDelete,
 }: CardEventoProps) {
-  const [deleting, setDeleting] = useState(false);
-
-  const handleDeleteClick = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!onDelete) return;
-
-    const ok = window.confirm("Tem certeza que deseja apagar esse evento? Essa ação é irreversível.");
-    if (!ok) return;
-
-    try {
-      setDeleting(true);
-      await onDelete();
-    } catch (err) {
-      console.error("Erro ao deletar evento:", err);
-    } finally {
-      setDeleting(false);
-    }
-  };
-
   return (
     <CardEventoComponent>
-      <DivUsuario data={data} esporte={esporte} foiSalvo={!!foiSalvo} onToggleSave={onUnsave} loading={loadingSalvo} />
-
-      {onDelete && (
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "-0.5rem" }}>
-          <IconButton
-            aria-label="deletar evento"
-            onClick={handleDeleteClick}
-            size="small"
-            title="Apagar evento"
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            {deleting ? (
-              <CircularProgress size={18} />
-            ) : (
-              <DeleteOutlineIcon sx={{ fontSize: "1.05rem" }} />
-            )}
-          </IconButton>
-        </div>
-      )}
+      <DivUsuario
+        data={data}
+        esporte={esporte}
+        foiSalvo={!!foiSalvo}
+        onToggleSave={onUnsave}
+        loading={loadingSalvo}
+        onDelete={onDelete}
+      />
 
       <TituloEvento>{titulo}</TituloEvento>
 
@@ -131,8 +95,7 @@ export function CardEvento({
       </InformacoesEvento>
 
       <CardImagem />
-
-      <DivInferior></DivInferior>
+      <DivInferior />
     </CardEventoComponent>
   );
 }
