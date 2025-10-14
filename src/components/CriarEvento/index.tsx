@@ -11,6 +11,7 @@ import { PreviaEvento } from "./PreviaEvento";
 import type { EventoData } from "./DetalhesEvento";
 import { useAuth } from "../../contexts/AuthContext";
 import { useAddEvent } from "../../firebase/eventos/criarEvento";
+import { useSupabaseUpload } from "../../firebase/servicos/useSupabaseUpload";
 
 const CriarEventoComponent = styled.div`
   align-items: center;
@@ -34,9 +35,7 @@ const InformacoesEvento = styled.div`
     flex-direction: column;
     flex-wrap: wrap;
   }
-`
-
-
+`;
 
 export function CriarEvento() {
   const navigate = useNavigate();
@@ -57,6 +56,8 @@ export function CriarEvento() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { addEventForUser, loading } = useAddEvent();
 
+  const { upload, uploading: uploadingImage, error: uploadError } = useSupabaseUpload();
+
   const handleSubmit = async () => {
     if (!firebaseUser) {
       showAlert("Faça login primeiro zé", {
@@ -68,7 +69,12 @@ export function CriarEvento() {
     }
 
     try {
-      const payload: Partial<EventoData> = { ...evento };
+      const payload: Partial<EventoData> = {
+        ...evento,
+        imageUrl: "",
+        imagePath: ""
+      };
+
       const id = await addEventForUser(firebaseUser.uid, payload as EventoData);
 
       if (!id) {
@@ -80,16 +86,33 @@ export function CriarEvento() {
         return;
       }
 
+      if (imageFile) {
+        try {
+          await upload(imageFile, firebaseUser.uid, id, { asCover: true });
+          
+        } catch (uploadErr) {
+          console.error("Erro no upload da imagem:", uploadErr);
+
+          
+          showAlert("Evento criado, mas houve erro ao enviar a imagem. Você pode enviar depois na página do evento.", {
+            severity: "warning",
+            duration: 6000,
+            variant: "standard"
+          });
+
+        }
+      }
+
       navigate("/perfil", {
         state: { from: "criar-evento" },
       });
     } catch (err) {
-      showAlert("viado... olha o console...", {
+      console.error("Que cagada!!", err);
+      showAlert("Erro ao criar evento — verifique o console.", {
         severity: "error",
         duration: 2800,
         variant: "standard"
-      }),
-      console.error("Que cagada!!", err);
+      });
     }
   };
 
@@ -133,10 +156,10 @@ export function CriarEvento() {
             borderRadius: "clamp(0.35rem, 0.6vw, 0.5rem)",
           }}
           onClick={handleSubmit}
-          disabled={loading}
+          disabled={loading || uploadingImage}
           variant="contained"
         >
-          {loading ? "Criando..." : "Criar Evento"}
+          {loading || uploadingImage ? (uploadingImage ? "Enviando imagem..." : "Criando...") : "Criar Evento"}
         </Button>
       </CriarEventoComponent>
     </div>
