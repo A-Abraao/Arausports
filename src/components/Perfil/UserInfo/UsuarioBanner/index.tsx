@@ -43,7 +43,7 @@ export function UsuarioBanner() {
   } else {
     
     userName = userData.displayName ?? "Sem nome";
-    userBio = userData.bio ?? "E sem biografia tbm.."
+    userBio = userData.bio ?? "sem biografia.."
   }
 
   return (

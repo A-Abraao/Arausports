@@ -141,7 +141,7 @@ export function EntrarBt({ eventoId, ownerId }: EntrarBtProps) {
           sx: {
             width: "min(420px, 90%)",
             maxWidth: "420px",
-            borderRadius: "1.25rem",
+            borderRadius: "0.65rem",
             overflow: "hidden",
             position: "relative",
             display: "flex",
@@ -170,7 +170,7 @@ export function EntrarBt({ eventoId, ownerId }: EntrarBtProps) {
             fontWeight: 600,
             textAlign: "left",
           }}
-        >
+          >
           Não quer ir mesmo?
         </DialogTitle>
 
@@ -183,7 +183,7 @@ export function EntrarBt({ eventoId, ownerId }: EntrarBtProps) {
             color: "rgba(0,0,0,0.8)",
           }}
         >
-          <DialogContentText id="confirm-exit-description">
+          <DialogContentText id="confirm-exit-description" sx={{ fontWeight: 520 }}>
             Sua presença vai ser muito importante nesse evento mano. Eu iria se fosse você..
           </DialogContentText>
         </DialogContent>
