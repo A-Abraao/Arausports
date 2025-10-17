@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import type { User as FirebaseUser } from "firebase/auth";
 import { onAuthListener } from "../firebase";
-import { auth } from "../firebase/config";
 import { signOut as firebaseSignOut } from "firebase/auth";
 import { useSignUpWithEmail, resendVerification as resendVerificationFn, signInWithEmail } from "../firebase";
 import { createUserIfNotExist, uploadProfileImage, useUpdateUserProfile } from "../firebase";

@@ -3,14 +3,11 @@ import { useState } from "react";
 import EmailInput from "./EmailInput";
 import InputSenha from "./InputSenha";
 import { Button } from "@mui/material";
-import { verificaEmail } from "../Autenticar/emailLoginController";
-import { verificaSenha } from "../Autenticar/senhaLoginController";
-import Autenticar from "../Autenticar";
 import { useNavigate } from "react-router-dom";
 import { useAlert } from "../../Alerta/AlertProvider";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useEmailAuth, useGoogleAuth } from "../../../supabase/auth/useSupabaseAuth";
+import GoogleIcon from "@mui/icons-material/Google";
 
-// componente do formulario
 const FormularioComponent = styled.form`
   align-items: center;
   display: flex;
@@ -23,102 +20,65 @@ const FormularioComponent = styled.form`
     display: flex;
     flex-direction: column;
     width: 100%;
-    gap:0.75em;
+    gap: 0.75em;
+  }
+
+  .google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    width: 100%;
   }
 `;
 
 function Formulario() {
-  const [valorEmail, setValorEmail] = useState("");
-  const [valorSenha, setValorSenha] = useState("");
-  const { showAlert } = useAlert();
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
   const navigate = useNavigate();
-  const { signIn } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const { showAlert } = useAlert();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const { signIn, loading: emailLoading, error: emailError } = useEmailAuth();
+  const { signInWithGoogle, loading: googleLoading, error: googleError } = useGoogleAuth();
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const emailTrim = valorEmail.trim();
-    const senhaVal = valorSenha; // mantenha a senha como está para checar comprimento
-
-    const emailOk = verificaEmail(emailTrim);
-    const senhaOk = verificaSenha(senhaVal);
-
-    if (!emailOk) {
-      showAlert("email não me parece válido", {
-        severity: "error",
-        duration: 4500,
-        variant: "standard",
-        sx: {
-          backgroundColor: "#DC143C",
-          color: "#ffffff",
-          fontWeight: 500,
-          "& .MuiAlert-message": { fontWeight: 500 },
-          "& .MuiAlert-icon": { color: "#ffffff" },
-        },
-      });
+    if (!email.trim() || !senha) {
+      showAlert("Preencha todos os campos!", { severity: "error", duration: 3500 });
       return;
     }
 
-    if (!senhaOk) {
-      showAlert("ops, ta sem senha..", {
-        severity: "error",
-        duration: 4500,
-        variant: "standard",
-        sx: {
-          backgroundColor: "#DC143C",
-          color: "#ffffff",
-          fontWeight: 500,
-          "& .MuiAlert-message": { fontWeight: 500 },
-          "& .MuiAlert-icon": { color: "#ffffff" },
-        },
-      });
-      return;
-    }
-
-    setLoading(true);
     try {
-      await signIn(emailTrim, senhaVal);
-
-      showAlert("Bem-vindo", {
-        severity: "success",
-        duration: 2500,
-        variant: "standard",
-        sx: {
-          backgroundColor: "#006400",
-          color: "#ffffff",
-          fontWeight: 500,
-        },
-      });
-
+      await signIn(email.trim(), senha);
+      showAlert("Bem-vindo!", { severity: "success", duration: 2500 });
       navigate("/homepage");
     } catch (err: any) {
-      showAlert("login deu errado..", {
-        severity: "error",
-        duration: 4500,
-        variant: "standard",
-        sx: {
-          backgroundColor: "#DC143C",
-          color: "#ffffff",
-          fontWeight: 500,
-          "& .MuiAlert-message": { fontWeight: 500 },
-          "& .MuiAlert-icon": { color: "#ffffff" },
-        },
-      });
-    } finally {
-      setLoading(false);
+      showAlert("Login falhou. Verifique suas credenciais.", { severity: "error", duration: 4000 });
+      console.error("signIn error:", err);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle();
+      showAlert("Login com Google realizado!", { severity: "success", duration: 2500 });
+      navigate("/homepage");
+    } catch (err: any) {
+      showAlert("Erro ao entrar com Google.", { severity: "error", duration: 4000 });
+      console.error("signInWithGoogle error:", err);
     }
   };
 
   return (
-    <FormularioComponent onSubmit={handleSubmit}>
-      <EmailInput value={valorEmail} onChange={setValorEmail} />
-      <InputSenha value={valorSenha} onChange={setValorSenha} />
+    <FormularioComponent onSubmit={handleEmailLogin}>
+      <EmailInput value={email} onChange={setEmail} />
+      <InputSenha value={senha} onChange={setSenha} />
 
       <div className="botoes">
         <Button
           type="submit"
-          disabled={loading}
+          disabled={emailLoading}
           sx={{
             background: "dodgerblue",
             color: "white",
@@ -127,7 +87,7 @@ function Formulario() {
             textTransform: "none",
           }}
         >
-        {loading ? "Entrando..." : "Login"}
+          {emailLoading ? "Entrando..." : "Login"}
         </Button>
 
         <Button
@@ -142,9 +102,22 @@ function Formulario() {
         >
           Criar Conta
         </Button>
+
+        <Button
+          variant="outlined"
+          onClick={handleGoogleLogin}
+          disabled={googleLoading}
+          className="google-btn"
+          sx={{
+            height: "2.15em",
+            borderColor: "#4285F4",
+            color: "#4285F4",
+            textTransform: "none",
+          }}
+        >
+          <GoogleIcon /> {googleLoading ? "Entrando..." : "Entrar com Google"}
+        </Button>
       </div>
-    
-      <Autenticar />
     </FormularioComponent>
   );
 }
