@@ -4,7 +4,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import { BarraDeProgresso } from "./BarraDeProgresso";
-import { formatDateBR } from "../../../../../firebase";
+import { formatDateBR } from "../../../../../supabase";
 import { EntrarBt } from "./EntrarBt";
 
 const InformacoesEventoComponent = styled.div`
@@ -49,7 +49,7 @@ const HorarioData = styled.div`
 
 type InformacoesEventoProps = {
   titulo: string;
-  data: string;
+  data: string | Date | null;
   horario: string;
   localizacao: string;
   capacidadeMaxima: number;
@@ -70,7 +70,18 @@ export function InformacoesEvento({
   hoverTitulo,
   ownerId,
 }: InformacoesEventoProps) {
-  
+  const formatSafe = (d: string | Date | null) => {
+    if (!d) return "data não informada";
+    try {
+      if (d instanceof Date) return formatDateBR(d);
+      const parsed = new Date(d);
+      if (!isNaN(parsed.getTime())) return formatDateBR(parsed);
+      return String(d);
+    } catch (err) {
+      return typeof d === "string" ? d : (d as any)?.toString?.() ?? "data inválida";
+    }
+  };
+
   const max = Math.max(1, capacidadeMaxima || 1);
   const atual = Math.max(0, participantesAtuais || 0);
   const percentual = Math.min(100, Math.round((atual / max) * 100));
@@ -80,16 +91,14 @@ export function InformacoesEvento({
       <Titulo hoverTitulo={hoverTitulo}>{titulo}</Titulo>
 
       <HorarioData>
-        <span><CalendarTodayIcon className="icone" />{formatDateBR(data)}</span>
+        <span><CalendarTodayIcon className="icone" />{formatSafe(data)}</span>
         <span><AccessTimeIcon className="icone" />{horario}</span>
       </HorarioData>
 
       <span><LocationOnIcon className="icone" />{localizacao}</span>
 
-     
       <span><PersonIcon className="icone" />{`${atual} / ${capacidadeMaxima} participantes`}</span>
 
-      
       <BarraDeProgresso valor={percentual}/>
 
       <EntrarBt eventoId={eventoId} ownerId={ownerId} />

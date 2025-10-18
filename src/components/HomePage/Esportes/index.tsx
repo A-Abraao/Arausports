@@ -8,7 +8,6 @@ export const EsportesSectionComponent = styled.section`
   justify-content: center;
   flex-direction: column;
   border-top: 1px solid rgba(105, 105, 105, 0.2);
-  /* padding responsivo: entre 1rem e 2rem, crescendo com a viewport */
   padding: clamp(1rem, 1.5vw, 1.75rem) clamp(1rem, 2.2vw, 2rem);
   gap: clamp(0.75rem, 1.2vw, 1.25rem);
   margin-top: clamp(1.5rem, 3.2vw, 3.5rem);
@@ -23,7 +22,7 @@ export type Evento = {
   ownerId?: string;
   titulo: string;
   categoria: string;
-  data: string;
+  data: string | Date | null;
   horario: string;
   local: string;
   capacidade: number;

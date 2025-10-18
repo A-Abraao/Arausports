@@ -2,8 +2,8 @@ import styled from "styled-components";
 import { useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { InformacoesEvento } from "../InformacoesEvento";
-import { useSalvarEvento } from "../../../../../firebase";
-import { useRemoverEventoSalvo } from "../../../../../firebase";
+import { useSalvarEvento } from "../../../../../supabase";
+import { useRemoverEventoSalvo } from "../../../../../supabase";
 import { IconButton } from "@mui/material";
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark'; 
@@ -12,7 +12,6 @@ const CardComponent = styled.div`
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  /* largura responsiva: mínimo 14rem (~224px), preferido 31% do container, máximo 22rem (~352px) */
   width: clamp(14rem, 31%, 22rem);
   overflow: visible;
   position: relative;
@@ -26,7 +25,7 @@ const MotionCard = styled(motion.div)`
   display: flex;
   flex-direction: column;
   background: #fff;
-  border-radius: 0.5rem; /* antes 0.5em */
+  border-radius: 0.5rem;
   overflow: visible;
   box-shadow: 0 6px 18px rgba(0,0,0,0.06);
   will-change: transform;
@@ -81,23 +80,29 @@ const SecaoSuperiorDiv = styled.span`
 `;
 
 type SalvarButtonProps = {
-  ativo:boolean,
-  loading: boolean,
-  onClick: React.MouseEventHandler<HTMLButtonElement>
-}
+  ativo: boolean;
+  loading: boolean;
+  onClick: () => Promise<void> | void;
+  ariaLabel?: string;
+};
 
-export const SalvarButton = ({ativo, loading, onClick}: SalvarButtonProps) => {
+export const SalvarButton = ({ ativo, loading, onClick, ariaLabel }: SalvarButtonProps) => {
   const bgcolor = ativo ? "#e91e63" : "white";
-  const bgcoloractived = "rgba(194, 24, 91, 1)"
+  const bgcoloractived = "rgba(194, 24, 91, 1)";
   return (
     <IconButton
-      onClick={onClick}
+      onClick={async (e) => {
+        e.stopPropagation();
+        if (loading) return;
+        await onClick();
+      }}
       disabled={loading}
+      aria-label={ariaLabel ?? (ativo ? "Remover dos salvos" : "Salvar evento")}
       sx={{
         background: bgcolor,
         borderRadius: "9999px",
         mr: "0.45rem",
-        p: "0.375rem", 
+        p: "0.375rem",
         '&:hover': {
           background: ativo ? bgcoloractived : 'rgba(255, 255, 255, 0.6)',
         }
@@ -105,13 +110,13 @@ export const SalvarButton = ({ativo, loading, onClick}: SalvarButtonProps) => {
     >
       {ativo ? <BookmarkIcon sx={{ fontSize: '1.2rem', color: "white" }}/> : <BookmarkBorderIcon sx={{ fontSize: '1.2rem' }}/>}
     </IconButton>
-  )
-}
+  );
+};
 
 type CardProps = {
   imageUrl: string;
   titulo: string;
-  data: string;
+  data: string | Date | null;
   horario: string;
   localizacao: string;
   capacidadeMaxima: number;
@@ -137,30 +142,50 @@ export function Card({
   const imageScale = useTransform(y, [-8, 0], [1.08, 1]);
   const [hoverAtivado, setHoverAtivado] = useState(false);
 
-  const { salvo: ativo, setSalvo,salvarEvento, loading } = useSalvarEvento(eventoId);
-  const { removerPorEventoId, loadingSalvo } = useRemoverEventoSalvo();
+  const { salvo: ativo, setSalvo, salvarEvento, loading: loadingSalvar } = useSalvarEvento(eventoId);
+  const { removerPorEventoId, loadingSalvo: loadingRemover } = useRemoverEventoSalvo();
+
+  const isBusy = Boolean(loadingSalvar || loadingRemover);
+
+  const toISO = (d: string | Date | null) => {
+    if (!d) return null;
+    if (d instanceof Date) return d.toISOString();
+    const parsed = new Date(d);
+    return isNaN(parsed.getTime()) ? String(d) : parsed.toISOString();
+  };
 
   const handleSaveClick = async () => {
     if (!eventoId) return;
 
     try {
       if (ativo) {
-        await removerPorEventoId(eventoId);
-        setSalvo(false)
+        const ok = await removerPorEventoId(eventoId);
+        if (ok) {
+
+          setSalvo(false);
+        } else {
+          console.error("Falha ao remover evento salvo");
+        }
       } else {
-        await salvarEvento({
+        setSalvo(true);
+        const ok = await salvarEvento({
           titulo,
           localizacao,
-          data: data,
+          data: toISO(data),
           participantesAtuais,
           categoria,
           ownerId: ownerId ?? null,
-        });
+        } as any);
+        if (!ok) {
+          setSalvo(false);
+          console.error("Falha ao salvar evento");
+        }
       }
     } catch (error) {
-      console.error("Erro ao salvar o evento:", error);
+      console.error("Erro ao (des)salvar evento:", error);
+      if (!ativo) setSalvo(false);
+      if (ativo) setSalvo(true); 
     }
-  
   };
 
   return (
@@ -195,9 +220,9 @@ export function Card({
           <SecaoSuperiorDiv>
             <span className="tipo-esporte">{categoria}</span>
             <SalvarButton
-              ativo={ativo}
-              loading={loading}
-              onClick={() => handleSaveClick()}
+              ativo={Boolean(ativo)}
+              loading={isBusy}
+              onClick={handleSaveClick}
             />
           </SecaoSuperiorDiv>
         </ImageWrapper>

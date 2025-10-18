@@ -19,5 +19,3 @@ export * from './eventos/useRemoverEventoSalvo'
 export * from './eventos/useEventData'
 export * from './eventos/useUserCreatedEvent'
 export * from './eventos/useIcrementParticipation'
-
-export * from "./servicos/FormatarData"

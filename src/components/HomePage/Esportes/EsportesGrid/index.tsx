@@ -30,16 +30,13 @@ export function EsportesGrid({ eventos }: Props) {
     EventoDeTenis,
     EventoDeFut,
     BasketBallEvent
-  ]
+  ];
 
   const sortearImagem = () => {
-    const tamanhoLista = listaDeImagens.length
-
-    const indiceAleatorio = Math.floor(Math.random() * tamanhoLista)
-
-    return listaDeImagens[indiceAleatorio]
-  }
-
+    const tamanhoLista = listaDeImagens.length;
+    const indiceAleatorio = Math.floor(Math.random() * tamanhoLista);
+    return listaDeImagens[indiceAleatorio];
+  };
 
   return (
     <EsportesGridComponent>
