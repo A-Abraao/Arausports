@@ -5,8 +5,8 @@ import { InformacoesEvento } from "../InformacoesEvento";
 import { useSalvarEvento } from "../../../../../supabase";
 import { useRemoverEventoSalvo } from "../../../../../supabase";
 import { IconButton } from "@mui/material";
-import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
-import BookmarkIcon from '@mui/icons-material/Bookmark'; 
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
 
 const CardComponent = styled.div`
   display: flex;
@@ -16,7 +16,9 @@ const CardComponent = styled.div`
   overflow: visible;
   position: relative;
 
-  p, h2, span {
+  p,
+  h2,
+  span {
     overflow-wrap: break-word;
   }
 `;
@@ -27,7 +29,7 @@ const MotionCard = styled(motion.div)`
   background: #fff;
   border-radius: 0.5rem;
   overflow: visible;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
   will-change: transform;
   transform-origin: center;
   cursor: pointer;
@@ -48,7 +50,7 @@ const MotionImage = styled(motion.img)`
   height: 100%;
   object-fit: cover;
   display: block;
-  transform-origin: center center; 
+  transform-origin: center center;
   will-change: transform;
   user-select: none;
 `;
@@ -68,8 +70,9 @@ const SecaoSuperiorDiv = styled.span`
 
   .tipo-esporte {
     border-radius: 9999px;
-    background: rgba(255,255,255,0.95);
-    padding: clamp(0.25rem, 0.6vw, 0.45rem) clamp(0.55rem, 1.8vw, 0.95rem);
+    background: rgba(255, 255, 255, 0.95);
+    padding: clamp(0.25rem, 0.6vw, 0.45rem)
+      clamp(0.55rem, 1.8vw, 0.95rem);
     transition: background-color 0.5s ease-in-out;
 
     &:hover {
@@ -86,9 +89,15 @@ type SalvarButtonProps = {
   ariaLabel?: string;
 };
 
-export const SalvarButton = ({ ativo, loading, onClick, ariaLabel }: SalvarButtonProps) => {
+export const SalvarButton = ({
+  ativo,
+  loading,
+  onClick,
+  ariaLabel,
+}: SalvarButtonProps) => {
   const bgcolor = ativo ? "#e91e63" : "white";
   const bgcoloractived = "rgba(194, 24, 91, 1)";
+
   return (
     <IconButton
       onClick={async (e) => {
@@ -103,12 +112,18 @@ export const SalvarButton = ({ ativo, loading, onClick, ariaLabel }: SalvarButto
         borderRadius: "9999px",
         mr: "0.45rem",
         p: "0.375rem",
-        '&:hover': {
-          background: ativo ? bgcoloractived : 'rgba(255, 255, 255, 0.6)',
-        }
+        "&:hover": {
+          background: ativo
+            ? bgcoloractived
+            : "rgba(255, 255, 255, 0.6)",
+        },
       }}
     >
-      {ativo ? <BookmarkIcon sx={{ fontSize: '1.2rem', color: "white" }}/> : <BookmarkBorderIcon sx={{ fontSize: '1.2rem' }}/>}
+      {ativo ? (
+        <BookmarkIcon sx={{ fontSize: "1.2rem", color: "white" }} />
+      ) : (
+        <BookmarkBorderIcon sx={{ fontSize: "1.2rem" }} />
+      )}
     </IconButton>
   );
 };
@@ -142,8 +157,14 @@ export function Card({
   const imageScale = useTransform(y, [-8, 0], [1.08, 1]);
   const [hoverAtivado, setHoverAtivado] = useState(false);
 
-  const { salvo: ativo, setSalvo, salvarEvento, loading: loadingSalvar } = useSalvarEvento(eventoId);
-  const { removerPorEventoId, loadingSalvo: loadingRemover } = useRemoverEventoSalvo();
+  const {
+    salvo: ativo,
+    setSalvo,
+    salvarEvento,
+    loading: loadingSalvar,
+  } = useSalvarEvento(eventoId);
+  const { removerPorEventoId, loadingSalvo: loadingRemover } =
+    useRemoverEventoSalvo();
 
   const isBusy = Boolean(loadingSalvar || loadingRemover);
 
@@ -154,21 +175,30 @@ export function Card({
     return isNaN(parsed.getTime()) ? String(d) : parsed.toISOString();
   };
 
+  const normalizeOk = (res: any) => {
+    if (res === undefined) return true;
+    if (typeof res === "boolean") return res;
+    if (res && typeof res === "object") {
+      if ("ok" in res) return Boolean(res.ok);
+      return true;
+    }
+    return Boolean(res);
+  };
+
   const handleSaveClick = async () => {
     if (!eventoId) return;
-
     try {
       if (ativo) {
-        const ok = await removerPorEventoId(eventoId);
+        const res = await removerPorEventoId(eventoId);
+        const ok = normalizeOk(res);
         if (ok) {
-
           setSalvo(false);
         } else {
           console.error("Falha ao remover evento salvo");
         }
       } else {
         setSalvo(true);
-        const ok = await salvarEvento({
+        const res = await salvarEvento({
           titulo,
           localizacao,
           data: toISO(data),
@@ -176,6 +206,7 @@ export function Card({
           categoria,
           ownerId: ownerId ?? null,
         } as any);
+        const ok = normalizeOk(res);
         if (!ok) {
           setSalvo(false);
           console.error("Falha ao salvar evento");
@@ -184,7 +215,7 @@ export function Card({
     } catch (error) {
       console.error("Erro ao (des)salvar evento:", error);
       if (!ativo) setSalvo(false);
-      if (ativo) setSalvo(true); 
+      if (ativo) setSalvo(true);
     }
   };
 

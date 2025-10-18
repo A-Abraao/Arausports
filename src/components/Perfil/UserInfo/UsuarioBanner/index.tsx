@@ -1,7 +1,8 @@
 import styled from "styled-components";
 import bolaDeBasquetePng from '../../../../assets/img/bola-de-basquete.jpg'
 import { Usuario } from "./Usuario";
-import { useAuth } from "../../../../contexts/AuthContext";
+import { useUserProfile } from "../../../../supabase";
+import { useAuth } from "../../../../supabase";
 
 const UsuarioBannerComponet = styled.section`
   background: var(--gradient-hero);
@@ -28,33 +29,33 @@ export const ImagemDePerfil = styled.div<ImagemDePerfilProps>`
 `;
 
 export function UsuarioBanner() {
-  const { userData, loading } = useAuth();
-
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
+  const { profile: userData, loading } = useUserProfile(userId);
 
   let userName;
-  let userBio
+  let userBio;
 
   if (loading) {
     userName = "carregando perai...";
     userBio = "calma lá!!";
   } else if (!userData) {
-    userName = "Nada encontrado.."; 
-    userBio = "Hum.. parece que seu registro está deveras estranho."
+    userName = "Nada encontrado..";
+    userBio = "Hum.. parece que seu registro está deveras estranho.";
   } else {
-    
     userName = userData.displayName ?? "Sem nome";
-    userBio = userData.bio ?? "sem biografia.."
+    userBio = userData.bio ?? "sem biografia..";
   }
 
   return (
     <UsuarioBannerComponet>
-      <ImagemDePerfil imagem={userData?.photoURL ?? undefined}/>
+      <ImagemDePerfil imagem={userData?.photoURL ?? undefined} />
       <Usuario
         name={userName}
         usuarioBio={userBio}
-        eventosCriados={String(userData?.eventosCriados ?? 0)}
-        participacoes={String(userData?.participacoes ?? 0)}
-        conexoes={String(userData?.conexoes ?? 0)}
+        eventosCriados={String(0)}
+        participacoes={String(0)}
+        conexoes={String(0)}
       />
     </UsuarioBannerComponet>
   );

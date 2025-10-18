@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../../../../../../contexts/AuthContext";
+import { useAuth } from "../../../../../../supabase";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from "@mui/material";
 
 interface EditarPerfilPopupProps {

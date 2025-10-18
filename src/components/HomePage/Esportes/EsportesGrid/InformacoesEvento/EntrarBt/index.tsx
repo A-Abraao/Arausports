@@ -1,241 +1,192 @@
-import styled from "styled-components";
-import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, CircularProgress } from "@mui/material";
 import { useEffect, useState } from "react";
-import { auth, db } from "../../../../../../firebase/config";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
-import { useJoinEvent } from "../../../../../../firebase";
-import { useExitEvent } from "../../../../../../firebase";
-import { useIcrementParticipation } from "../../../../../../firebase";
+import Button from "@mui/material/Button";
+import { supabase } from "../../../../../../supabase/supabaseClient";
+import { useJoinEvent } from "../../../../../../supabase";
+import { useExitEvent } from "../../../../../../supabase";
 
-const ButtonContainer = styled.div`
-  margin-top: 0.75em;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-`;
-
-type EntrarBtProps = {
+type Props = {
   eventoId: string;
   ownerId?: string;
 };
 
-export function EntrarBt({ eventoId, ownerId }: EntrarBtProps) {
-  const [isParticipando, setIsParticipando] = useState(false);
-  const [isFull, setIsFull] = useState(false);
-  const [openConfirm, setOpenConfirm] = useState(false);
-
-  const user = auth.currentUser;
+export function EntrarBt({ eventoId }: Props) {
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isParticipant, setIsParticipant] = useState<boolean | null>(null);
+  const [checking, setChecking] = useState(false);
 
   const { joinEvent, loading: loadingJoin } = useJoinEvent();
   const { exitEvent, loading: loadingExit } = useExitEvent();
-  const { incrementParticipacoes, decrementParticipacoes } = useIcrementParticipation(user?.uid);
 
   useEffect(() => {
-    if (!ownerId || !user) return;
+    let mounted = true;
 
-    const participanteRef = doc(db, "usuarios", ownerId, "eventos", eventoId, "participantes", user.uid);
-    getDoc(participanteRef)
-      .then((snap) => setIsParticipando(snap.exists()))
-      .catch(() => {});
-  }, [user, ownerId, eventoId]);
-
-  useEffect(() => {
-    if (!ownerId) return;
-
-    const eventoRef = doc(db, "usuarios", ownerId, "eventos", eventoId);
-
-    const unsub = onSnapshot(
-      eventoRef,
-      (snap) => {
-        if (!snap.exists()) {
-          setIsFull(false);
-          return;
-        }
-        const data = snap.data() as any;
-        const capacidade = Number(data.capacidade ?? 0);
-        const atuais = Number(data.participantesAtuais ?? 0);
-        setIsFull(atuais >= capacidade);
-      },
-      (err) => {
-        console.error("Erro ao observar evento:", err);
+    (async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        const uid = data?.session?.user?.id ?? null;
+        if (!mounted) return;
+        setUserId(uid);
+      } catch {
+        if (!mounted) return;
+        setUserId(null);
       }
-    );
+    })();
 
-    return () => unsub();
-  }, [ownerId, eventoId]);
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id ?? null);
+    });
 
-  const handlePrimaryClick = async () => {
-    if (!user || !ownerId) return;
+    const subscription = (authListener as any)?.subscription ?? null;
 
-    if (isParticipando) {
-      setOpenConfirm(true);
+    return () => {
+      mounted = false;
+      
+      if (subscription && typeof subscription.unsubscribe === "function") {
+        subscription.unsubscribe();
+      } else if (subscription && typeof (subscription as any).remove === "function") {
+          (subscription as any).remove();
+      }
+      
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!eventoId) return;
+    if (!userId) {
+      setIsParticipant(false);
       return;
     }
 
+    let mounted = true;
+    setChecking(true);
+
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("eventos_participantes")
+          .select("id")
+          .eq("evento_id", eventoId)
+          .eq("user_id", userId)
+          .limit(1);
+
+        if (!mounted) return;
+        if (error) {
+          console.error("Erro ao checar inscrição:", error);
+          setIsParticipant(false);
+        } else {
+          setIsParticipant(Array.isArray(data) && data.length > 0);
+        }
+      } catch (err) {
+        if (!mounted) return;
+        console.error("Erro ao checar inscrição (catch):", err);
+        setIsParticipant(false);
+      } finally {
+        if (mounted) setChecking(false);
+      }
+    })();
+
+    const channel = supabase
+      .channel(`event_part:${eventoId}:user:${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "eventos_participantes",
+          filter: `evento_id=eq.${eventoId},user_id=eq.${userId}`,
+        },
+        (payload: any) => {
+          try {
+            const eventType = payload?.event ?? payload?.type ?? null;
+            if (eventType === "DELETE") {
+              setIsParticipant(false);
+            } else if (eventType === "INSERT" || eventType === "UPDATE") {
+              setIsParticipant(true);
+            } else {
+              if (payload?.new) setIsParticipant(true);
+              else if (payload?.old && !payload?.new) setIsParticipant(false);
+            }
+          } catch (e) {
+            console.warn("subscription handler error", e);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      mounted = false;
+        if (channel && typeof (channel as any).unsubscribe === "function") {
+          (channel as any).unsubscribe().catch(() => {});
+        } else {
+          try {
+            supabase.removeChannel(channel);
+          } catch {}
+        }
+    };
+  }, [eventoId, userId]);
+
+  const normalizeResult = (res: any) => {
+    if (res == null) return { ok: false, error: new Error("sem resposta") };
+    if (typeof res === "boolean") return { ok: res, error: null };
+    return { ok: Boolean(res?.ok), error: res?.error ?? null };
+  };
+
+  const handleJoin = async () => {
+    if (!userId) {
+      console.warn("Usuário não autenticado");
+      return;
+    }
     try {
-      await joinEvent(eventoId, ownerId, user.uid);
-      if (incrementParticipacoes) await incrementParticipacoes(1);
-      setIsParticipando(true);
-    } catch (err: any) {
-      console.error("Erro ao entrar no evento:", err);
-      throw err;
+      setIsParticipant(true);
+      const raw = await joinEvent(eventoId, userId);
+      const { ok, error } = normalizeResult(raw);
+      if (!ok) {
+        setIsParticipant(false);
+        const message = error?.message ?? String(error ?? "Erro ao entrar");
+        console.error("joinEvent falhou:", message);
+      } else {
+        setIsParticipant(true);
+      }
+    } catch (e) {
+      console.error("Erro no join:", e);
+      setIsParticipant(false);
     }
   };
 
-  const handleConfirmExit = async () => {
-    if (!user || !ownerId) return;
-
+  const handleExit = async () => {
+    if (!userId) return;
     try {
-      await exitEvent(eventoId, ownerId, user.uid);
-      if (decrementParticipacoes) await decrementParticipacoes(1);
-      setIsParticipando(false);
-      setOpenConfirm(false);
-    } catch (err: any) {
-      console.error("Erro ao sair do evento:", err);
-      setOpenConfirm(false);
-      throw err;
+      setIsParticipant(false);
+      const raw = await exitEvent(eventoId, userId);
+      const { ok, error } = normalizeResult(raw);
+      if (!ok) {
+        setIsParticipant(true);
+        console.error("exitEvent falhou:", error ?? "erro");
+      } else {
+        setIsParticipant(false);
+      }
+    } catch (e) {
+      console.error("Erro no exit:", e);
+      setIsParticipant(true);
     }
   };
 
-  const handleCancelExit = () => {
-    setOpenConfirm(false);
-  };
+  const busy = checking || loadingJoin || loadingExit;
+  const disabled = busy || !userId;
 
-  const loadingAction = loadingJoin || loadingExit;
-  const disabledBecauseFull = isFull && !isParticipando;
+  if (isParticipant === null) {
+    return <Button disabled>carregando...</Button>;
+  }
 
-  return (
-    <ButtonContainer>
-      <Button
-        disabled={disabledBecauseFull || loadingAction || !user}
-        sx={{
-          background: isParticipando ? "crimson" : disabledBecauseFull ? "#999" : "springgreen",
-          height: "2.5em", 
-          borderRadius: "0.5em", 
-          textTransform: "none",
-          color: "white",
-          fontWeight: 500,
-          "&:hover": {
-            background: isParticipando ? "darkred" : disabledBecauseFull ? "#999" : "mediumseagreen",
-          },
-        }}
-        onClick={handlePrimaryClick}
-      >
-        {loadingAction ? "Processando..." : isParticipando ? "Sair do evento" : disabledBecauseFull ? "Já era.." : "Se juntar"}
-      </Button>
-
-      <Dialog
-        open={openConfirm}
-        onClose={handleCancelExit}
-        aria-labelledby="confirm-exit-title"
-        aria-describedby="confirm-exit-description"
-        BackdropProps={{
-          sx: {
-            backdropFilter: "blur(6px)",
-            WebkitBackdropFilter: "blur(6px)",
-            backgroundColor: "rgba(0,0,0,0.25)",
-            transition: "all 200ms ease",
-          },
-        }}
-        PaperProps={{
-          sx: {
-            width: "min(420px, 90%)",
-            maxWidth: "420px",
-            borderRadius: "0.65rem",
-            overflow: "hidden",
-            position: "relative",
-            display: "flex",
-            flexDirection: "column",
-            gap: 1.5, 
-            "&::before": {
-              content: '""',
-              position: "absolute",
-              left: 0,
-              right: 0,
-              top: 0,
-              height: "6px",
-              background: "var(--gradient-hero)", 
-              zIndex: 10,
-            },
-            boxShadow: "0 18px 50px rgba(0,0,0,0.12)",
-            paddingBottom: "0.5em",
-          },
-        }}
-      >
-        <DialogTitle
-          id="confirm-exit-title"
-          sx={{
-            pt: 3.5,
-            pb: 0.5,
-            fontWeight: 600,
-            textAlign: "left",
-          }}
-          >
-          Não quer ir mesmo?
-        </DialogTitle>
-
-        <DialogContent
-          sx={{
-            px: 3,
-            py: 1,
-            textAlign: "left",
-            fontSize: "0.95rem",
-            color: "rgba(0,0,0,0.8)",
-          }}
-        >
-          <DialogContentText id="confirm-exit-description" sx={{ fontWeight: 520 }}>
-            Sua presença vai ser muito importante nesse evento mano. Eu iria se fosse você..
-          </DialogContentText>
-        </DialogContent>
-
-        <DialogActions
-          sx={{
-            px: 3,
-            pb: 2.2,
-            pt: 1,
-            gap: 0.5,
-            justifyContent: "flex-end",
-          }}
-        >
-          <Button
-            onClick={handleCancelExit}
-            disabled={loadingExit}
-            sx={{
-              textTransform: "none",
-              color: "white",
-              background: "var(--gradient-hero)",
-              "&:hover": { filter: "brightness(0.9)" },
-              fontWeight: 500,
-              height: "2.4em",
-              fontSize: "0.9rem",
-              px: 2.8,
-              
-            }}
-          >
-            Deixa quieto
-          </Button>
-
-          <Button
-            onClick={handleConfirmExit}
-            variant="contained"
-            disabled={loadingExit}
-            sx={{
-              textTransform: "none",
-              color: "white",
-              background: "#FF4757",
-              "&:hover": { background: "#e03b4c" },
-              fontWeight: 700,
-              height: "2.4em",
-              fontSize: "0.9rem",
-              px: 2.8,
-            }}
-            autoFocus
-          >
-            {loadingExit ? <CircularProgress size={20} color="inherit" /> : "Sim"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-    </ButtonContainer>
+  return isParticipant ? (
+    <Button variant="outlined" onClick={handleExit} disabled={disabled} color="error">
+      Sair
+    </Button>
+  ) : (
+    <Button variant="contained" onClick={handleJoin} disabled={disabled}>
+      Entrar
+    </Button>
   );
 }
+
+export default EntrarBt;

@@ -1,17 +1,28 @@
-import { useCallback, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { supabase } from "../supabaseClient";
 import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
+
+type UseSupabaseAuthReturn = {
+  user: SupabaseUser | null;
+  session: Session | null;
+  loading: boolean;
+  error: Error | null;
+  signUp: (email: string, password: string) => Promise<{ user: SupabaseUser | null; session: Session | null }>;
+  signIn: (email: string, password: string) => Promise<{ user: SupabaseUser | null; session: Session | null }>;
+  signInWithGoogle: (redirectTo?: string) => Promise<any>;
+  signOut: () => Promise<void>;
+  refreshSession: () => Promise<void>;
+  updateProfile: (profile: { bio?: string; username?: string }) => Promise<void>;
+  uploadProfilePicture: (file: File) => Promise<string>;
+};
 
 async function ensureUserRow(user: SupabaseUser | null) {
   if (!user) return;
   try {
     const metadata = (user.user_metadata ?? {}) as Record<string, any>;
-
-    const nome =
-      metadata.full_name ?? metadata.name ?? user.email?.split("@")[0] ?? null;
+    const nome = metadata.full_name ?? metadata.name ?? user.email?.split("@")[0] ?? null;
     const foto = metadata.avatar_url ?? metadata.picture ?? null;
     const bio = metadata.bio ?? "Perfil criado automaticamente.";
-
     const row = {
       id: user.id,
       nome,
@@ -21,19 +32,16 @@ async function ensureUserRow(user: SupabaseUser | null) {
       foto,
       criado_em: new Date().toISOString(),
     };
-
-    await supabase
-        .from("usuarios")
-        .upsert([row], { onConflict: "id", ignoreDuplicates: false });
+    await supabase.from("usuarios").upsert([row], { onConflict: "id", ignoreDuplicates: false });
   } catch (err) {
     console.warn("ensureUserRow erro:", err);
   }
 }
 
-export function useEmailAuth() {
+export function useProvideAuth(): UseSupabaseAuthReturn {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
@@ -47,42 +55,61 @@ export function useEmailAuth() {
         if (data.session?.user) await ensureUserRow(data.session.user);
       } catch (err) {
         console.warn("getSession erro:", err);
+      } finally {
+        if (mounted) setLoading(false);
       }
     })();
-
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
       const u = newSession?.user ?? null;
       setSession(newSession ?? null);
       setUser(u);
-      if (u) ensureUserRow(u);
+      if (u) await ensureUserRow(u);
     });
-
     return () => {
-      sub?.subscription?.unsubscribe?.();
+      try {
+        sub?.subscription?.unsubscribe?.();
+      } catch {
+        // @ts-ignore
+        if (typeof supabase.removeChannel === "function") {
+          try {
+            // @ts-ignore
+            supabase.removeChannel(sub);
+          } catch {}
+        }
+      }
       mounted = false;
     };
+  }, []);
+
+  const refreshSession = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data } = await supabase.auth.getSession();
+      setSession(data.session ?? null);
+      setUser(data.session?.user ?? null);
+      if (data.session?.user) await ensureUserRow(data.session.user);
+    } catch (err: any) {
+      setError(err instanceof Error ? err : new Error(String(err)));
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const signUp = useCallback(async (email: string, password: string) => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
+      const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
       if (signUpError) throw signUpError;
-
       const createdUser = data.user ?? null;
       if (createdUser) {
         await ensureUserRow(createdUser);
         setUser(createdUser);
       }
-
-      return data;
+      setSession(data.session ?? null);
+      return { user: createdUser, session: data.session ?? null };
     } catch (err: any) {
-      setError(err);
+      setError(err instanceof Error ? err : new Error(String(err)));
       throw err;
     } finally {
       setLoading(false);
@@ -93,87 +120,21 @@ export function useEmailAuth() {
     setLoading(true);
     setError(null);
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (signInError) throw signInError;
-
       const loggedUser = data.user ?? null;
       if (loggedUser) {
         await ensureUserRow(loggedUser);
         setUser(loggedUser);
       }
       setSession(data.session ?? null);
-
-      return data;
+      return { user: loggedUser, session: data.session ?? null };
     } catch (err: any) {
-      setError(err);
+      setError(err instanceof Error ? err : new Error(String(err)));
       throw err;
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  const signOut = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { error: signOutError } = await supabase.auth.signOut();
-      if (signOutError) throw signOutError;
-      setUser(null);
-      setSession(null);
-    } catch (err: any) {
-      setError(err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  return {
-    user,
-    session,
-    loading,
-    error,
-    signUp,
-    signIn,
-    signOut,
-  } as const;
-}
-
-export function useGoogleAuth() {
-  const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        if (!mounted) return;
-        setSession(data.session ?? null);
-        setUser(data.session?.user ?? null);
-        if (data.session?.user) await ensureUserRow(data.session.user);
-      } catch (err) {
-        console.warn("getSession erro:", err);
-      }
-    })();
-
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      const u = newSession?.user ?? null;
-      setSession(newSession ?? null);
-      setUser(u);
-      if (u) ensureUserRow(u);
-    });
-
-    return () => {
-      sub?.subscription?.unsubscribe?.();
-      mounted = false;
-    };
   }, []);
 
   const signInWithGoogle = useCallback(async (redirectTo?: string) => {
@@ -185,12 +146,10 @@ export function useGoogleAuth() {
         provider: "google",
         ...(options ?? {}),
       } as any);
-
       if (oauthError) throw oauthError;
-
       return data;
     } catch (err: any) {
-      setError(err);
+      setError(err instanceof Error ? err : new Error(String(err)));
       throw err;
     } finally {
       setLoading(false);
@@ -206,19 +165,76 @@ export function useGoogleAuth() {
       setUser(null);
       setSession(null);
     } catch (err: any) {
-      setError(err);
+      setError(err instanceof Error ? err : new Error(String(err)));
       throw err;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  return {
-    user,
-    session,
-    loading,
-    error,
-    signInWithGoogle,
-    signOut,
-  } as const;
+  const uploadProfilePicture = useCallback(async (file: File) => {
+    if (!user) throw new Error("Usuário não autenticado");
+    const BUCKET = "usuario-fotos";
+    const path = `${user.id}/${Date.now()}_${file.name}`;
+    const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true });
+    if (uploadError) throw uploadError;
+    const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
+    return urlData.publicUrl as string;
+  }, [user]);
+
+  const updateProfile = useCallback(async (profile: { bio?: string; username?: string }) => {
+    if (!user) throw new Error("Usuário não autenticado");
+    setLoading(true);
+    setError(null);
+    try {
+      const updates: Record<string, any> = {};
+      if (profile.username !== undefined) updates.nome = profile.username;
+      if (profile.bio !== undefined) updates.bio = profile.bio;
+      if (Object.keys(updates).length > 0) {
+        const { error: updateError } = await supabase.from("usuarios").update(updates).eq("id", user.id);
+        if (updateError) throw updateError;
+      }
+      if (profile.username !== undefined) {
+        try {
+          await supabase.auth.updateUser({ data: { full_name: profile.username } });
+        } catch {}
+      }
+      await refreshSession();
+    } catch (err: any) {
+      setError(err instanceof Error ? err : new Error(String(err)));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [user, refreshSession]);
+
+  return useMemo(
+    () => ({
+      user,
+      session,
+      loading,
+      error,
+      signUp,
+      signIn,
+      signInWithGoogle,
+      signOut,
+      refreshSession,
+      updateProfile,
+      uploadProfilePicture,
+    }),
+    [user, session, loading, error, signUp, signIn, signInWithGoogle, signOut, refreshSession, updateProfile, uploadProfilePicture]
+  );
+}
+
+const AuthContext = createContext<UseSupabaseAuthReturn | null>(null);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const auth = useProvideAuth();
+  return React.createElement(AuthContext.Provider, { value: auth }, children);
+}
+
+export function useAuth(): UseSupabaseAuthReturn {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth deve ser usado dentro de AuthProvider");
+  return ctx;
 }
