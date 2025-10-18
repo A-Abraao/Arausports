@@ -5,7 +5,7 @@ import { HashRouter } from 'react-router-dom'
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material'
 import { GoogleOAuthProvider } from "@react-oauth/google"
 import { AlertProvider } from './components/Alerta/AlertProvider.tsx'
-import { AuthProvider } from './contexts/AuthContext.tsx'
+import { AuthProvider } from './supabase/index.ts'
 import App from './App.tsx'
 
 const GlobalStyle = createGlobalStyle`

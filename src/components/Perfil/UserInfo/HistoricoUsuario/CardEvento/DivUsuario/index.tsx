@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Usuario } from "./Usuario";
-import { formatarDataDMA } from "../../../../../../firebase";
+import { formatarDataDMA } from "../../../../../../supabase";
 import { SalvarButton } from "../../../../../HomePage/Esportes/EsportesGrid/Card";
 import { IconButton, CircularProgress, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";

@@ -9,9 +9,8 @@ import { Titulo } from "./Titulo";
 import { DetalhesEvento } from "./DetalhesEvento";
 import { PreviaEvento } from "./PreviaEvento";
 import type { EventoData } from "./DetalhesEvento";
-import { useAuth } from "../../contexts/AuthContext";
-import { useAddEvent } from "../../firebase/eventos/criarEvento";
-import { useSupabaseUpload } from "../../firebase/servicos/useSupabaseUpload";
+import { useAuth } from "../../supabase";
+import { useAddEvent } from "../../supabase";
 
 const CriarEventoComponent = styled.div`
   align-items: center;
@@ -23,23 +22,10 @@ const CriarEventoComponent = styled.div`
 
 const Header = styled(HeaderComponent)``;
 
-const InformacoesEvento = styled.div`
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  gap: clamp(0.8rem, 2vw, 2rem);
-  width: 100%;
-  padding: clamp(0.8rem, 2vw, 2rem);
-
-  @media (max-width: 900px) {
-    flex-direction: column;
-    flex-wrap: wrap;
-  }
-`;
-
 export function CriarEvento() {
   const navigate = useNavigate();
-  const { firebaseUser } = useAuth();
+  const { user } = useAuth(); 
+  const userId = user?.id ?? null;
   const { showAlert } = useAlert();
 
   const [evento, setEvento] = useState<EventoData>({
@@ -56,10 +42,10 @@ export function CriarEvento() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { addEventForUser, loading } = useAddEvent();
 
-  const { upload, uploading: uploadingImage, error: uploadError } = useSupabaseUpload();
+  const uploadingImage = false;
 
   const handleSubmit = async () => {
-    if (!firebaseUser) {
+    if (!userId) {
       showAlert("Faça login primeiro zé", {
         severity: "error",
         duration: 3800,
@@ -69,13 +55,16 @@ export function CriarEvento() {
     }
 
     try {
-      const payload: Partial<EventoData> = {
-        ...evento,
-        imageUrl: "",
-        imagePath: ""
+      const payload = {
+        titulo: evento.titulo,
+        categoria: evento.categoria,
+        data: evento.data,
+        horario: evento.horario,
+        local: evento.local,
+        capacidade: evento.capacidade,
       };
 
-      const id = await addEventForUser(firebaseUser.uid, payload as EventoData);
+      const id = await addEventForUser(userId, payload);
 
       if (!id) {
         showAlert("Id do evento deve estar faltando..", {
@@ -88,18 +77,14 @@ export function CriarEvento() {
 
       if (imageFile) {
         try {
-          await upload(imageFile, firebaseUser.uid, id, { asCover: true });
-          
+          console.warn("Tem imagem selecionada, mas o upload hook não foi chamado (comentado).");
         } catch (uploadErr) {
           console.error("Erro no upload da imagem:", uploadErr);
-
-          
           showAlert("Evento criado, mas houve erro ao enviar a imagem. Você pode enviar depois na página do evento.", {
             severity: "warning",
             duration: 6000,
             variant: "standard"
           });
-
         }
       }
 
@@ -107,7 +92,7 @@ export function CriarEvento() {
         state: { from: "criar-evento" },
       });
     } catch (err) {
-      console.error("Que cagada!!", err);
+      console.error("Erro ao criar evento:", err);
       showAlert("Erro ao criar evento — verifique o console.", {
         severity: "error",
         duration: 2800,
@@ -128,7 +113,7 @@ export function CriarEvento() {
       <CriarEventoComponent>
         <Titulo />
 
-        <InformacoesEvento>
+        <div style={{ display: "flex", gap: "1rem", width: "100%", padding: "clamp(0.8rem, 2vw, 2rem)" }}>
           <DetalhesEvento value={evento} onChange={setEvento} />
           <PreviaEvento
             onImageSelect={(file: File | null) => {
@@ -141,7 +126,7 @@ export function CriarEvento() {
             }}
             existingImageUrl={evento.imageUrl}
           />
-        </InformacoesEvento>
+        </div>
 
         <Button
           sx={{

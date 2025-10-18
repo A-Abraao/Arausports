@@ -5,7 +5,7 @@ import InputSenha from "./InputSenha";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAlert } from "../../Alerta/AlertProvider";
-import { useEmailAuth, useGoogleAuth } from "../../../supabase/auth/useSupabaseAuth";
+import { useEmailAuth, useGoogleAuth } from "../../../supabase";
 import GoogleIcon from "@mui/icons-material/Google";
 
 const FormularioComponent = styled.form`
@@ -38,8 +38,8 @@ function Formulario() {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
 
-  const { signIn, loading: emailLoading, error: emailError } = useEmailAuth();
-  const { signInWithGoogle, loading: googleLoading, error: googleError } = useGoogleAuth();
+  const { signIn, loading: emailLoading } = useEmailAuth();
+  const { signInWithGoogle, loading: googleLoading } = useGoogleAuth();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();

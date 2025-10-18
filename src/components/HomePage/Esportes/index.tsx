@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { SecaoSuperior } from "./SecaoSuperior";
 import { EsportesGrid } from "./EsportesGrid";
-import { useEventData } from "../../../firebase";
+import { useEventData } from "../../../supabase";
 
 export const EsportesSectionComponent = styled.section`
   display: flex;

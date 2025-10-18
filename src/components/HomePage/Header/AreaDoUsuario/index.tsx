@@ -1,10 +1,11 @@
 import styled from "styled-components";
 import bolaDeBasqueteUrl from '../../../../assets/img/bola-de-basquete.jpg';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconButton } from "@mui/material";
-import { onAuthListener, useGetProfilePhoto } from "../../../../firebase";
+import { useAuth } from "../../../../supabase";
+import { useUserProfile } from "../../../../supabase";
 
 const AreaDoUsuarioComponent = styled.div`
   display: flex;
@@ -29,24 +30,20 @@ const PerfilImg = styled(IconButton)`
 `;
 
 export function AreaDoUsuario() {
-  const [ userId, setUserId ] = useState<string | null>(null)
-
-  useEffect(() => {
-    const unsubscribe = onAuthListener((user) => {
-      setUserId(user ? user.uid : null)
-    })
-
-    return () => unsubscribe()
-  }, [])
-
-  const { userPhoto, erro } = useGetProfilePhoto(userId)
-
-  if (erro) console.log("deu erro" + erro)
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
+  const { profile, error: profileError } = useUserProfile(userId);
 
   const navigate = useNavigate();
   const handleNavigate = () => {
     navigate("/perfil");
   };
+
+  useEffect(() => {
+    if (profileError) console.warn("Erro ao carregar perfil do usuário:", profileError);
+  }, [profileError]);
+
+  const photoSrc = profile?.photoURL ?? bolaDeBasqueteUrl;
 
   return (
     <AreaDoUsuarioComponent>
@@ -64,8 +61,8 @@ export function AreaDoUsuario() {
         }} />
       </IconButton>
 
-      <PerfilImg onClick={handleNavigate}>
-        <img src={userPhoto || bolaDeBasqueteUrl} alt="Perfil" />
+      <PerfilImg onClick={handleNavigate} aria-label="abrir perfil">
+        <img src={photoSrc} alt="Perfil" />
       </PerfilImg>
     </AreaDoUsuarioComponent>
   );

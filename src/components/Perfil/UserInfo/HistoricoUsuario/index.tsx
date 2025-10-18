@@ -1,11 +1,11 @@
 import styled from "styled-components";
 import { CardEvento } from "./CardEvento";
 import { FiltroHistorico } from "./FiltroHistorico";
-import { useUserCreatedEvents } from "../../../../firebase";
-import { useEventosSalvosComParticipantes } from "../../../../firebase/eventos/useEventosSalvosComParticipantes";
-import { useRemoverEventoSalvo } from "../../../../firebase";
-import { useDeleteEvent } from "../../../../firebase/eventos/useDeleteEvent";
-import { useAuth } from "../../../../contexts/AuthContext";
+import { useUserCreatedEvents } from "../../../../supabase";
+import { useEventosSalvosComParticipantes } from "../../../../supabase";
+import { useRemoverEventoSalvo } from "../../../../supabase";
+import { useDeleteEvent } from "../../../../supabase";
+import { useAuth } from "../../../../supabase";
 import { useState } from "react";
 
 const HistoricoUsuarioComponent = styled.section`
@@ -18,17 +18,17 @@ const HistoricoUsuarioComponent = styled.section`
 `;
 
 export function HistoricoUsuario() {
-  const { firebaseUser } = useAuth();
-  const userId = firebaseUser?.uid ?? null;
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
 
   const [opcaoSelecionada, setOpcaoSelecionada] = useState<"meusEventos" | "eventosSalvos">("eventosSalvos");
 
   const { createdEvents, loadingCreated } = useUserCreatedEvents(userId);
-  const { salvos, loading: loadingSalvos } = useEventosSalvosComParticipantes();
+  const { salvos, loading: loadingSalvos } = useEventosSalvosComParticipantes(userId);
   const { removerEvento, loadingSalvo } = useRemoverEventoSalvo();
+  const { deleteEvent } = useDeleteEvent();
 
   const loading = loadingCreated || loadingSalvos;
-  const { deleteEvent } = useDeleteEvent();
 
   const listaParaRender = opcaoSelecionada === "meusEventos"
     ? createdEvents.map(e => ({
@@ -40,7 +40,7 @@ export function HistoricoUsuario() {
         capacidade: e.participantesTotais ?? 0,
       }))
     : salvos.map(s => ({
-      id: s.savedId, 
+      id: s.savedId,
       titulo: s.titulo ?? "",
       local: s.localizacao ?? "",
       data: s.data ?? "",
@@ -74,12 +74,20 @@ export function HistoricoUsuario() {
           loadingSalvo={loadingSalvo}
           foiSalvo={opcaoSelecionada === "eventosSalvos"}
           onUnsave={async () => {
-            await removerEvento(evento.id);
+            try {
+              await removerEvento(evento.id);
+            } catch (err) {
+              console.error("Erro ao remover salvo:", err);
+            }
           }}
           onDelete={
             opcaoSelecionada === "meusEventos" && userId
               ? async () => {
-                  await deleteEvent(userId, evento.id);
+                  try {
+                    await deleteEvent(userId, evento.id);
+                  } catch (err) {
+                    console.error("Erro ao deletar evento:", err);
+                  }
                 }
               : undefined
           }
