@@ -2,7 +2,6 @@ import styled from "styled-components";
 import bannerSRC from '../../assets/img/login-banner.jpg'
 import Formulario from "./Formulario";
 
-//Componente da pagina de login sendo criado aqui véi..
 const LoginPage = styled.div`
     align-items: center;
     background-image: 
@@ -17,7 +16,6 @@ const LoginPage = styled.div`
     width: 100%;
 `
 
-//A div 'Principal' tem a unica função de segurar os outros componentes da pagina e impedir que alguma coisa saiu do controle
 const Principal = styled.div`
   align-items: center;
   background: white;
@@ -32,12 +30,10 @@ const Principal = styled.div`
   width: clamp(280px, 25vw, 420px);
 
   h1 {
-    font-size: clamp(1.25rem, 3.5vw, 1.5rem);
+    font-size: 1.35em;
   }
 `;
 
-
-//Página de login é renderizada pela função que tem o mesmo nome da pagina
 function Login() {
     return (
         <LoginPage>
@@ -50,4 +46,4 @@ function Login() {
     )
 }
 
-export default Login
+export default Login;

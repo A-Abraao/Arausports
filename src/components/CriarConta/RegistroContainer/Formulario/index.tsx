@@ -6,24 +6,58 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { useAlert } from "../../../Alerta/AlertProvider";
 import { useNavigate } from "react-router-dom";
-import { useEmailAuth, useGoogleAuth } from "../../../../supabase";
-import GoogleIcon from "@mui/icons-material/Google";
+import { useEmailAuth } from "../../../../supabase";
 
 export const FormContainer = styled.div`
   width: 50%;
-  height: auto;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 2rem;
   box-sizing: border-box;
+`;
+
+const StyledTextField = styled(TextField)`
+  width: 70%;
+  height: 3.3rem;
+
+  & .MuiOutlinedInput-root {
+    border-radius: 0.5em;
+    height: 100%;
+    font-size: 0.9rem;
+
+    & input {
+      padding: 0.53em 0.9em;
+      font-size: 0.9rem;
+      line-height: 1.2;
+    }
+  }
+
+  & .MuiInputLabel-root {
+    font-size: 0.9rem;
+    top: -0.2em;
+  }
+
+  & .MuiOutlinedInput-notchedOutline {
+    top: 0;
+  }
+
+  & .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: var(--ring) !important;
+  }
+`;
+
+
+const StyledButton = styled(Button)`
+  height: 2.25em;
+  text-transform: none;
 `;
 
 export default function FormularioCriarConta() {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
   const { signUp, loading: signUpLoading } = useEmailAuth();
-  const { signInWithGoogle, loading: googleLoading } = useGoogleAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -59,33 +93,65 @@ export default function FormularioCriarConta() {
     }
   };
 
-  const handleGoogleSignUp = async () => {
-    try {
-      await signInWithGoogle();
-      showAlert("Conta criada com Google!", { severity: "success", duration: 4000 });
-      navigate("/homepage");
-    } catch (err: any) {
-      showAlert("Erro ao criar conta com Google", { severity: "error", duration: 3500 });
-      console.error("signInWithGoogle error:", err);
-    }
-  };
-
   return (
     <FormContainer>
-      <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          width: "100%",
+          maxWidth: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 1.5,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <Typography variant="h6" align="center">Criar conta</Typography>
 
-        <TextField label="E-mail" value={email} onChange={(e)=>setEmail(e.target.value)} required fullWidth />
-        <TextField label="Senha" type="password" value={password} onChange={(e)=>setPassword(e.target.value)} required fullWidth />
-        <TextField label="Confirmar senha" type="password" value={confirmPassword} onChange={(e)=>setConfirmPassword(e.target.value)} required fullWidth />
+        <StyledTextField
+          label="E-mail"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          variant="outlined"
+          sx={{
+            
+          }}
+        />
 
-        <Button type="submit" variant="contained" disabled={signUpLoading} sx={{ width: "100%", height: "2.5em", textTransform: "none" }}>
+        <StyledTextField
+          label="Senha"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          variant="outlined"
+        />
+
+        <StyledTextField
+          label="Confirmar senha"
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+          variant="outlined"
+        />
+
+        <StyledButton
+          type="submit"
+          variant="contained"
+          disabled={signUpLoading}
+          sx={{
+            background: "var(--gradient-hero)",
+            "&:hover": { filter: "brightness(0.95)" },
+            width: "35%",
+            textTransform: "none"
+          }}
+        >
           {signUpLoading ? "Criando..." : "Criar conta"}
-        </Button>
-
-        <Button variant="outlined" disabled={googleLoading} onClick={handleGoogleSignUp} sx={{ width: "100%", height: "2.5em", textTransform: "none" }}>
-          <GoogleIcon /> {googleLoading ? "Conectando..." : "Criar conta com Google"}
-        </Button>
+        </StyledButton>
       </Box>
     </FormContainer>
   );

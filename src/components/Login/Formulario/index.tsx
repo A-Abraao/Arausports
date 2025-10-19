@@ -2,34 +2,97 @@ import styled from "styled-components";
 import { useState } from "react";
 import EmailInput from "./EmailInput";
 import InputSenha from "./InputSenha";
-import { Button } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAlert } from "../../Alerta/AlertProvider";
 import { useEmailAuth, useGoogleAuth } from "../../../supabase";
-import GoogleIcon from "@mui/icons-material/Google";
+import googleLogoPng from '../../../assets/img/google-logo.png';
+import Typography from "@mui/material/Typography";
 
 const FormularioComponent = styled.form`
   align-items: center;
   display: flex;
   flex-direction: column;
   width: 100%;
-  gap: 1em;
-  padding: 0.75em 1.75em 0.75em 1.75em;
+  gap: 0.75em;
+  padding: 0.7em 1.6em;
 
   .botoes {
     display: flex;
     flex-direction: column;
     width: 100%;
-    gap: 0.75em;
+    gap: 0.45em;
   }
 
-  .google-btn {
+  .social-area {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.5em;
-    width: 100%;
+    /* gap correto — antes estava vazio e por isso dava problema */
+    gap: 0.25rem;
+    margin-top: 0.25rem;
   }
+
+  .social-slogan {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  input,
+  textarea,
+  .MuiInputBase-root,
+  .MuiFormControl-root,
+  .MuiOutlinedInput-root {
+    font-size: 0.92rem;
+  }
+
+  .MuiInputBase-root {
+    min-height: 1.9rem;
+    height: 1.9rem;
+  }
+
+  .MuiOutlinedInput-input {
+    padding: 6px 10px;
+    line-height: 1.2;
+  }
+
+  .MuiFormLabel-root {
+    font-size: 0.88rem;
+  }
+
+  .botoes .MuiButton-root {
+    height: 1.8em;
+    min-height: unset;
+    font-size: 0.94rem;
+    padding: 0 10px;
+    text-transform: none;
+  }
+`;
+
+/* removi os !important para permitir ajustes via sx quando você quiser */
+const GoogleIconButton = styled(IconButton)`
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  &:hover {
+    background: rgba(0,0,0,0.04);
+  }
+  &.Mui-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+`;
+
+const GoogleLogoImg = styled.img`
+  width: 1.5em;
+  height: 1em;
+  object-fit: contain;
+  display: block;
 `;
 
 function Formulario() {
@@ -82,12 +145,14 @@ function Formulario() {
           sx={{
             background: "dodgerblue",
             color: "white",
-            height: "2.15em",
+            height: "1.8em",
             width: "100%",
             textTransform: "none",
           }}
         >
-          {emailLoading ? "Entrando..." : "Login"}
+          <Typography component="span" sx={{ fontSize: "0.78rem", lineHeight: 1, fontWeight: 550 }}>
+            {emailLoading ? "Entrando..." : "Login"}
+          </Typography>
         </Button>
 
         <Button
@@ -95,28 +160,29 @@ function Formulario() {
           onClick={() => navigate("/criar-conta")}
           sx={{
             width: "100%",
-            height: "2.15em",
+            height: "1.8em",
             textTransform: "none",
             borderColor: "var(--secondary)",
           }}
         >
-          Criar Conta
+          <Typography component="span" sx={{ fontSize: "0.78rem", lineHeight: 1, fontWeight: 550 }}>
+            Criar Conta
+          </Typography>
         </Button>
 
-        <Button
-          variant="outlined"
-          onClick={handleGoogleLogin}
-          disabled={googleLoading}
-          className="google-btn"
-          sx={{
-            height: "2.15em",
-            borderColor: "#4285F4",
-            color: "#4285F4",
-            textTransform: "none",
-          }}
-        >
-          <GoogleIcon /> {googleLoading ? "Entrando..." : "Entrar com Google"}
-        </Button>
+        <div className="social-area" aria-hidden={false}>
+          <h3 className="social-slogan">entre também com:</h3>
+
+          {/* sem sx de width/height aqui — se quiser ajustar, use sx ou mude o styled-component */}
+          <GoogleIconButton
+            onClick={handleGoogleLogin}
+            disabled={!!googleLoading}
+            aria-label="Entrar com Google"
+            size="medium"
+          >
+            <GoogleLogoImg src={googleLogoPng} alt="Logo do Google" />
+          </GoogleIconButton>
+        </div>
       </div>
     </FormularioComponent>
   );
