@@ -15,9 +15,9 @@ const Opcao = styled.button<{ selecionado?: boolean }>`
   background-color: transparent;
   border: 1px solid transparent;
   color: rgba(0, 0, 0, 0.6);
-  font-weight: 420;
-  font-size: clamp(0.8rem, 1.6vw, 0.85rem);
-  width: 100%;
+  font-weight: 500;
+  font-size: clamp(0.9em, 0.9vw, 0.9rem);
+  width: 45%;
 
   ${(props) =>
     props.selecionado &&

@@ -10,7 +10,7 @@ import { CapacidadeEvento } from "./CapacidadeEvento";
 export const DetalhesEventoContainer = styled.div`
   width: clamp(88%, 45vw, 600px);
   flex: 1 1 52%;
-  max-width: clamp(320px, 50%, 600px);
+  width: 50%;
   box-sizing: border-box;
   margin: 0 auto;
   display: flex;

@@ -6,6 +6,7 @@ import HomePage from "./components/HomePage"
 import { Perfil } from "./components/Perfil"
 import { CriarEvento } from "./components/CriarEvento"
 import { CriarConta } from "./components/CriarConta"
+import AuthCallback from "./supabase/auth/AuthCallback"
 
 const AppComponent = styled.div`
   display: flex;
@@ -28,6 +29,7 @@ function App() {
   return (
     <AppComponent>
       <Routes>
+        <Route path="/auth/callback" element={<AuthCallback/>}></Route>
         <Route path="/" element={<Login />} />
         <Route path="/homepage" element={<HomePage />} />
         <Route path="/perfil" element={<Perfil />} />

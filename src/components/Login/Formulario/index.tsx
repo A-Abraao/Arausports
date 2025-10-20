@@ -29,7 +29,6 @@ const FormularioComponent = styled.form`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* gap correto — antes estava vazio e por isso dava problema */
     gap: 0.25rem;
     margin-top: 0.25rem;
   }
@@ -72,7 +71,6 @@ const FormularioComponent = styled.form`
   }
 `;
 
-/* removi os !important para permitir ajustes via sx quando você quiser */
 const GoogleIconButton = styled(IconButton)`
   width: 1.6em;
   height: 1.6em;
@@ -122,16 +120,19 @@ function Formulario() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    console.log("Pedido de login com Google disparado");
     try {
-      await signInWithGoogle();
-      showAlert("Login com Google realizado!", { severity: "success", duration: 2500 });
-      navigate("/homepage");
-    } catch (err: any) {
+      const res = await signInWithGoogle({ redirectTo: `${window.location.origin}/Arausports/auth-callback.html` });
+      console.log("signInWithGoogle retornou (após chamada):", res);
+    } catch (err) {
       showAlert("Erro ao entrar com Google.", { severity: "error", duration: 4000 });
       console.error("signInWithGoogle error:", err);
     }
   };
+
+
 
   return (
     <FormularioComponent onSubmit={handleEmailLogin}>
@@ -172,10 +173,13 @@ function Formulario() {
 
         <div className="social-area" aria-hidden={false}>
           <h3 className="social-slogan">entre também com:</h3>
-
-          {/* sem sx de width/height aqui — se quiser ajustar, use sx ou mude o styled-component */}
+          
           <GoogleIconButton
-            onClick={handleGoogleLogin}
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              handleGoogleLogin();
+            }}
             disabled={!!googleLoading}
             aria-label="Entrar com Google"
             size="medium"

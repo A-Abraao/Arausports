@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Auth Callback</title>
+</head>
+<body>
+<script>
+(function () {
+  try {
+    var hash = window.location.hash || '';
+
+    var pathname = window.location.pathname || '';
+    var base = pathname.replace(/\/[^\/]*$/, '');
+    if (base === '/') base = '';
+
+    console.log('auth-callback: pathname=', pathname, ' base=', base, ' hash=', hash);
+
+    if (hash && (hash.indexOf('access_token=') !== -1 || hash.indexOf('id_token=') !== -1)) {
+      var payload = hash.substring(1);
+      var target = window.location.origin + (base || '') + '/#/auth/callback?' + payload;
+      window.location.replace(target);
+      return;
+    } else {
+      var fallback = window.location.origin + (base || '') + '/#/auth/callback';
+      window.location.replace(fallback);
+      return;
+    }
+  } catch (e) {
+    console.error("auth-callback script error:", e);
+    window.location.replace(window.location.origin + '/#/');
+  }
+})();
+</script>
+</body>
+</html>

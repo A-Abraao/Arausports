@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { SecaoSuperior } from "./SecaoSuperior";
 import { EsportesGrid } from "./EsportesGrid";
 import { useEventData } from "../../../supabase";
+import DivDeCarregamento from "./Carregamento";
 
 export const EsportesSectionComponent = styled.section`
   display: flex;
@@ -16,6 +17,7 @@ export const EsportesSectionComponent = styled.section`
     color: var(--muted-foreground);
   }
 `;
+
 
 export type Evento = {
   id: string;
@@ -36,7 +38,7 @@ type Props = {
 export function Esportes({ searchQuery }: Props) {
   const { eventos, loading } = useEventData();
 
-  if (loading) return <h2 className="crregando">procurando...</h2>;
+  if(loading) return <DivDeCarregamento/>
 
   const eventosFiltrados = eventos.filter((evento) => {
     const termo = searchQuery.toLowerCase();

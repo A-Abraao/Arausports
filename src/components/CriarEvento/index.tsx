@@ -12,11 +12,22 @@ import type { EventoData } from "./DetalhesEvento";
 import { useAuth } from "../../supabase";
 import { useAddEvent } from "../../supabase";
 
+const CriarEventoPage = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw;
+`
+
 const CriarEventoComponent = styled.div`
   align-items: center;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   padding-bottom: clamp(0.5rem, 1.5vh, 1rem);
+  width: 90%;
   min-height: calc(var(--vh, 1vh) * 100);
 `;
 
@@ -102,17 +113,16 @@ export function CriarEvento() {
   };
 
   return (
-    <div>
+    <CriarEventoPage>
       <Header>
         <IconButton onClick={() => navigate("/perfil")}>
-          <VoltarSetinha width={"clamp(1.5rem, 1.8vw, 2rem)"} height={"clamp(1.5rem, 1.8vw, 2rem)"} />
+          <VoltarSetinha width={"clamp(2.2rem, 2.5vw, 2.7rem)"} height={"clamp(2.2rem, 2.5vw, 2.7rem)"} />
         </IconButton>
         <h1 style={{ fontSize: "clamp(1.25rem, 2vw, 1.75rem)" }}>Criar Evento</h1>
       </Header>
 
       <CriarEventoComponent>
         <Titulo />
-
         <div style={{ display: "flex", gap: "1rem", width: "100%", padding: "clamp(0.8rem, 2vw, 2rem)" }}>
           <DetalhesEvento value={evento} onChange={setEvento} />
           <PreviaEvento
@@ -147,6 +157,6 @@ export function CriarEvento() {
           {loading || uploadingImage ? (uploadingImage ? "Enviando imagem..." : "Criando...") : "Criar Evento"}
         </Button>
       </CriarEventoComponent>
-    </div>
+    </CriarEventoPage>
   );
 }

@@ -44,7 +44,7 @@ export function Header() {
     return (
         <HeaderComponent>
             <IconButton onClick={handleVoltar}>
-                <ArrowIcon width={"1.75rem"} height={"1.75rem"} />
+                <ArrowIcon width={"2.25rem"} height={"2.25rem"} />
             </IconButton>
             <h1>Perfil</h1>
         </HeaderComponent>
