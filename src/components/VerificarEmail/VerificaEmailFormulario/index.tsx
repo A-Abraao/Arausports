@@ -1,17 +1,19 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
-import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import SetinhaDeVoltar from '../../../assets/img/retornar-setinha.svg?react'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
-import Alert from '@mui/material/Alert'
-import IconButton from '@mui/material/IconButton'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useAlert } from '../../Alerta/AlertProvider'
 import { supabase } from '../../../supabase/supabaseClient'
 import useResendVerification from '../../../supabase/auth/useResendVerification'
+import VerificaEmailActions from './VerificaEmailAction'
+import { CodeInput } from './CodeConfirmation'
+import useErrorHandler from './useErroHandler' // mantive seu caminho; ajuste se necessário
 
+// estilização do formulario de confirmar o email
 const FormCard = styled.div`
   position: relative;
   width: clamp(20rem, 90%, 40rem);
@@ -20,6 +22,9 @@ const FormCard = styled.div`
   box-shadow: 0 1rem 3rem rgba(0,0,0,0.12), 0 0.25rem 0.75rem rgba(0,0,0,0.06);
   padding: clamp(1rem, 2.5vw, 1.25rem);
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15em;
   overflow: hidden;
   &::before {
     content: "";
@@ -38,120 +43,257 @@ const FormCard = styled.div`
 const HeaderRow = styled.div`
   display: flex;
   align-items: center;
-  gap: clamp(0.5rem, 1.2vw, 0.8rem);
+  gap: clamp(0.25rem, 1vw, 0.6rem);
   margin-bottom: clamp(0.6rem, 1.5vh, 0.9rem);
   padding-top: clamp(0.4rem, 0.8vh, 0.6rem);
 `
 
-const ActionsRow = styled.div`
-  display: flex;
-  gap: clamp(0.5rem, 1.2vw, 0.75rem);
-  justify-content: center;
-  margin-top: clamp(0.6rem, 1.5vh, 0.75rem);
-  flex-wrap: wrap;
+const Titulo = styled.div`
+  font-weight: 510;
+  text-align: center;
+  margin-top: 0.2rem;
+  color: rgba(0,0,0,0.6);
+  font-size: 0.9rem;
 `
 
+// props do popup de sair da pagina
+interface ConfirmLeaveDialogProps {
+  open: boolean
+  onClose: () => void
+  onConfirm: () => void
+  title?: string
+  message?: string
+  confirmLabel?: string
+  cancelLabel?: string
+}
+
+// componente de sair da pagina (definição única)
+function ConfirmLeaveDialog({
+  open,
+  onClose,
+  onConfirm,
+  title = 'Confirmação',
+  message = 'Tem certeza que deseja voltar? O código inserido será perdido.',
+  confirmLabel = 'Voltar',
+  cancelLabel = 'Cancelar',
+}: ConfirmLeaveDialogProps) {
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      PaperProps={{
+        sx: {
+          position: 'relative',
+          borderRadius: '0.8em',
+          padding: '0.25em',
+          overflow: 'hidden',
+          width: 'clamp(320px, 80vw, 500px)',
+          maxWidth: '100%',
+          backgroundColor: 'white',
+          boxShadow: '0 6px 30px rgba(0,0,0,0.16)',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '6px',
+            background: 'var(--gradient-hero)',
+            borderTopLeftRadius: 'inherit',
+            borderTopRightRadius: 'inherit',
+            zIndex: 2,
+          },
+        },
+      }}
+      BackdropProps={{
+        sx: {
+          backdropFilter: 'blur(6px)',
+          backgroundColor: 'rgba(0,0,0,0.28)',
+        },
+      }}
+    >
+      <DialogTitle sx={{ fontSize: '1.15rem', mt: 1 }}>{title}</DialogTitle>
+
+      <DialogContent sx={{ mt: 0.5, mb: 0.5, minWidth: 260 }}>
+        <Typography sx={{ color: 'rgba(0,0,0,0.75)' }}>{message}</Typography>
+      </DialogContent>
+
+      <DialogActions sx={{ px: 2 }}>
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          sx={{
+            background: 'crimson',
+            textTransform: 'none',
+            padding: '0.35em 0.7em',
+            borderColor: 'var(--sidebar-ring)',
+            color: 'white',
+            '&:hover': { background: '#b22222' },
+          }}
+        >
+          {cancelLabel}
+        </Button>
+
+        <Button
+          onClick={onConfirm}
+          variant="contained"
+          sx={{
+            background: 'var(--gradient-hero)',
+            padding: '0.35em 0.9em',
+            color: 'white',
+            textTransform: 'none',
+            '&:hover': { opacity: 0.95 },
+          }}
+        >
+          {confirmLabel}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
+// componente principal
 export function VerificaEmailFormulario() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { showAlert } = useAlert()
   const { resend, loading: resendLoading } = useResendVerification()
   const [email, setEmail] = useState('')
-  const [token, setToken] = useState('')
+  const [digits, setDigits] = useState<string[]>(Array(6).fill(''))
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+
+  const codeInputRef = useRef<any>(null)
+  const { userError, userInfo, userSuccess, siteError } = useErrorHandler()
 
   useEffect(() => {
     const stateEmail = (location.state as any)?.email
     if (stateEmail) setEmail(stateEmail)
   }, [location.state])
 
-  const validateInputs = () => {
-    if (!email.trim()) {
-      setMessage({ type: 'error', text: 'Informe um e-mail válido' })
-      return false
-    }
-    const tokenOnlyDigits = /^\d{6}$/.test(token)
-    if (!tokenOnlyDigits) {
-      setMessage({ type: 'error', text: 'Informe o código de 6 dígitos' })
-      return false
-    }
-    return true
-  }
+  // foco inicial no primeiro campo do CodeInput
+  useEffect(() => {
+    codeInputRef.current?.focusFirst?.()
+  }, [])
 
   const handleVerify = async (e?: React.FormEvent) => {
     e?.preventDefault()
-    setMessage(null)
-    if (!validateInputs()) return
+
+    const allDigits = digits.join('')
+    //aqui nós capta o erro e mostra popup indicando que tem coisa errada no codigo de verificação
+    if (allDigits.length !== 6 || /\D/.test(allDigits)) {
+      const msg = allDigits.length === 0
+        ? 'Enviamos o código no seu email, deve estar lá....'
+        : 'Algo me diz que o código está errado...'
+      userError(msg)
+      return
+    }
+
     setLoading(true)
     try {
-      const { data, error } = await supabase.auth.verifyOtp({ email: email.trim(), token: token.trim(), type: 'email' })
+      const token = allDigits
+      const { data, error } = await supabase.auth.verifyOtp({ email: email.trim(), token, type: 'email' })
       if (error) {
-        setMessage({ type: 'error', text: error.message || 'Erro ao verificar o token' })
+        //erro de api e supabase
+        siteError(error, 'verifyOtp')
         return
       }
+
       const sessionRes = await supabase.auth.getSession()
+      const successMsg = 'E-mail verificado com sucesso!'
+      userSuccess(successMsg)
       if (sessionRes?.data?.session) {
-        showAlert('E-mail verificado com sucesso! Entrando...', { severity: 'success', duration: 3000 })
         navigate('/homepage')
         return
       }
-      setMessage({ type: 'success', text: 'E-mail verificado com sucesso! Faça login para continuar.' })
-      showAlert('E-mail verificado. Faça login para continuar.', { severity: 'success', duration: 4000 })
       navigate('/')
     } catch (err: any) {
-      setMessage({ type: 'error', text: err?.message ?? 'Erro inesperado' })
+      // Erro de execução inesperado -> site error (log)
+      siteError(err, 'handleVerify (unexpected)')
+      return
     } finally {
       setLoading(false)
     }
   }
 
   const handleResend = async () => {
-    setMessage(null)
+    // validação do usuário
     if (!email.trim()) {
-      setMessage({ type: 'error', text: 'Informe o e-mail para reenviar o código' })
+      userError('Informe o e-mail para reenviar o código')
       return
     }
-    const ok = await resend(email.trim())
-    if (!ok) {
-      setMessage({ type: 'error', text: 'Erro ao reenviar o código' })
+
+    try {
+      const ok = await resend(email.trim())
+      if (!ok) {
+        // erro da API / infraestrutura -> só logamos
+        siteError(new Error('resend returned false'), 'resend')
+        return
+      }
+      userInfo('Código reenviado. Verifique sua caixa de entrada.')
+    } catch (err: any) {
+      siteError(err, 'handleResend (unexpected)')
       return
     }
-    setMessage({ type: 'success', text: 'Código reenviado. Verifique sua caixa de entrada.' })
-    showAlert('Código reenviado', { severity: 'info', duration: 3000 })
+  }
+
+  //gerneciao o ato de voltar para a pagina anterior aonde o cara tava
+  const tryNavigateBack = () => {
+    try {
+      if (window.history.length > 1) {
+        navigate(-1)
+      } else {
+        navigate('/criar-conta', { replace: true })
+      }
+    } catch {
+      navigate('/criar-conta', { replace: true })
+    }
   }
 
   return (
-    <FormCard>
-      <HeaderRow>
-        <IconButton onClick={() => navigate(-1)} sx={{ padding: '0.25rem' }}>
-          <ArrowBackIcon fontSize="small" />
-        </IconButton>
-        <Typography variant="h6">Verificar e-mail</Typography>
-      </HeaderRow>
+    <>
+      <FormCard>
+        <HeaderRow>
+          <IconButton onClick={() => setConfirmOpen(true)} sx={{ padding: '0.25rem' }}>
+            <SetinhaDeVoltar width="1.5em" height="1.5em"/>
+          </IconButton>
+          <Typography variant="h6">Verificar e-mail</Typography>
+        </HeaderRow>
 
-      <Box component="form" onSubmit={handleVerify} sx={{ display: 'flex', flexDirection: 'column', gap: clampCss('0.75rem', '1.6vw', '1rem') }}>
-        <TextField label="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} required fullWidth InputLabelProps={{ shrink: true }} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '0.35rem', minHeight: '3rem' } }} />
-        <TextField label="Código (6 dígitos)" value={token} onChange={(e) => setToken(e.target.value)} required inputProps={{ maxLength: 6 }} fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: '0.35rem', minHeight: '3rem' } }} />
+        <Box component="form" onSubmit={handleVerify} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Titulo>Enviamos um código de 6 dígitos para <strong>{email || 'seu e-mail'}</strong>.</Titulo>
 
-        {message && (
-          <Alert severity={message.type === 'error' ? 'error' : 'success'}>{message.text}</Alert>
-        )}
+          <CodeInput
+            length={6}
+            value={digits}
+            onChange={(d: string[]) => setDigits(d)}
+            ref={codeInputRef}
+            ariaLabelPrefix="Dígito"
+          />
 
-        <ActionsRow>
-          <Button type="submit" variant="contained" disabled={loading} sx={{ textTransform: 'none', minWidth: 'clamp(8rem, 35%, 12rem)' }}>
-            {loading ? 'Verificando...' : 'Verificar código'}
-          </Button>
+          <VerificaEmailActions
+            email={email}
+            loading={loading}
+            resendLoading={resendLoading}
+            onResend={handleResend}
+            onVerify={handleVerify}
+          />
 
-          <Button type="button" variant="outlined" disabled={resendLoading} onClick={handleResend} sx={{ textTransform: 'none', minWidth: 'clamp(8rem, 35%, 12rem)' }}>
-            Reenviar código
-          </Button>
-        </ActionsRow>
-      </Box>
-    </FormCard>
+        </Box>
+      </FormCard>
+
+      {/* popup confirmando se o usuario quer real voltar para a pagina de criar conta */}
+      <ConfirmLeaveDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={() => {
+          setConfirmOpen(false)
+          tryNavigateBack()
+        }}
+        title="Quer voltar mesmo?"
+        message="Ao voltar a página, o código que você digitou será perdido. Tem certeza que quer sair?"
+        confirmLabel="Vou voltar"
+        cancelLabel="Deixa pra lá"
+      />
+    </>
   )
-}
-
-function clampCss(a: string, b: string, c: string) {
-  return `clamp(${a}, ${b}, ${c})`
 }
