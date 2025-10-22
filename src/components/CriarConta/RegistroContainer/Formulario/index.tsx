@@ -83,7 +83,7 @@ export default function FormularioCriarConta() {
     if (!validate()) return
     try {
       await signUp(email.trim(), password)
-      showAlert("Conta criada! Verifique seu e-mail para o código de verificação.", { severity: "success", duration: 4000 })
+      showAlert("Vamo lá ver esse email aí..", { severity: "success", duration: 4000 })
       navigate("/verificar-email", { state: { email: email.trim() } })
     } catch (err: any) {
       showAlert("Erro ao criar conta", { severity: "error", duration: 3500 })

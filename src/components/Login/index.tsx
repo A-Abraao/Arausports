@@ -2,6 +2,7 @@ import styled from "styled-components";
 import bannerSRC from '../../assets/img/login-banner.jpg'
 import Formulario from "./Formulario";
 
+//estilização da pagina de login
 const LoginPage = styled.div`
     align-items: center;
     background-image: 
@@ -15,7 +16,7 @@ const LoginPage = styled.div`
     min-height: 100vh;
     width: 100%;
 `
-
+//a div princiapal serve apenas para segurar os componentes dentro e definir o típico fundo branco do formulario
 const Principal = styled.div`
   align-items: center;
   background: white;
@@ -34,6 +35,7 @@ const Principal = styled.div`
   }
 `;
 
+//componente da pagina de login
 function Login() {
     return (
         <LoginPage>

@@ -11,7 +11,8 @@ import { supabase } from '../../../supabase/supabaseClient'
 import useResendVerification from '../../../supabase/auth/useResendVerification'
 import VerificaEmailActions from './VerificaEmailAction'
 import { CodeInput } from './CodeConfirmation'
-import useErrorHandler from './useErroHandler' // mantive seu caminho; ajuste se necessário
+import useErrorHandler from './useErroHandler'
+import useVerifyEmail from '../../../supabase/auth/useVerificarEmail'
 
 // estilização do formulario de confirmar o email
 const FormCard = styled.div`
@@ -67,7 +68,7 @@ interface ConfirmLeaveDialogProps {
   cancelLabel?: string
 }
 
-// componente de sair da pagina (definição única)
+// componente de sair da pagina (definição única), ele também recebe algumas props, props essas listadas na tipagem acime
 function ConfirmLeaveDialog({
   open,
   onClose,
@@ -154,6 +155,7 @@ function ConfirmLeaveDialog({
 
 // componente principal
 export function VerificaEmailFormulario() {
+  //aqui basicmanete eu defino os hooks, useStates e navigates para o formulario funcionar
   const navigate = useNavigate()
   const location = useLocation()
   const { resend, loading: resendLoading } = useResendVerification()
@@ -161,6 +163,8 @@ export function VerificaEmailFormulario() {
   const [digits, setDigits] = useState<string[]>(Array(6).fill(''))
   const [loading, setLoading] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
+
+  const { verify, loading: verifyLoading } = useVerifyEmail();
 
   const codeInputRef = useRef<any>(null)
   const { userError, userInfo, userSuccess, siteError } = useErrorHandler()
@@ -176,44 +180,38 @@ export function VerificaEmailFormulario() {
   }, [])
 
   const handleVerify = async (e?: React.FormEvent) => {
-    e?.preventDefault()
+    e?.preventDefault();
 
-    const allDigits = digits.join('')
-    //aqui nós capta o erro e mostra popup indicando que tem coisa errada no codigo de verificação
+    const allDigits = digits.join('');
     if (allDigits.length !== 6 || /\D/.test(allDigits)) {
       const msg = allDigits.length === 0
         ? 'Enviamos o código no seu email, deve estar lá....'
-        : 'Algo me diz que o código está errado...'
-      userError(msg)
-      return
+        : 'Algo me diz que o código está errado...';
+      userError(msg);
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
-      const token = allDigits
-      const { data, error } = await supabase.auth.verifyOtp({ email: email.trim(), token, type: 'email' })
-      if (error) {
-        //erro de api e supabase
-        siteError(error, 'verifyOtp')
-        return
-      }
-
-      const sessionRes = await supabase.auth.getSession()
-      const successMsg = 'E-mail verificado com sucesso!'
-      userSuccess(successMsg)
+      await verify(email, allDigits); // hook de verificar email
+      const sessionRes = await supabase.auth.getSession();
+      userSuccess('Deu certo a verificação mlk..');
       if (sessionRes?.data?.session) {
-        navigate('/homepage')
-        return
+        navigate('/homepage');
+        return;
       }
-      navigate('/')
+      // se o cara não tiver sessão ou login ele vai automaticamente mandar para o login na marra mesmo,
+      // esse navigate automaticamente redireciona para lá
+      navigate('/'); // volta para login
     } catch (err: any) {
-      // Erro de execução inesperado -> site error (log)
-      siteError(err, 'handleVerify (unexpected)')
-      return
+      // aqui a gente tem dois funcionalidade, o siteError para erro do site mesmo, quando alguma coisa da errada com o site eo userErro que serve para quando o cara faz errado alguma coisa no site
+      siteError(err, 'verifyOtp');
+      const msg = err?.message ?? 'Falha ao verificar o código.';
+      userError(String(msg));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleResend = async () => {
     // validação do usuário

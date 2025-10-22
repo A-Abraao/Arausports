@@ -9,6 +9,7 @@ import { useEmailAuth, useGoogleAuth } from "../../../supabase";
 import googleLogoPng from '../../../assets/img/google-logo.png';
 import Typography from "@mui/material/Typography";
 
+//estilização do formulario
 const FormularioComponent = styled.form`
   align-items: center;
   display: flex;
@@ -71,6 +72,7 @@ const FormularioComponent = styled.form`
   }
 `;
 
+//botao de login com o google
 const GoogleIconButton = styled(IconButton)`
   width: 1.6em;
   height: 1.6em;
@@ -86,6 +88,7 @@ const GoogleIconButton = styled(IconButton)`
   }
 `;
 
+//imagem da logo do google
 const GoogleLogoImg = styled.img`
   width: 1.5em;
   height: 1em;
@@ -93,6 +96,7 @@ const GoogleLogoImg = styled.img`
   display: block;
 `;
 
+//componente formulario
 function Formulario() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");

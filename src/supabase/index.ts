@@ -2,7 +2,7 @@
 export * from './auth/useSupabaseAuth'
 export * from './auth/useAuthHooks'
 export * from './auth/useResendVerification'
-
+export * from './auth/useVerificarEmail'
 export * from './date/FormatarData'
 
 export * from './eventos/useSalvarEvento'
