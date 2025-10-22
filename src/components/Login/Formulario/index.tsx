@@ -121,17 +121,15 @@ function Formulario() {
   };
 
   const handleGoogleLogin = async (e?: React.MouseEvent) => {
-    e?.preventDefault();
-    console.log("Pedido de login com Google disparado");
-    try {
-      const res = await signInWithGoogle({ redirectTo: `${window.location.origin}/Arausports/auth-callback.html` });
-      console.log("signInWithGoogle retornou (após chamada):", res);
-    } catch (err) {
+  e?.preventDefault();
+  try {
+    await signInWithGoogle();
+    navigate("/homepage");
+  } catch (err) {
       showAlert("Erro ao entrar com Google.", { severity: "error", duration: 4000 });
       console.error("signInWithGoogle error:", err);
     }
   };
-
 
 
   return (

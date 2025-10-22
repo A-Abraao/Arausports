@@ -6,6 +6,7 @@ import HomePage from "./components/HomePage"
 import { Perfil } from "./components/Perfil"
 import { CriarEvento } from "./components/CriarEvento"
 import { CriarConta } from "./components/CriarConta"
+import VerificarEmailPage from "./components/VerificarEmail"
 import AuthCallback from "./supabase/auth/AuthCallback"
 
 const AppComponent = styled.div`
@@ -35,6 +36,7 @@ function App() {
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/criar-evento" element={<CriarEvento />} />
         <Route path="/criar-conta" element={<CriarConta />} />
+        <Route path="/verificar-email" element={<VerificarEmailPage/>}/>
       </Routes>
     </AppComponent>
   );

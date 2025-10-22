@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import { useAlert } from "../../../Alerta/AlertProvider";
-import { useNavigate } from "react-router-dom";
-import { useEmailAuth } from "../../../../supabase";
+import { useState } from "react"
+import styled from "styled-components"
+import Box from "@mui/material/Box"
+import TextField from "@mui/material/TextField"
+import Button from "@mui/material/Button"
+import Typography from "@mui/material/Typography"
+import { useAlert } from "../../../Alerta/AlertProvider"
+import { useNavigate } from "react-router-dom"
+import { useEmailAuth } from "../../../../supabase"
 
 export const FormContainer = styled.div`
   width: 50%;
@@ -16,7 +16,7 @@ export const FormContainer = styled.div`
   justify-content: center;
   padding: 2rem;
   box-sizing: border-box;
-`;
+`
 
 const StyledTextField = styled(TextField)`
   width: 70%;
@@ -46,52 +46,50 @@ const StyledTextField = styled(TextField)`
   & .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
     border-color: var(--ring) !important;
   }
-`;
-
+`
 
 const StyledButton = styled(Button)`
   height: 2.25em;
   text-transform: none;
-`;
+`
 
 export default function FormularioCriarConta() {
-  const navigate = useNavigate();
-  const { showAlert } = useAlert();
-  const { signUp, loading: signUpLoading } = useEmailAuth();
+  const navigate = useNavigate()
+  const { showAlert } = useAlert()
+  const { signUp, loading: signUpLoading } = useEmailAuth()
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
 
   const validate = () => {
     if (!email.trim()) {
-      showAlert("Insira um e-mail válido", { severity: "error", duration: 3500 });
-      return false;
+      showAlert("Insira um e-mail válido", { severity: "error", duration: 3500 })
+      return false
     }
     if (password.length < 6) {
-      showAlert("A senha precisa ter ao menos 6 caracteres", { severity: "error", duration: 3500 });
-      return false;
+      showAlert("A senha precisa ter ao menos 6 caracteres", { severity: "error", duration: 3500 })
+      return false
     }
     if (password !== confirmPassword) {
-      showAlert("As senhas não coincidem", { severity: "error", duration: 3500 });
-      return false;
+      showAlert("As senhas não coincidem", { severity: "error", duration: 3500 })
+      return false
     }
-    return true;
-  };
+    return true
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
-
+    e.preventDefault()
+    if (!validate()) return
     try {
-      await signUp(email.trim(), password);
-      showAlert("Conta criada! Verifique seu e-mail (se aplicável).", { severity: "success", duration: 4000 });
-      navigate("/");
+      await signUp(email.trim(), password)
+      showAlert("Conta criada! Verifique seu e-mail para o código de verificação.", { severity: "success", duration: 4000 })
+      navigate("/verificar-email", { state: { email: email.trim() } })
     } catch (err: any) {
-      showAlert("Erro ao criar conta", { severity: "error", duration: 3500 });
-      console.error("signUp error:", err);
+      showAlert("Erro ao criar conta", { severity: "error", duration: 3500 })
+      console.error("signUp error:", err)
     }
-  };
+  }
 
   return (
     <FormContainer>
@@ -116,9 +114,6 @@ export default function FormularioCriarConta() {
           onChange={(e) => setEmail(e.target.value)}
           required
           variant="outlined"
-          sx={{
-            
-          }}
         />
 
         <StyledTextField
@@ -154,5 +149,7 @@ export default function FormularioCriarConta() {
         </StyledButton>
       </Box>
     </FormContainer>
-  );
+  )
 }
+
+
