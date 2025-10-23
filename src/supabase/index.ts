@@ -21,3 +21,5 @@ export * from './eventos/useAddEvent'
 
 export * from './user/useUserProfile'
 export * from './user/useUserUpdateProfile'
+
+export * from './helpers/ensureUserProfileExists'

@@ -34,7 +34,6 @@ export function Estastisticas({eventosCriados = "0", participacoes = "0", conexo
   const userEstastics = [
     { quantidade: eventosCriados, acao: "Eventos criados" },
     { quantidade: participacoes, acao: "Participações" },
-    { quantidade: conexoes, acao: "Conexões" },
   ];
 
   return (

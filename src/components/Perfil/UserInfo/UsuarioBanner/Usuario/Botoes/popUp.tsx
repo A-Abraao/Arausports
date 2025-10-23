@@ -1,40 +1,51 @@
 import { useState } from "react";
-import { useAuth } from "../../../../../../supabase";
+import { useUpdateUserProfile } from "../../../../../../supabase";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from "@mui/material";
 
+//aqui voce já sabe que é as props do editarPerfilPopup
 interface EditarPerfilPopupProps {
   open: boolean;
   onClose: () => void;
 }
 
+//componente sendo rednerizado
 export function EditarPerfilPopup({ open, onClose }: EditarPerfilPopupProps) {
-  const [nome, setNome] = useState("");
-  const [bio, setBio] = useState("");
-  const { updateProfile } = useAuth();
+  //hooks que o camponente usa
+  const [nome, setNome] = useState("");//nome de perfil novo
+  const [bio, setBio] = useState("");//nova bio
+  const { updateProfile } = useUpdateUserProfile();//hook pata atualizar o perfil
+  const palavrasBio = bio.trim().split(/\s+/).filter(Boolean).length;//Pegar a quantidade de palavras que tem na bio
+  const limiteAtingido = palavrasBio > 45;//verificar se as palavras passaram da quantidade total que pode ter
 
-  const palavrasBio = bio.trim().split(/\s+/).filter(Boolean).length;
-  const limiteAtingido = palavrasBio > 45;
-
+  // Função de salvar
   const handleSalvar = async () => {
-    if (limiteAtingido) return;
+    if (limiteAtingido) return; //SE O LIMITE FOR ATIGIDO ELE IMPEDE QUE O USUARIO TERMINE DE EDITAR OS DADOS
 
+     //dados do usuario que ficaram salvos
     const dados: { username?: string; bio?: string } = {};
+    //formatar o nome e a bio
     if (nome.trim()) dados.username = nome.trim();
     if (bio.trim()) dados.bio = bio.trim();
 
+    //verificar se não está vazio as informações novas
     if (Object.keys(dados).length === 0) {
       alert("Preencha ao menos um campo para atualizar.");
-      return;
+      return; //se tiver ele para de executar o código aqui mesmo
     }
 
+    //tenta fazer a requisição para editar os dados do usuario salvos no supabase
     try {
+      //código assíncrone que espera o hook terminar de editar a bio e o nome de usuario para não dar erro  
       await updateProfile(dados);
+      //fecha o popup se der tudo certo
       onClose();
     } catch (error) {
+      //se der erro ele pega e mostra
       console.error("Erro ao atualizar perfil:", error);
     }
   };
 
+  //aqui é o retorno do conteúdo do componente
   return (
     <Dialog
       open={open}
@@ -81,6 +92,7 @@ export function EditarPerfilPopup({ open, onClose }: EditarPerfilPopupProps) {
           width: "100%",
         }}
       >
+        
         <TextField
           label="Novo nome de usuário"
           value={nome}
