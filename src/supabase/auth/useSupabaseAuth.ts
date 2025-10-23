@@ -1,11 +1,13 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { supabase } from "../supabaseClient";
 import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
+import { safeAuthInit, cleanupLocalSessionKeys } from "../safeSession";
 
 type UseSupabaseAuthReturn = {
   user: SupabaseUser | null;
   session: Session | null;
   loading: boolean;
+  initializing: boolean; 
   error: Error | null;
   signUp: (email: string, password: string) => Promise<{ user: SupabaseUser | null; session: Session | null }>;
   signIn: (email: string, password: string) => Promise<{ user: SupabaseUser | null; session: Session | null }>;
@@ -16,27 +18,74 @@ type UseSupabaseAuthReturn = {
   uploadProfilePicture: (file: File) => Promise<string>;
 };
 
+const upsertLocks = new Set<string>();
+
 async function ensureUserRow(user: SupabaseUser | null) {
   if (!user) return;
+  if (upsertLocks.has(user.id)) return;
+  upsertLocks.add(user.id);
+
   try {
     const metadata = (user.user_metadata ?? {}) as Record<string, any>;
     const nome = metadata.full_name ?? metadata.name ?? user.email?.split("@")[0] ?? null;
-    const foto = metadata.avatar_url ?? metadata.picture ?? null;
-    const bio = metadata.bio ?? "Perfil criado automaticamente.";
-    const row = {
+    const candidate = {
       id: user.id,
       nome,
       email: user.email ?? null,
       senha: null,
-      bio,
-      foto,
+      bio: metadata.bio ?? "Perfil criado automaticamente.",
+      foto_url: "", 
       criado_em: new Date().toISOString(),
     };
-    await supabase.from("usuarios").upsert([row], { onConflict: "id", ignoreDuplicates: false });
-  } catch (err) {
-    console.warn("ensureUserRow erro:", err);
+
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        const { error } = await supabase.from("usuarios").upsert([candidate], { onConflict: "id" });
+        if (!error) return;
+
+        if (error.code === "42501") {
+          await new Promise(r => setTimeout(r, 250 * (attempt + 1)));
+          continue;
+        }
+
+        if (error.code === "23505") {
+          try {
+            const { data: existing } = await supabase
+              .from("usuarios")
+              .select("id,email")
+              .eq("email", candidate.email)
+              .maybeSingle();
+
+            if (existing) {
+              if (existing.id === user.id) return; 
+              console.warn("[ensureUserRow] email já pertence a outro id:", existing);
+              return;
+            } else {
+              console.warn("[ensureUserRow] unique violation, mas select não retornou row");
+              return;
+            }
+          } catch (e) {
+            console.warn("[ensureUserRow] erro ao tratar 23505:", e);
+            return;
+          }
+        }
+
+        console.warn("ensureUserRow upsert falhou:", error);
+        return;
+      } catch (err) {
+        console.warn("ensureUserRow erro inesperado (tentativa):", err);
+        await new Promise(r => setTimeout(r, 250 * (attempt + 1)));
+      }
+    }
+
+    console.warn("ensureUserRow: todas as tentativas falharam.");
+  } finally {
+
+    upsertLocks.delete(user.id);
   }
 }
+
+
 
 export function useProvideAuth(): UseSupabaseAuthReturn {
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -44,53 +93,92 @@ export function useProvideAuth(): UseSupabaseAuthReturn {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
+  const refreshingRef = useRef(false);
+  const subscriptionRef = useRef<any>(null);
+
   useEffect(() => {
     let mounted = true;
+    let watchdogTimer: number | undefined;
+
     (async () => {
       try {
-        const { data } = await supabase.auth.getSession();
+        const sess = await safeAuthInit();
         if (!mounted) return;
-        setSession(data.session ?? null);
-        setUser(data.session?.user ?? null);
-        if (data.session?.user) await ensureUserRow(data.session.user);
+
+        setSession(sess ?? null);
+        setUser(sess?.user ?? null);
+
+        if (sess?.user) {
+          void ensureUserRow(sess.user).then(() => {
+            console.log("[AUTH] ensureUserRow completed (bg) for init");
+          }).catch(e => console.warn("[AUTH] ensureUserRow bg erro:", e));
+        }
       } catch (err) {
-        console.warn("getSession erro:", err);
+        console.warn("[AUTH] safeAuthInit erro:", err);
+        try { cleanupLocalSessionKeys(); } catch {}
+        if (!mounted) return;
+        setSession(null);
+        setUser(null);
       } finally {
         if (mounted) setLoading(false);
       }
-    })();
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-      const u = newSession?.user ?? null;
-      setSession(newSession ?? null);
-      setUser(u);
-      if (u) await ensureUserRow(u);
-    });
-    return () => {
+
       try {
-        sub?.subscription?.unsubscribe?.();
-      } catch {
-        // @ts-ignore
-        if (typeof supabase.removeChannel === "function") {
+        const { data: subscription } = supabase.auth.onAuthStateChange(async (event, newSession) => {
           try {
-            // @ts-ignore
-            supabase.removeChannel(sub);
-          } catch {}
-        }
+            setSession(newSession ?? null);
+            setUser(newSession?.user ?? null);
+
+            if (newSession?.user) {
+              void ensureUserRow(newSession.user).then(() => {
+                console.log("[AUTH] ensureUserRow completed (bg) onAuthStateChange");
+              }).catch(e => console.warn("[AUTH] ensureUserRow onAuthStateChange erro:", e));
+            }
+          } catch (e) {
+            console.warn("[AUTH] error in onAuthStateChange callback:", e);
+          }
+        });
+        subscriptionRef.current = subscription;
+      } catch (e) {
+        console.warn("[AUTH] subscribe failed:", e);
       }
+
+      watchdogTimer = window.setTimeout(() => {
+        if (mounted && loading) {
+          console.warn("[AUTH] WATCHDOG: loading still true after timeout. Forçando loading=false.");
+          setLoading(false);
+          try {
+            const keys = Object.keys(localStorage).filter(k => k.startsWith("sb-"));
+            console.warn("[AUTH] local sb- keys:", keys);
+            keys.forEach(k => console.log(k, "preview:", (localStorage.getItem(k) ?? "").slice(0,160)));
+          } catch (e) { console.warn(e); }
+        }
+      }, 7000);
+    })();
+
+    return () => {
       mounted = false;
+      try { if (typeof watchdogTimer !== "undefined") clearTimeout(watchdogTimer); } catch {}
+      try {
+        if (subscriptionRef.current?.unsubscribe) subscriptionRef.current.unsubscribe();
+        else (subscriptionRef.current as any)?.subscription?.unsubscribe?.();
+      } catch (e) { console.warn("[AUTH] error unsubscribing:", e); }
     };
   }, []);
 
   const refreshSession = useCallback(async () => {
+    if (refreshingRef.current) return;
+    refreshingRef.current = true;
     setLoading(true);
     try {
       const { data } = await supabase.auth.getSession();
       setSession(data.session ?? null);
       setUser(data.session?.user ?? null);
-      if (data.session?.user) await ensureUserRow(data.session.user);
+      if (data.session?.user) void ensureUserRow(data.session.user).catch(() => {});
     } catch (err: any) {
       setError(err instanceof Error ? err : new Error(String(err)));
     } finally {
+      refreshingRef.current = false;
       setLoading(false);
     }
   }, []);
@@ -103,7 +191,8 @@ export function useProvideAuth(): UseSupabaseAuthReturn {
       if (signUpError) throw signUpError;
       const createdUser = data.user ?? null;
       if (createdUser) {
-        await ensureUserRow(createdUser);
+        
+        void ensureUserRow(createdUser).catch(e => console.warn("ensureUserRow signUp erro:", e));
         setUser(createdUser);
       }
       setSession(data.session ?? null);
@@ -124,7 +213,7 @@ export function useProvideAuth(): UseSupabaseAuthReturn {
       if (signInError) throw signInError;
       const loggedUser = data.user ?? null;
       if (loggedUser) {
-        await ensureUserRow(loggedUser);
+        void ensureUserRow(loggedUser).catch(e => console.warn("ensureUserRow signIn erro:", e));
         setUser(loggedUser);
       }
       setSession(data.session ?? null);
@@ -195,9 +284,7 @@ export function useProvideAuth(): UseSupabaseAuthReturn {
         if (updateError) throw updateError;
       }
       if (profile.username !== undefined) {
-        try {
-          await supabase.auth.updateUser({ data: { full_name: profile.username } });
-        } catch {}
+        try { await supabase.auth.updateUser({ data: { full_name: profile.username } }); } catch {}
       }
       await refreshSession();
     } catch (err: any) {
@@ -210,17 +297,10 @@ export function useProvideAuth(): UseSupabaseAuthReturn {
 
   return useMemo(
     () => ({
-      user,
-      session,
+      user, session,
       loading,
-      error,
-      signUp,
-      signIn,
-      signInWithGoogle,
-      signOut,
-      refreshSession,
-      updateProfile,
-      uploadProfilePicture,
+      initializing: loading, 
+      error, signUp, signIn, signInWithGoogle, signOut, refreshSession, updateProfile, uploadProfilePicture
     }),
     [user, session, loading, error, signUp, signIn, signInWithGoogle, signOut, refreshSession, updateProfile, uploadProfilePicture]
   );

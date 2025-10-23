@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import { useAuth } from "../auth/useSupabaseAuth";
 
 export type UserProfile = {
   id: string;
@@ -14,7 +15,11 @@ export function useUserProfile(userId: string | null) {
   const [loading, setLoading] = useState<boolean>(!!userId);
   const [error, setError] = useState<Error | null>(null);
 
+  const { initializing } = useAuth();
+
   useEffect(() => {
+    if (initializing) return;
+    
     if (!userId) {
       setProfile(null);
       setLoading(false);
@@ -39,7 +44,8 @@ export function useUserProfile(userId: string | null) {
           .from("usuarios")
           .select("id, nome, bio, foto_url, email")
           .eq("id", userId)
-          .single();
+          .maybeSingle();
+
 
         if (fetchError) throw fetchError;
 
@@ -90,7 +96,7 @@ export function useUserProfile(userId: string | null) {
         }
       }
     };
-  }, [userId]);
+  }, [userId, initializing]);
 
   return { profile, loading, error };
 }

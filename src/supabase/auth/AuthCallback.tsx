@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import { cleanupLocalSessionKeys } from "../safeSession";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -35,7 +36,8 @@ export default function AuthCallback() {
           } as any);
           console.log("[AuthCallback] setSession result:", { data, error });
           if (error) {
-            console.warn("[AuthCallback] setSession retornou erro — tentando getSessionFromUrl()", error);
+            console.warn("[AuthCallback] setSession retornou erro — limpando chaves locais e tentando fallback", error);
+            cleanupLocalSessionKeys();
             try {
               await (supabase.auth as any).getSessionFromUrl?.({ storeSession: true });
               console.log("[AuthCallback] getSessionFromUrl executado (fallback).");
@@ -43,7 +45,7 @@ export default function AuthCallback() {
               console.error("[AuthCallback] getSessionFromUrl falhou:", e);
             }
           }
-
+          
           try {
             window.history.replaceState({}, "", window.location.pathname.replace(/\/auth-callback\.html$/, "") + "/#/"); // keep base route
           } catch (e) { console.log(e) }

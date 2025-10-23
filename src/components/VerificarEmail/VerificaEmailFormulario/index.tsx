@@ -12,7 +12,7 @@ import useResendVerification from '../../../supabase/auth/useResendVerification'
 import VerificaEmailActions from './VerificaEmailAction'
 import { CodeInput } from './CodeConfirmation'
 import useErrorHandler from './useErroHandler'
-import useVerifyEmail from '../../../supabase/auth/useVerificarEmail'
+import useVerificarEmail from '../../../supabase/auth/useVerificarEmail'
 
 // estilização do formulario de confirmar o email
 const FormCard = styled.div`
@@ -161,10 +161,9 @@ export function VerificaEmailFormulario() {
   const { resend, loading: resendLoading } = useResendVerification()
   const [email, setEmail] = useState('')
   const [digits, setDigits] = useState<string[]>(Array(6).fill(''))
-  const [loading, setLoading] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
 
-  const { verify, loading: verifyLoading } = useVerifyEmail();
+  const { verify, loading: verifyLoading } = useVerificarEmail();
 
   const codeInputRef = useRef<any>(null)
   const { userError, userInfo, userSuccess, siteError } = useErrorHandler()
@@ -179,11 +178,18 @@ export function VerificaEmailFormulario() {
     codeInputRef.current?.focusFirst?.()
   }, [])
 
+  //handle que chama o hook de verificar email
   const handleVerify = async (e?: React.FormEvent) => {
+    //evita comportamento nativo de refresh do formulario
     e?.preventDefault();
 
+    if(verifyLoading) return ;
+
+    //junta tudo os baguio que vem separado devido aos inputs serem separados
+    //ta veno se tem todos os 6 digitos do token
     const allDigits = digits.join('');
     if (allDigits.length !== 6 || /\D/.test(allDigits)) {
+      //se tiver errado os numeros ele manda...
       const msg = allDigits.length === 0
         ? 'Enviamos o código no seu email, deve estar lá....'
         : 'Algo me diz que o código está errado...';
@@ -191,25 +197,23 @@ export function VerificaEmailFormulario() {
       return;
     }
 
-    setLoading(true);
     try {
-      await verify(email, allDigits); // hook de verificar email
-      const sessionRes = await supabase.auth.getSession();
-      userSuccess('Deu certo a verificação mlk..');
-      if (sessionRes?.data?.session) {
-        navigate('/homepage');
-        return;
+      const res = await verify(email, allDigits); //aciona o hook de verificar email
+      if (res?.session) {
+        navigate('/homepage');//manda o cara para a homepage
+      } else {
+        // se não veio sessão, redireciona para login (ou tenta refresh)
+        await supabase.auth.getSession(); // opcional
+        navigate('/');
       }
-      // se o cara não tiver sessão ou login ele vai automaticamente mandar para o login na marra mesmo,
-      // esse navigate automaticamente redireciona para lá
-      navigate('/'); // volta para login
+  
     } catch (err: any) {
       // aqui a gente tem dois funcionalidade, o siteError para erro do site mesmo, quando alguma coisa da errada com o site eo userErro que serve para quando o cara faz errado alguma coisa no site
       siteError(err, 'verifyOtp');
       const msg = err?.message ?? 'Falha ao verificar o código.';
       userError(String(msg));
     } finally {
-      setLoading(false);
+      console.log("deu certo a verficação do email")
     }
   };
 
@@ -270,7 +274,7 @@ export function VerificaEmailFormulario() {
 
           <VerificaEmailActions
             email={email}
-            loading={loading}
+            loading={verifyLoading}
             resendLoading={resendLoading}
             onResend={handleResend}
             onVerify={handleVerify}

@@ -1,11 +1,8 @@
 import styled from "styled-components";
 import { CardEvento } from "./CardEvento";
 import { FiltroHistorico } from "./FiltroHistorico";
-import { useUserCreatedEvents } from "../../../../supabase";
 import { useEventosSalvosComParticipantes } from "../../../../supabase";
 import { useRemoverEventoSalvo } from "../../../../supabase";
-import { useDeleteEvent } from "../../../../supabase";
-import { useAuth } from "../../../../supabase";
 import { useState } from "react";
 
 const HistoricoUsuarioComponent = styled.section`
@@ -18,41 +15,31 @@ const HistoricoUsuarioComponent = styled.section`
 `;
 
 export function HistoricoUsuario() {
-  const { user } = useAuth();
-  const userId = user?.id ?? null;
+  // agora só existe a opção "eventosSalvos"
+  const [opcaoSelecionada, setOpcaoSelecionada] = useState<"eventosSalvos">("eventosSalvos");
 
-  const [opcaoSelecionada, setOpcaoSelecionada] = useState<"meusEventos" | "eventosSalvos">("eventosSalvos");
-
-  const { createdEvents, loadingCreated } = useUserCreatedEvents(userId);
-  const { salvos, loading: loadingSalvos } = useEventosSalvosComParticipantes(userId);
+  const { salvos, loading: loadingSalvos } = useEventosSalvosComParticipantes(null);
   const { removerEvento, loadingSalvo } = useRemoverEventoSalvo();
-  const { deleteEvent } = useDeleteEvent();
 
-  const loading = loadingCreated || loadingSalvos;
+  const loading = loadingSalvos;
 
-  const listaParaRender = opcaoSelecionada === "meusEventos"
-    ? createdEvents.map(e => ({
-        id: e.id,
-        titulo: e.titulo ?? "",
-        local: e.local ?? "",
-        data: e.data ?? "",
-        categoria: e.categoria ?? "",
-        capacidade: e.participantesTotais ?? 0,
-      }))
-    : salvos.map(s => ({
-      id: s.savedId,
-      titulo: s.titulo ?? "",
-      local: s.localizacao ?? "",
-      data: s.data ?? "",
-      categoria: s.categoria ?? "",
-      capacidade: s.participantes ?? 0,
-    }));
+  const listaParaRender = salvos.map(s => ({
+    id: s.savedId,
+    titulo: s.titulo ?? "",
+    local: s.localizacao ?? "",
+    data: s.data ?? "",
+    categoria: s.categoria ?? "",
+    capacidade: s.participantes ?? 0,
+  }));
 
   return (
     <HistoricoUsuarioComponent>
       <FiltroHistorico
         selecionado={opcaoSelecionada}
-        onSelect={(op) => setOpcaoSelecionada(op)}
+        onSelect={(op) => {
+          // ainda aceita onSelect, mas só há "eventosSalvos"
+          if (op === "eventosSalvos") setOpcaoSelecionada(op);
+        }}
       />
 
       {loading && <p>Peraí, peraí...</p>}
@@ -72,7 +59,7 @@ export function HistoricoUsuario() {
           esporte={evento.categoria}
           capacidade={String(evento.capacidade ?? 0)}
           loadingSalvo={loadingSalvo}
-          foiSalvo={opcaoSelecionada === "eventosSalvos"}
+          foiSalvo={true}
           onUnsave={async () => {
             try {
               await removerEvento(evento.id);
@@ -80,17 +67,6 @@ export function HistoricoUsuario() {
               console.error("Erro ao remover salvo:", err);
             }
           }}
-          onDelete={
-            opcaoSelecionada === "meusEventos" && userId
-              ? async () => {
-                  try {
-                    await deleteEvent(userId, evento.id);
-                  } catch (err) {
-                    console.error("Erro ao deletar evento:", err);
-                  }
-                }
-              : undefined
-          }
         />
       ))}
     </HistoricoUsuarioComponent>

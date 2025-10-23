@@ -1,4 +1,7 @@
 //esse arquivo permite importar todas as função de qualquer lugar do app
+
+import { AuthProvider } from './auth/useSupabaseAuth'
+
 export * from './auth/useSupabaseAuth'
 export * from './auth/useAuthHooks'
 export * from './auth/useResendVerification'

@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useAuth } from "./useSupabaseAuth";
 import { supabase } from "../supabaseClient";
+import { cleanupLocalSessionKeys } from "../safeSession";
 
 export function useEmailAuth() {
   
@@ -102,6 +103,7 @@ export function useGoogleAuth() {
             const qp = new URLSearchParams(payload.replace(/^#/, ""));
             const access_token = qp.get("access_token");
             const refresh_token = qp.get("refresh_token");
+
             if (!access_token) {
               if (!settled) {
                 settled = true;
@@ -110,12 +112,15 @@ export function useGoogleAuth() {
               }
               return;
             }
+
             try {
               const { data: setData, error: setError } = await supabase.auth.setSession({
                 access_token,
                 refresh_token
               } as any);
               if (setError) {
+                console.warn("useGoogleAuth: setSession erro:", setError);
+                cleanupLocalSessionKeys();
                 if (!settled) {
                   settled = true;
                   cleanup();
@@ -123,6 +128,8 @@ export function useGoogleAuth() {
                 }
                 return;
               }
+
+
               if (!settled) {
                 settled = true;
                 cleanup();
