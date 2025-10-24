@@ -115,7 +115,9 @@ function Formulario() {
     }
 
     try {
-      await signIn(email.trim(), senha);
+      //aqui ele faz o signin e normaliza email para não ter usuario duplicado e dar erro ao criar evento
+      const normalized = email.trim().toLowerCase();
+      await signIn(normalized, senha);
       showAlert("Bem-vindo!", { severity: "success", duration: 2500 });
       navigate("/homepage");
     } catch (err: any) {

@@ -78,19 +78,27 @@ export default function FormularioCriarConta() {
     return true
   }
 
+  //função que faz o submit do formulario ou seja, pega os dados, envia pro suapabase e tenta criar conta, se der certo ele manda para a página de login
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
     try {
-      await signUp(email.trim(), password)
+      //email normalizado para não ter conta duplicada
+      const normalized = email.trim().toLowerCase();
+      //exectua o hook de signup passando o email normalizado e a senha como parametro
+      await signUp(normalized, password);
+      //mostra um alert indicando que vai verificar o email
       showAlert("Vamo lá ver esse email aí..", { severity: "success", duration: 4000 })
+      //navega para a pagina de verificar email
       navigate("/verificar-email", { state: { email: email.trim() } })
+      //pega o erro e mostra ele
     } catch (err: any) {
       showAlert("Erro ao criar conta", { severity: "error", duration: 3500 })
       console.error("signUp error:", err)
     }
   }
 
+  //renderiza os componentes
   return (
     <FormContainer>
       <Box

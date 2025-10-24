@@ -45,15 +45,18 @@ export function CriarEvento() {
     data: "",
     horario: "",
     local: "",
-    capacidade: 0,
+    capacidade: 1,
     imageUrl: "",
     imagePath: "",
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
+
+  //chama o hook de criar o evento..
   const { addEventForUser, loading } = useAddEvent();
 
-  const uploadingImage = false;
+  //o hook lida com o upload mas aqui usamos o loading para fazer o button esperar quando tudo der certo
+  const uploadingImage = loading;
 
   const handleSubmit = async () => {
     if (!userId) {
@@ -75,7 +78,7 @@ export function CriarEvento() {
         capacidade: evento.capacidade,
       };
 
-      const id = await addEventForUser(userId, payload);
+      const id = await addEventForUser(userId, payload, imageFile);
 
       if (!id) {
         showAlert("Id do evento deve estar faltando..", {
@@ -86,25 +89,12 @@ export function CriarEvento() {
         return;
       }
 
-      if (imageFile) {
-        try {
-          console.warn("Tem imagem selecionada, mas o upload hook não foi chamado (comentado).");
-        } catch (uploadErr) {
-          console.error("Erro no upload da imagem:", uploadErr);
-          showAlert("Evento criado, mas houve erro ao enviar a imagem. Você pode enviar depois na página do evento.", {
-            severity: "warning",
-            duration: 6000,
-            variant: "standard"
-          });
-        }
-      }
-
       navigate("/perfil", {
         state: { from: "criar-evento" },
       });
     } catch (err) {
       console.error("Erro ao criar evento:", err);
-      showAlert("Erro ao criar evento — verifique o console.", {
+      showAlert("Erro ao criar evento..", {
         severity: "error",
         duration: 2800,
         variant: "standard"
@@ -123,8 +113,10 @@ export function CriarEvento() {
 
       <CriarEventoComponent>
         <Titulo />
+
         <div style={{ display: "flex", gap: "1rem", width: "100%", padding: "clamp(0.8rem, 2vw, 2rem)" }}>
           <DetalhesEvento value={evento} onChange={setEvento} />
+
           <PreviaEvento
             onImageSelect={(file: File | null) => {
               setImageFile(file);
@@ -156,6 +148,7 @@ export function CriarEvento() {
         >
           {loading || uploadingImage ? (uploadingImage ? "Enviando imagem..." : "Criando...") : "Criar Evento"}
         </Button>
+
       </CriarEventoComponent>
     </CriarEventoPage>
   );

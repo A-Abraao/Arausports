@@ -12,13 +12,17 @@ export function useEmailAuth() {
   const signIn = useCallback(async (email: string, password: string) => {
     setError(null);
     setLoading(true);
+    
     try {
       if (typeof signInBase === "function") {
-        return await signInBase(email, password);
+        const normalized = email.trim().toLowerCase();
+        return await signInBase(normalized, password);
       }
+
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       return data;
+
     } catch (err) {
       setError(err);
       throw err;
@@ -30,12 +34,15 @@ export function useEmailAuth() {
   const signUp = useCallback(async (email: string, password: string) => {
     setError(null);
     setLoading(true);
+
     try {
       if (typeof signUpBase === "function") {
         return await signUpBase(email, password);
       }
 
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      const normalized = email.trim().toLowerCase();
+      const { data, error } = await supabase.auth.signUp({ email: normalized, password });
+
       if (error) throw error;
       return data;
     } catch (err) {

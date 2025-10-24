@@ -12,11 +12,13 @@ export default function useVerificarEmail() {
     setLoading(true);
     try {
       //aqui ele chama um bagulho do supabase que confirma o token e o email
+      //normaliza o email tbm para não ter usuário duplucado
+        const normalized = email.trim().toLowerCase();
         const { data, error } = await supabase.auth.verifyOtp({
-            email: email.trim(),
-            token,
-            type: "email",
-        } as any);
+          email: normalized,
+          token,
+          type: "email",
+        });
         
         if (error) throw error;
 

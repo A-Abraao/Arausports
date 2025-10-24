@@ -163,6 +163,7 @@ export function VerificaEmailFormulario() {
   const [digits, setDigits] = useState<string[]>(Array(6).fill(''))
   const [confirmOpen, setConfirmOpen] = useState(false)
 
+  //hook para verificar o email
   const { verify, loading: verifyLoading } = useVerificarEmail();
 
   const codeInputRef = useRef<any>(null)
@@ -170,7 +171,7 @@ export function VerificaEmailFormulario() {
 
   useEffect(() => {
     const stateEmail = (location.state as any)?.email
-    if (stateEmail) setEmail(stateEmail)
+    if (stateEmail) setEmail(String(stateEmail).trim().toLowerCase());
   }, [location.state])
 
   // foco inicial no primeiro campo do CodeInput
