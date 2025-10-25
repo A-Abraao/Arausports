@@ -47,18 +47,20 @@ const DivInferior = styled.div`
 `;
 
 type CardEventoProps = {
-  titulo: string;
-  local: string;
-  data: string;
-  esporte: string;
-  capacidade: string;
-  loadingSalvo: boolean;
-  foiSalvo?: boolean;
-  savedFrom?: "eventosSalvos" | "meusEventos" | string;
-  onUnsave?: () => Promise<void> | void;
-  onDelete?: () => Promise<void> | void;
+  titulo: string; //props para receber titulo
+  local: string; //receber local
+  data: string; //data
+  esporte: string; // categoria do esperte ou do evento sla
+  capacidade: string; // capacidade maxima
+  loadingSalvo: boolean; // efeito de loading para salvar
+  foiSalvo?: boolean; //verificar se foi salvo já
+  savedFrom?: "eventosSalvos" | "meusEventos" | string; //permitir que o filtro diferencie qual deve renderizar
+  onUnsave?: () => Promise<void> | void; //tirar o evento da lista de eventos salvos
+  onDelete?: () => Promise<void> | void; //deletar o evento
+  imageUrl?: string | null; //caminho da imagem para ela ser renderizada
 };
 
+//renderizar a função de CardEvento
 export function CardEvento({
   titulo,
   local,
@@ -69,6 +71,7 @@ export function CardEvento({
   foiSalvo = false,
   onUnsave,
   onDelete,
+  imageUrl,
 }: CardEventoProps) {
   return (
     <CardEventoComponent>
@@ -94,7 +97,7 @@ export function CardEvento({
         </span>
       </InformacoesEvento>
 
-      <CardImagem />
+      <CardImagem imageUrl={imageUrl} />
       <DivInferior />
     </CardEventoComponent>
   );

@@ -43,11 +43,12 @@ export function EsportesGrid({ eventos }: Props) {
       {eventos.map((evento) => {
         const capacidadeMaxima = evento.capacidade;
         const participantes = evento.participantesAtuais ?? 0;
+        const eventImage = (evento as any).imageUrl ?? sortearImagem();
 
         return (
           <Card
             key={evento.id}
-            imageUrl={sortearImagem()}
+            imageUrl={eventImage}
             categoria={evento.categoria}
             titulo={evento.titulo}
             data={evento.data}

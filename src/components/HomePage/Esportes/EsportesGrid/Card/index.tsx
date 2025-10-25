@@ -129,7 +129,7 @@ export const SalvarButton = ({
 };
 
 type CardProps = {
-  imageUrl: string;
+  imageUrl?: string | null;
   titulo: string;
   data: string | Date | null;
   horario: string;
@@ -243,7 +243,7 @@ export function Card({
       >
         <ImageWrapper>
           <MotionImage
-            src={imageUrl}
+            src={imageUrl ?? undefined}
             alt={titulo}
             style={{ scale: imageScale }}
             draggable={false}

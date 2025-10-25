@@ -1,19 +1,27 @@
+// CardImagem/index.tsx (debug - img tag)
 import styled from "styled-components";
-import ImagemEvento from '../../../../../../assets/img/evento-de-futebol.jpg'
+import ImagemEvento from '../../../../../../assets/img/evento-de-futebol.jpg';
 
-const ImagemCardComponent = styled.div`
-    background-image: url(${ImagemEvento});
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    border-radius: 0.5rem;
-    width: 100%;
-    height: calc(var(--vh, 1vh) * 95);
-    will-change: transform;
+const Wrapper = styled.div`
+  width: 100%;
+  height: calc(var(--vh, 1vh) * 95);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: #eee;
 `;
 
-export function CardImagem() {
-    return (
-        <ImagemCardComponent/>
-    )
+const StyledImg = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+`;
+
+export function CardImagem({ imageUrl }: { imageUrl?: string | null }) {
+  const src = imageUrl ?? ImagemEvento;
+  return (
+    <Wrapper>
+      <StyledImg src={src} alt="evento" loading="lazy" />
+    </Wrapper>
+  );
 }

@@ -6,6 +6,7 @@ import { IconButton, CircularProgress, Dialog, DialogTitle, DialogContent, Dialo
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useState } from "react";
 
+//componente da divUsuario
 const DivUsuarioComponent = styled.div`
   width: 100%;
   display: flex;
@@ -13,12 +14,14 @@ const DivUsuarioComponent = styled.div`
   justify-content: space-between;
 `;
 
+//div que segura os buttons
 const RightGroup = styled.div`
   display: flex;
   align-items: center;
   gap: clamp(0.35rem, 0.8vw, 0.6rem);
 `;
 
+//categoria basicamente
 const TipoDoEsporte = styled.span`
   color: white;
   background: var(--secondary);
@@ -33,6 +36,7 @@ const TipoDoEsporte = styled.span`
   }
 `;
 
+//botao de deletar, é renderizado apenas em quando o usuario quer ver os eventos que ele criou
 const DeleteButton = styled(IconButton)`
   color: crimson;
   background: transparent;
@@ -49,6 +53,7 @@ const DeleteButton = styled(IconButton)`
   }
 `;
 
+//props da divUsuario, props é basicamente parâmetros para um determinado componente receber ou renderizar na tela como texto
 type DivUsuarioProps = {
   data: string;
   esporte: string;
@@ -58,6 +63,8 @@ type DivUsuarioProps = {
   onDelete?: () => Promise<void> | void;
 };
 
+
+//função que renderiza
 export function DivUsuario({
   data,
   esporte,
@@ -66,6 +73,7 @@ export function DivUsuario({
   onToggleSave,
   onDelete,
 }: DivUsuarioProps) {
+  //estates e hooks que o componente da divUsuario vai usar para ter suas funcionalidades
   const [deleting, setDeleting] = useState(false);
   const [openPopup, setOpenPopup] = useState(false);
 
@@ -74,6 +82,7 @@ export function DivUsuario({
     setOpenPopup(true);
   };
 
+  //handler que permite o usuario deletar os eventos criados por ele, obviamente exibe um popup avisando sobre a decisão
   const handleConfirmDelete = async () => {
     if (!onDelete) return;
     try {
@@ -87,20 +96,25 @@ export function DivUsuario({
     }
   };
 
+  //handle que controla a exebição do popup
   const handleCancel = () => {
     setOpenPopup(false);
   };
 
-  const handleSaveClick = async (e: React.MouseEvent) => {
-    e.stopPropagation();
+  //handler que chame o onToggleSave que implementa uma lógica de salvar quando não está salvo e tirar da lista de eventos salvos quando ele detectar que o evento já foi salvo
+  const handleSaveClick = async () => {
+
+    //condicional que verifica se o evento já foi salvo ou não(é o coração da lógica de salvar e dessalvar)
     if (onToggleSave) {
       try {
+        //espera o banco de dados reagir
         await onToggleSave();
       } catch (err) {
         console.error("Erro no toggle save:", err);
       }
     }
   };
+
 
   return (
     <>

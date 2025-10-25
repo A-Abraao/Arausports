@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../supabaseClient";
 import type { User } from "@supabase/supabase-js";
 
@@ -6,86 +6,92 @@ export function useRemoverEventoSalvo() {
   const [user, setUser] = useState<User | null>(null);
   const [loadingSalvo, setLoadingSalvo] = useState(false);
   const [erro, setErro] = useState<Error | null>(null);
+  const mountedRef = useRef(true);
+  useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);
 
   useEffect(() => {
-    let mounted = true;
     (async () => {
       try {
-        const { data } = await supabase.auth.getSession();
-        if (!mounted) return;
-        setUser(data.session?.user ?? null);
+        const userRes = await (supabase.auth as any).getUser?.();
+        const maybeUser = userRes?.data?.user ?? null;
+        if (mountedRef.current) setUser(maybeUser);
       } catch (e) {
-        console.warn("getSession error:", e);
+        console.warn("useRemoverEventoSalvo getUser error:", e);
       }
     })();
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setUser(session?.user ?? null);
     });
 
-    return () => {
-      mounted = false;
-      sub?.subscription?.unsubscribe?.();
-    };
+    return () => { try { sub?.subscription?.unsubscribe?.(); } catch {} };
   }, []);
 
-  const removerEvento = useCallback(
-    async (savedDocId: string | null) => {
-      if (!user || !savedDocId) return;
-      setLoadingSalvo(true);
-      setErro(null);
+  const removerEvento = useCallback(async (savedDocId: string | null) => {
+    if (!user || !savedDocId) {
+      console.warn("removerEvento: usuário não autenticado ou savedDocId ausente");
+      return { ok: false, error: new Error("Não autenticado ou savedDocId ausente") };
+    }
+    setLoadingSalvo(true);
+    setErro(null);
 
-      try {
-        const { error } = await supabase
-          .from("eventos_salvos")
-          .delete()
-          .eq("id", savedDocId)
-          .eq("user_id", user.id);
+    try {
+      const { error } = await supabase
+        .from("eventos_salvos")
+        .delete()
+        .eq("id", savedDocId)
+        .eq("usuario_id", user.id);
 
-        if (error) {
-          console.error("useRemoverEventoSalvo delete error:", error);
-          setErro(error as any);
-          throw error;
-        }
-      } catch (e: any) {
-        console.error("Erro ao remover evento salvo:", e);
-        setErro(e);
-        throw e;
-      } finally {
+      if (error) {
+        console.error("useRemoverEventoSalvo delete error:", error);
+        setErro(error as any);
         setLoadingSalvo(false);
+        return { ok: false, error };
       }
-    },
-    [user]
-  );
 
-  const removerPorEventoId = useCallback(
-    async (eventoId: string | null) => {
-      if (!user || !eventoId) return;
-      setLoadingSalvo(true);
-      setErro(null);
+      setLoadingSalvo(false);
+      return { ok: true };
+    } catch (e: any) {
+      console.error("Erro ao remover evento salvo:", e);
+      if (mountedRef.current) setErro(e);
+      setLoadingSalvo(false);
+      return { ok: false, error: e };
+    }
+  }, [user]);
 
-      try {
-        const { error } = await supabase
-          .from("eventos_salvos")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("evento_id", eventoId);
+  const removerPorEventoId = useCallback(async (eventoId: string | null) => {
+    if (!user || !eventoId) {
+      console.warn("removerPorEventoId: usuário não autenticado ou eventoId ausente");
+      return { ok: false, error: new Error("Não autenticado ou eventoId ausente") };
+    }
+    setLoadingSalvo(true);
+    setErro(null);
 
-        if (error) {
-          console.error("useRemoverEventoSalvo delete by evento_id error:", error);
-          setErro(error as any);
-          throw error;
-        }
-      } catch (e: any) {
-        console.error("Erro ao remover por eventoId:", e);
-        setErro(e);
-        throw e;
-      } finally {
+    try {
+      const { error } = await supabase
+        .from("eventos_salvos")
+        .delete()
+        .eq("usuario_id", user.id)
+        .eq("evento_id", eventoId);
+
+      if (error) {
+        console.error("useRemoverEventoSalvo delete by evento_id error:", error);
+        setErro(error as any);
         setLoadingSalvo(false);
+        return { ok: false, error };
       }
-    },
-    [user]
-  );
+
+      setLoadingSalvo(false);
+      return { ok: true };
+    } catch (e: any) {
+      console.error("Erro ao remover por eventoId:", e);
+      if (mountedRef.current) setErro(e);
+      setLoadingSalvo(false);
+      return { ok: false, error: e };
+    }
+  }, [user]);
 
   return { removerEvento, removerPorEventoId, loadingSalvo, erro } as const;
 }
+
+export default useRemoverEventoSalvo;
