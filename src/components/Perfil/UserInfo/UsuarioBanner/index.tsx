@@ -22,7 +22,7 @@ interface ImagemDePerfilProps {
   imagem?: string | null;
 }
 
-/* Diminuí um pouco o avatar e mantive medidas responsivas */
+//Diminuí um pouco o avatar
 export const ImagemDePerfil = styled.div<ImagemDePerfilProps>`
   width: clamp(3.5rem, 7.5vw, 6rem);
   height: clamp(3.5rem, 7.5vw, 6rem);

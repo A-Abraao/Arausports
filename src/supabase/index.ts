@@ -18,6 +18,10 @@ export * from './eventos/useEventosSalvosComParticipantes'
 export * from './eventos/useUserCreatedEvent'
 export * from './eventos/useDeleteEvent'
 export * from './eventos/useAddEvent'
+export * from './eventos/useEventRealtime'
+export * from './eventos/useEventParticipationStatus'
+export * from './eventos/useEventProgress'
+
 
 export * from './user/useUserProfile'
 export * from './user/useUserUpdateProfile'

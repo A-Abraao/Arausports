@@ -14,7 +14,7 @@ const GlobalStyle = createGlobalStyle`
     --gradient-hero: linear-gradient(135deg, hsl(25 95% 53%), hsl(200 95% 60%));
     --ring: #f3740dff;
     --secondary: hsl(200 95% 60%);
-    --gradient-primary: linear-gradient(135deg, hsl(25 95% 53%), hsl(35 95% 60%));
+    --gradient-primary: linear-gradient(135deg, hsl(25 95% 53%), rgba(250, 169, 56, 1));
     --gradient-secondary: linear-gradient(135deg, hsl(200 95% 60%), hsl(210 90% 65%));
     --background: hsl(35 100% 98%);
     --azul-gradient: linear-gradient(135deg, #4c68d7, #6098ff);

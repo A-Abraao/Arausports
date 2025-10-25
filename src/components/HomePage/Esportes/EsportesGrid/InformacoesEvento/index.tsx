@@ -6,6 +6,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import { BarraDeProgresso } from "./BarraDeProgresso";
 import { formatDateBR } from "../../../../../supabase";
 import { EntrarBt } from "./EntrarBt";
+import { useEventProgress } from "../../../../../supabase";
 
 const InformacoesEventoComponent = styled.div`
   display: flex;
@@ -82,9 +83,17 @@ export function InformacoesEvento({
     }
   };
 
-  const max = Math.max(1, capacidadeMaxima || 1);
-  const atual = Math.max(0, participantesAtuais || 0);
-  const percentual = Math.min(100, Math.round((atual / max) * 100));
+  // hook realtime: fornece liveParticipantes, liveCapacidade e livePercentual
+  const { participantesAtuais: liveParticipantes, capacidade: liveCapacidade, percentual: livePercentual } =
+    useEventProgress(eventoId);
+
+    const atual = liveParticipantes ?? participantesAtuais;
+    const max = liveCapacidade ?? capacidadeMaxima;
+    const percentual = livePercentual ?? (Math.min(100, Math.round((atual / Math.max(1, max)) * 100)));
+
+
+  // exibir capacidade visível: usa liveCapacidade quando disponível (senão mantém capacidadeMaxima da prop)
+  const capacidadeVisivel = Number.isFinite(Number(liveCapacidade ?? NaN)) ? (liveCapacidade as number) : capacidadeMaxima;
 
   return (
     <InformacoesEventoComponent>
@@ -97,7 +106,7 @@ export function InformacoesEvento({
 
       <span><LocationOnIcon className="icone" />{localizacao}</span>
 
-      <span><PersonIcon className="icone" />{`${atual} / ${capacidadeMaxima} participantes`}</span>
+      <span><PersonIcon className="icone" />{`${atual} / ${capacidadeVisivel} participantes`}</span>
 
       <BarraDeProgresso valor={percentual}/>
 

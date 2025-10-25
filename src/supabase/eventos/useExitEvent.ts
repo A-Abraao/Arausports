@@ -1,46 +1,35 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { supabase } from "../supabaseClient";
+
+type LeaveResult = { ok: boolean; newCount?: number; message?: string };
 
 export function useExitEvent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const exitEvent = useCallback(
-    async (eventoId: string, participantId?: string): Promise<boolean> => {
-      setLoading(true);
-      setError(null);
+  const leaveEvent = useCallback(async (eventoId: string, participantId?: string): Promise<LeaveResult> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const session = await supabase.auth.getSession();
+      const userId = participantId ?? session?.data?.session?.user?.id;
+      if (!userId) throw new Error("Usuário não autenticado");
 
-      try {
-        let userId = participantId ?? null;
-        if (!userId) {
-          const { data: sessionData } = await supabase.auth.getSession();
-          userId = sessionData?.session?.user?.id ?? null;
-        }
+      const { data, error: rpcErr } = await supabase.rpc("leave_event", { p_evento: eventoId, p_user_id: userId });
+      if (rpcErr) throw rpcErr;
 
-        if (!userId) {
-          throw new Error("Usuário não autenticado");
-        }
+      const newCount = Array.isArray(data)
+        ? data[0]?.new_count ?? data[0]?.participantes_atual ?? undefined
+        : (data as any)?.new_count ?? (data as any)?.participantes_atual ?? undefined;
 
-        const { error } = await supabase.rpc("leave_event", {
-          p_evento_id: eventoId,
-          p_user_id: userId,
-        });
+      return { ok: true, newCount: typeof newCount === "number" ? newCount : undefined };
+    } catch (err: any) {
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return { ok: false, message: err?.message ?? String(err) };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-        if (error) {
-          const msg = (error as any).message ?? "Erro ao sair do evento";
-          throw new Error(msg);
-        }
-
-        return true;
-      } catch (err: any) {
-        setError(err instanceof Error ? err : new Error(String(err)));
-        return false;
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
-
-  return { exitEvent, loading, error } as const;
+  return { leaveEvent, loading, error } as const;
 }
