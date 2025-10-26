@@ -7,6 +7,7 @@ export * from './auth/useAuthHooks'
 export * from './auth/useResendVerification'
 export * from './auth/useVerificarEmail'
 export * from './date/FormatarData'
+export * from './auth/useSingOut'
 
 export * from './eventos/useSalvarEvento'
 export * from './eventos/useRemoverEventoSalvo'

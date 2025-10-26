@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { useState } from "react";
 import { EditarPerfilButton } from "./editarPerfil";
 import { EditarPerfilPopup } from "./popUp";
+import { DeslogarBt } from "./deslogarButton";
 
 //componente que cria e estiliza o container dos Buttons
 const ButtonContainerComponent = styled.div`
@@ -9,6 +10,8 @@ const ButtonContainerComponent = styled.div`
     align-items: center;
     gap: 0.75em;
 `
+
+
 
 //função que mostra o componente, ou seja, essa função vai renderizar o ButtonComponent lá
 export function ButtonContainer() {
@@ -25,6 +28,7 @@ export function ButtonContainer() {
         <ButtonContainerComponent>
             <EditarPerfilButton atualizarEstado={handleMostrarPopUp}/>
             <EditarPerfilPopup open={mostrarPopUp} onClose={() => setMostrarPopUp(false)} onSalvar={() => setMostrarPopUp(false)} />
+            <DeslogarBt/>
         </ButtonContainerComponent>
     )
 }
