@@ -7,14 +7,19 @@ import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
 import Avatar from "@mui/material/Avatar";
 
-const UsuarioBannerComponet = styled.section`
+export const UsuarioBannerComponet = styled.section`
   background: var(--gradient-hero);
   border-radius: 0.5rem;
   display: flex;
   gap: clamp(0.8rem, 2.2vw, 1.8rem);
   padding: clamp(0.9rem, 2.8vw, 2.25rem);
-  /* Alinha os itens ao topo em vez do centro */
   align-items: flex-start;
+
+  /* manter o layout horizontal, mas reduzir gap/padding em telas pequenas */
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    gap: clamp(0.5rem, 3.2vw, 0.9rem);
+    padding: clamp(1rem, 2.6vw, 1.3rem);
+  }
 `;
 
 // props da imagem de perfil
@@ -22,20 +27,27 @@ interface ImagemDePerfilProps {
   imagem?: string | null;
 }
 
-//Diminuí um pouco o avatar
+// avatar do cara
 export const ImagemDePerfil = styled.div<ImagemDePerfilProps>`
-  width: clamp(3.5rem, 7.5vw, 6rem);
-  height: clamp(3.5rem, 7.5vw, 6rem);
+  /* tornamos o avatar mais adaptável: menor em mobile, ainda responsivo em desktop */
+  width: clamp(2.6rem, 6.5vw, 5.5rem);
+  height: clamp(2.6rem, 6.5vw, 5.5rem);
   border-radius: 9999px;
   border: 0.25rem solid rgba(200, 200, 200, 0.5);
-  background-image: ${(props) => `url(${props.imagem ?? bolaDeBasquetePng})`};
+  background-image: ${(props) => `url(${props.imagem ?? ""})`};
   background-size: cover;
   background-position: center;
   flex-shrink: 0;
-  margin-top: clamp(0.2rem, 0.8vw, 0.6rem);
+  margin-top: clamp(0.15rem, 0.8vw, 0.6rem);
+
+  /* leve ajuste extra em telas muito pequenas para liberar ainda mais espaço */
+  ${({ theme }) => theme.breakpoints.down("xs")} {
+    width: clamp(2.2rem, 8.5vw, 4.2rem);
+    height: clamp(2.2rem, 8.5vw, 4.2rem);
+  }
 `;
 
-
+//renderizar usuariobanner componenet
 export function UsuarioBanner() {
   const { user, session } = useAuth();
   const userId = user?.id ?? session?.user?.id ?? null;
@@ -76,7 +88,7 @@ export function UsuarioBanner() {
     <ImagemDePerfil imagem={userData?.photoURL ?? fallbackPhoto ?? undefined} />
   ) : (
     // fallback para Avatar MUI com iniciais (mesmo tamanho responsivo)
-    <Avatar sx={{ width: "clamp(3.5rem, 7.5vw, 6rem)", height: "clamp(3.5rem, 7.5vw, 6rem)" }}>
+    <Avatar sx={{ width: "clamp(2.8rem, 6.8vw, 5.3rem)", height: "clamp(2.8rem, 6.8vw, 5.3rem)" }}>
       {String(displayName || "U").charAt(0).toUpperCase()}
     </Avatar>
   );

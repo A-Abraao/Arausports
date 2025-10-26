@@ -11,47 +11,31 @@ import Typography from "@mui/material/Typography";
 
 //estilização do formulario
 const FormularioComponent = styled.form`
-  align-items: center;
+  width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
-  width: 100%;
   gap: 0.75em;
-  padding: 0.7em 1.6em;
+  padding: 0; /* Principal já tem padding */
+  box-sizing: border-box;
 
-  .botoes {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: 0.45em;
+  /* garantir que nada interno extrapole a largura do form */
+  &,
+  .MuiFormControl-root,
+  .MuiInputBase-root,
+  .MuiOutlinedInput-root {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
   }
 
-  .social-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.25rem;
-    margin-top: 0.25rem;
-  }
-
-  .social-slogan {
-    margin: 0;
-    font-size: 0.92rem;
-    font-weight: 500;
-    text-align: center;
-  }
-
+  /* inputs / labels */
   input,
   textarea,
   .MuiInputBase-root,
   .MuiFormControl-root,
   .MuiOutlinedInput-root {
     font-size: 0.92rem;
-  }
-
-  .MuiInputBase-root {
-    min-height: 1.9rem;
-    height: 1.9rem;
   }
 
   .MuiOutlinedInput-input {
@@ -63,37 +47,57 @@ const FormularioComponent = styled.form`
     font-size: 0.88rem;
   }
 
+  /* botoes empilhados verticalmente e ocupando 100% do form */
+  .botoes {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100%;
+    gap: 0.45em;
+  }
   .botoes .MuiButton-root {
+    width: 100% !important;
+    min-width: 0;
     height: 1.8em;
-    min-height: unset;
     font-size: 0.94rem;
-    padding: 0 10px;
     text-transform: none;
   }
+
+  .social-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+    width: 100%;
+  }
+
+  .social-slogan {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+  }
 `;
 
-//botao de login com o google
+/* GoogleIconButton e GoogleLogoImg (forçando centralização) */
 const GoogleIconButton = styled(IconButton)`
-  width: 1.6em;
-  height: 1.6em;
-  border-radius: 50%;
-  background: transparent;
-  box-shadow: none;
-  &:hover {
-    background: rgba(0,0,0,0.04);
-  }
-  &.Mui-disabled {
-    opacity: 0.5;
-    pointer-events: none;
-  }
+  width: 2.4rem !important;
+  height: 2.4rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
 `;
 
-//imagem da logo do google
 const GoogleLogoImg = styled.img`
-  width: 1.5em;
-  height: 1em;
+  width: 1.4rem;
+  height: 1.0rem;
   object-fit: contain;
   display: block;
+  margin: 0 auto;
 `;
 
 //componente formulario

@@ -19,6 +19,19 @@ const RightGroup = styled.div`
   display: flex;
   align-items: center;
   gap: clamp(0.35rem, 0.8vw, 0.6rem);
+
+  /* ícones inline (fallback) — não agressivo */
+  svg {
+    font-size: 16px;
+  }
+
+  @media (max-width: 420px) {
+    gap: clamp(0.25rem, 1.2vw, 0.45rem);
+
+    svg {
+      font-size: 14px; /* tamanho geral menor em mobile */
+    }
+  }
 `;
 
 //categoria basicamente
@@ -38,18 +51,34 @@ const TipoDoEsporte = styled.span`
 
 //botao de deletar, é renderizado apenas em quando o usuario quer ver os eventos que ele criou
 const DeleteButton = styled(IconButton)`
-  color: crimson;
-  background: transparent;
-  transition: background-color 0.25s ease, transform 0.15s ease;
-  padding: clamp(0.25rem, 0.5vw, 0.35rem);
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.6);
-    transform: scale(1.08);
+  && { /* '&&' aumenta a especificidade do selector */
+    color: white;
+    background: crimson;
+    transition: background-color 0.25s ease, transform 0.15s ease;
+    padding: 6px;          /* desktop: espaçamento confortável */
+    min-width: 36px;
+    min-height: 36px;
   }
 
-  svg {
-    font-size: clamp(1.1rem, 1.8vw, 1.3rem);
+  &&:hover {
+    background-color: red;
+    transform: scale(1.06);
+  }
+
+  && svg {
+    font-size: 18px; /* desktop: ícone um pouco menor que antes */
+  }
+
+  /* MOBILE: forçar ícone e botão menores — evita heranças indesejadas */
+  @media (max-width: 420px) {
+    && {
+      padding: 4px;
+      min-width: 32px;
+      min-height: 32px;
+    }
+    && svg {
+      font-size: 14px !important;
+    }
   }
 `;
 

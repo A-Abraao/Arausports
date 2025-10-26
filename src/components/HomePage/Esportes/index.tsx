@@ -9,9 +9,22 @@ export const EsportesSectionComponent = styled.section`
   justify-content: center;
   flex-direction: column;
   border-top: 1px solid rgba(105, 105, 105, 0.2);
-  padding: clamp(1rem, 1.5vw, 1.75rem) clamp(1rem, 2.2vw, 2rem);
+
+  /* usa padding-inline para simetria e um container central com max-width */
+  padding-inline: clamp(0.75rem, 2.2vw, 2rem);
+  padding-block: clamp(1rem, 1.5vw, 1.75rem);
+
   gap: clamp(0.75rem, 1.2vw, 1.25rem);
-  margin-top: clamp(1.5rem, 3.2vw, 3.5rem);
+  margin-top: clamp(1.25rem, 3.2vw, 3.25rem);
+  box-sizing: border-box;
+
+  /* container interno central (garante que SecaoSuperior e grid usem a mesma largura) */
+  & > * {
+    width: 100%;
+    max-width: clamp(360px, 90vw, 1100px);
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
 
   .h2 {
     color: var(--muted-foreground);

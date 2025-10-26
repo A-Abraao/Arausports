@@ -11,10 +11,11 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 const CardComponent = styled.div`
   display: flex;
   flex-direction: column;
-  flex-wrap: wrap;
-  width: clamp(14rem, 31%, 22rem);
+  width: 100%; /* deixa o grid controlar a largura do card */
+  max-width: 100%;
   overflow: visible;
   position: relative;
+  box-sizing: border-box;
 
   p,
   h2,
@@ -26,6 +27,7 @@ const CardComponent = styled.div`
 const MotionCard = styled(motion.div)`
   display: flex;
   flex-direction: column;
+  width: 100%;
   background: #fff;
   border-radius: 0.5rem;
   overflow: visible;
@@ -34,15 +36,17 @@ const MotionCard = styled(motion.div)`
   transform-origin: center;
   cursor: pointer;
   user-select: none;
+  box-sizing: border-box;
 `;
 
 const ImageWrapper = styled.div`
   position: relative;
   border-top-right-radius: 0.5rem;
   border-top-left-radius: 0.5rem;
-  height: clamp(12rem, calc(var(--vh, 1vh) * 40), 22rem);
+  height: clamp(12rem, calc(var(--vh, 1vh) * 36), 20rem);
   width: 100%;
   overflow: hidden;
+  box-sizing: border-box;
 `;
 
 const MotionImage = styled(motion.img)`
@@ -110,8 +114,8 @@ export const SalvarButton = ({
       sx={{
         background: bgcolor,
         borderRadius: "9999px",
-        mr: "0.45rem",
-        p: "0.375rem",
+        mr: "0.65rem",
+        p: "0.575rem",
         "&:hover": {
           background: ativo
             ? bgcoloractived
@@ -120,9 +124,9 @@ export const SalvarButton = ({
       }}
     >
       {ativo ? (
-        <BookmarkIcon sx={{ fontSize: "1.2rem", color: "white" }} />
+        <BookmarkIcon sx={{ fontSize: "1.5rem", color: "white" }} />
       ) : (
-        <BookmarkBorderIcon sx={{ fontSize: "1.2rem" }} />
+        <BookmarkBorderIcon sx={{ fontSize: "1.5rem" }} />
       )}
     </IconButton>
   );

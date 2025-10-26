@@ -7,7 +7,7 @@ import { PreviaPreviaInformacoes } from "./PreviaInformacoes";
 const PreviaEventoContainer = styled(DetalhesEventoContainer)`
   flex: 1 1 48%;
   max-width: clamp(280px, 48%, 560px);
-  width: 100%;
+  width: clamp(280px, 40vw, 560px);
   min-height: 400px;
   height: auto;
   gap: 1em;
@@ -28,6 +28,23 @@ const PreviaEventoContainer = styled(DetalhesEventoContainer)`
     color: var(--muted-foreground);
     font-weight: 450;
     font-size: 0.9em;
+  }
+
+  /* telas médias */
+  @media (max-width: 1100px) {
+    max-width: clamp(260px, 46%, 520px);
+    min-height: 340px;
+    gap: 0.9rem;
+  }
+
+  /* telas pequenas: ocupa 100% e fica menor (cria cascata nos filhos) */
+  @media (max-width: 900px) {
+    flex: 0 0 100%;
+    width: 92%;
+    max-width: 720px;
+    min-height: 14rem; /* reduz a altura para caber melhor em mobile */
+    gap: 0.75rem;
+    margin: 0 auto;
   }
 `;
 

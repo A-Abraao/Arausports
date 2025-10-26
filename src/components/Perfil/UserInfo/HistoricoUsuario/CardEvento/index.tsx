@@ -17,7 +17,7 @@ const CardEventoComponent = styled.div`
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   user-select: none;
   width: 100%;
-  height: calc(var(--vh, 1vh) * 100);
+  height: auto; /* evita ocupar 100vh desnecessário */
 `;
 
 const TituloEvento = styled.h3`
@@ -38,7 +38,25 @@ const InformacoesEvento = styled.div`
     font-size: clamp(0.85rem, 1.6vw, 0.9rem);
     font-weight: 400;
   }
+
+  /* forçar svg das infos (Location / Person) menores em mobile */
+  span svg {
+    font-size: 1.05rem !important;
+  }
+
+  @media (max-width: 420px) {
+    gap: 0.5rem;
+
+    span {
+      font-size: 0.78rem;
+    }
+
+    span svg {
+      font-size: 0.95rem !important;
+    }
+  }
 `;
+
 
 const DivInferior = styled.div`
   padding: clamp(0.35rem, 0.7vw, 0.5rem);

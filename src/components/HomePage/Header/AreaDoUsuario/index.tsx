@@ -55,7 +55,7 @@ export function AreaDoUsuario() {
       <IconButton
         color="primary"
         aria-label="ícone de notificações"
-        onClick={() => alert('Você clicou no ícone de sino!')}
+        onClick={() => alert('Cara clicou no sino mané!!')}
         sx={{
           fontSize: 'clamp(20px, 2.5vw, 26px)',
         }}

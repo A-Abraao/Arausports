@@ -8,9 +8,10 @@ import { CapacidadeEvento } from "./CapacidadeEvento";
 
 //componentes dos detalhes do evento
 export const DetalhesEventoContainer = styled.div`
-  width: clamp(88%, 45vw, 600px);
+  /* projeto desktop: mantenho comportamento atual */
   flex: 1 1 52%;
-  width: 50%;
+  max-width: 600px;
+  width: clamp(360px, 45vw, 600px);
   box-sizing: border-box;
   margin: 0 auto;
   display: flex;
@@ -33,9 +34,21 @@ export const DetalhesEventoContainer = styled.div`
     border-color: rgba(15, 23, 42, 0.08);
   }
 
+  /* ajuste para telas médias */
+  @media (max-width: 1100px) {
+    width: clamp(320px, 60%, 520px);
+    padding: clamp(0.85rem, 1.8vw, 1.5rem);
+    gap: clamp(0.8rem, 1.2vw, 1.2rem);
+  }
+
+  /* telas pequenas: reduzir e ocupar 100% (empilhamento será controlado pelo pai) */
   @media (max-width: 900px) {
-    width: 100%;
-    padding: clamp(0.75rem, 2vw, 1.25rem);
+    flex: 0 0 100%;
+    width: 92%;
+    max-width: 720px;
+    padding: clamp(0.7rem, 1.6vw, 1.1rem);
+    gap: clamp(0.6rem, 1vw, 0.9rem);
+    min-height: auto;
   }
 
   * { box-sizing: border-box; }

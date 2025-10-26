@@ -1,10 +1,14 @@
-// CardImagem/index.tsx (debug - img tag)
 import styled from "styled-components";
 import ImagemEvento from '../../../../../../assets/img/evento-de-futebol.jpg';
 
 const Wrapper = styled.div`
   width: 100%;
-  height: calc(var(--vh, 1vh) * 95);
+  height: calc(var(--vh, 1vh) * 90); /* desktop original */
+
+  @media (max-width: 420px) {
+    height: calc(var(--vh, 1vh) * 40); /* menor no mobile */
+  }
+
   border-radius: 0.5rem;
   overflow: hidden;
   background: #eee;

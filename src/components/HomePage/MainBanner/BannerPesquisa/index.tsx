@@ -27,17 +27,19 @@ export default function BannerPesquisa({
     <Box
       sx={{
         width: '100%',
-        maxWidth: 'clamp(170px, 40vw, 490px)',
+        /* garante um mínimo razoável e evita encurtamento extremo em telas pequenas */
+        maxWidth: 'clamp(240px, 54vw, 640px)',
         mx: 'auto',
-        p: 'clamp(0.45rem, 1.6vw, 1rem)', 
-        borderRadius: 'clamp(6px, 1.6vw, 12px)',
+        p: 'clamp(0.4rem, 1.2vw, 0.9rem)',
+        borderRadius: 'clamp(8px, 1.6vw, 12px)',
         border: '1px solid rgba(255,255,255,0.2)',
         bgcolor: 'rgba(255,255,255,0.06)',
         backdropFilter: 'blur(6px)',
+        boxSizing: 'border-box',
       }}
     >
-      <Box sx={{ display: 'flex', gap: 'clamp(0.5rem, 1.6vw, 1rem)' }}>
-        <Box sx={{ flex: 1 }}>
+      <Box sx={{ display: 'flex', gap: 'clamp(0.45rem, 1.4vw, 0.95rem)', alignItems: 'center' }}>
+        <Box sx={{ flex: 1, minWidth: '120px' }}>
           <TextField
             fullWidth
             size="small"
@@ -49,7 +51,7 @@ export default function BannerPesquisa({
               startAdornment: (
                 <InputAdornment
                   position="start"
-                  sx={{ mr: 'clamp(6px, 1.5vw, 10px)' }}
+                  sx={{ mr: 'clamp(6px, 1.2vw, 10px)' }}
                 >
                   <SearchIcon sx={{ fontSize: 'clamp(14px, 2.2vw, 24px)', color: 'rgba(255,255,255,0.7)' }} />
                 </InputAdornment>
@@ -60,7 +62,8 @@ export default function BannerPesquisa({
                 borderRadius: 'clamp(6px, 1.6vw, 12px)',
                 bgcolor: 'rgba(255,255,255,0.20)',
                 color: 'white',
-
+                minWidth: '120px',
+                /* permitir que o tamanho do campo responda ao conteúdo visual (font-size) */
                 '&:hover .MuiOutlinedInput-notchedOutline': {
                   borderColor: 'rgba(255,255,255,0.12)',
                 },
@@ -81,8 +84,10 @@ export default function BannerPesquisa({
               },
 
               '& .MuiOutlinedInput-input': {
-                padding: 'clamp(0.45rem, 1.2vw, 0.75rem) clamp(0.6rem, 1.8vw, 1rem)',
+                /* fonte reduz conforme a largura da viewport para evitar que o campo encolha demais */
+                padding: 'clamp(0.45rem, 1.0vw, 0.75rem) clamp(0.6rem, 1.2vw, 1rem)',
                 fontSize: 'clamp(0.9rem, 1.6vw, 1rem)',
+                lineHeight: 1.1,
               },
             }}
           />
@@ -93,11 +98,12 @@ export default function BannerPesquisa({
           size="large"
           onClick={handleSearch}
           sx={{
-            borderRadius: 'clamp(4px, 0.8vw, 6px)',
+            borderRadius: 'clamp(6px, 1.2vw, 6px)',
             background: 'dodgerblue',
-            minWidth: 'clamp(36px, 6.5vw, 44px)',
-            minHeight: 'clamp(36px, 6.5vw, 44px)',
-            px: 'clamp(6px, 1.8vw, 8px)',
+            minWidth: 'clamp(36px, 7vw, 48px)',
+            minHeight: 'clamp(36px, 7vw, 48px)',
+            px: 'clamp(6px, 1.2vw, 8px)',
+            flexShrink: 0,
             '&:hover': {
               background: '#1f6feb',
             },

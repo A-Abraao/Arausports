@@ -12,6 +12,12 @@ export const EventoMarcadoComponent = styled.section`
   padding: clamp(0.9rem, 2.6vw, 2.25rem);
   overflow-wrap: break-word;
   width: 100%;
+
+  /* Em telas pequenas reduzir padding para dar mais espaço ao texto responsivo */
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    padding: clamp(1.1rem, 2.7vw, 1.5rem);
+    gap: clamp(0.6rem, 2.4vw, 0.9rem);
+  }
 `;
 
 export function EventoMarcado() {

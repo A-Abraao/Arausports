@@ -5,24 +5,56 @@ import { IconButton } from "@mui/material";
 import styled from "styled-components";
 import { useAlert } from "../../Alerta/AlertProvider";
 
-//criaremos o componente de autenticação
 const AutenticarComponent = styled.div`
+  display: flex;
+  flex-direction: column; /* empilha */
   align-items: center;
   justify-content: center;
-  display: flex;
-  flex-direction: column;
+  gap: 0.5rem;
 
   h2 {
     font-weight: 500;
     font-size: 1em;
+    margin: 0;
+    text-align: center;
+  }
+
+  /* o componente tem um div inline logo depois do h2.
+     Forçamos esse filho a ficar em coluna (sobrescreve inline) */
+  & > div {
+    display: flex !important;
+    flex-direction: column !important; /* força empilhar mesmo com inline styles */
+    gap: 0.65em !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100%;
   }
 
   img {
     height: 1.3em;
     width: 1.3em;
+    display: block;
+    margin: 0; /* sem deslocamento lateral */
   }
 
+  /* ajustes em telas maiores (apenas tamanho do ícone/texto) */
+  ${({ theme }) => theme.breakpoints.up("md")} {
+    img {
+      height: 1.6em;
+      width: 1.6em;
+    }
+    h2 {
+      font-size: 1.03rem;
+    }
+  }
+
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    h2 {
+      font-size: 0.95rem;
+    }
+  }
 `;
+
 
 function Autenticar() {
   const navigate = useNavigate();

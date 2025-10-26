@@ -20,6 +20,14 @@ const Container = styled.div`
   backdrop-filter: blur(8px);
   transition: 0.3s;
   &:hover { background: rgba(128, 128, 128, 0.6); }
+
+  @media (max-width: 1100px) {
+    height: 15.5em;
+  }
+  @media (max-width: 900px) {
+    height: 12.5em;
+    border-radius: 0.45rem;
+  }
 `;
 
 //container que encapsula a img do preview
@@ -39,6 +47,31 @@ const Preview = styled.img`
   border-radius: 0.5rem;
   position: relative;
   z-index: 1;
+
+  @media (max-width: 1100px) {
+    max-height: 420px;
+  }
+  @media (max-width: 900px) {
+    max-height: 260px;
+    border-radius: 0.45rem;
+  }
+`;
+
+//botao de remover a imagem que foi mandada 
+const RemoveButton = styled(IconButton)`
+  position: absolute !important;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(0, 0, 0, 0.5) !important;
+  color: white !important;
+  z-index: 2;
+  &:hover { background: rgba(0, 0, 0, 0.8) !important; }
+`;
+
+const UploadRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 const UploadOverlay = styled.div`
@@ -51,23 +84,6 @@ const UploadOverlay = styled.div`
   gap: 0.5rem;
   pointer-events: none;
   text-align: center;
-`;
-
-const UploadRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-//botao de remover a imagem que foi mandada 
-const RemoveButton = styled(IconButton)`
-  position: absolute !important;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: rgba(0, 0, 0, 0.5) !important;
-  color: white !important;
-  z-index: 2;
-  &:hover { background: rgba(0, 0, 0, 0.8) !important; }
 `;
 
 //porps para o hook funcionar perfeitamente

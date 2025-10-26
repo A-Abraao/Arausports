@@ -11,7 +11,7 @@ const PreviaInformacoesContainer = styled.div`
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem; /* aumentado de 1rem para 1.5rem */
+  gap: 1.5rem;
   padding: 1.25rem;
   border-radius: 0.75rem;
   background: rgba(255,255,255,0.95);
@@ -19,8 +19,6 @@ const PreviaInformacoesContainer = styled.div`
   box-shadow:
     0 8px 22px rgba(2,6,23,0.04),
     0 2px 6px rgba(2,6,23,0.03);
-
-  transition: none;
 
   h2 {
     margin: 0;
@@ -32,7 +30,7 @@ const PreviaInformacoesContainer = styled.div`
   .meta {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem; /* aumentado de 0.5rem para 0.75rem */
+    gap: 0.75rem;
     width: 100%;
   }
 
@@ -40,7 +38,7 @@ const PreviaInformacoesContainer = styled.div`
     color: #6E7B8B;
     display: flex;
     align-items: center;
-    gap: 0.8rem; /* aumentado de 0.6rem para 0.8rem */
+    gap: 0.8rem;
     font-size: 0.95rem;
   }
 
@@ -52,10 +50,18 @@ const PreviaInformacoesContainer = styled.div`
     font-size: 1.05rem;
   }
 
-  @media (max-width: 720px) {
-    padding: 1rem;
-    h2 { font-size: 1.1rem; }
-    .meta span { font-size: 0.92rem; }
+  @media (max-width: 1100px) {
+    padding: 1.05rem;
+    h2 { font-size: 1.15rem; }
+    .meta span { font-size: 0.92rem; gap: 0.7rem; }
+  }
+
+  @media (max-width: 900px) {
+    padding: 0.9rem;
+    gap: 1rem;
+    h2 { font-size: 1.05rem; }
+    .meta span { font-size: 0.88rem; gap: 0.6rem; }
+    .icone { font-size: 0.98rem; }
   }
 `;
 

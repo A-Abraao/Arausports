@@ -6,11 +6,30 @@ import EventoDeTenis from '../../../../assets/img/tennis-event.jpg'
 import type { Evento } from ".."; 
 
 const EsportesGridComponent = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* Centraliza o grid e garante padding lateral simétrico */
+  width: 100%;
+  max-width: clamp(360px, 90vw, 1200px);
+  margin: 0 auto;
+  padding-inline: clamp(0.75rem, 2.2vw, 2rem);
+  box-sizing: border-box;
+
+  /* Grid responsivo: controla largura dos cards de forma previsível.
+     - min column: clamp(220px, 28vw, 300px) -> fica maior em desktop
+     - auto-fill / auto-fit permite quebrar linhas conforme espaço disponível
+  */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(220px, 28vw, 320px), 1fr));
   gap: clamp(0.75rem, 1.2vw, 1.65rem);
-  flex-wrap: wrap;
+  justify-items: stretch;
+  align-items: start;
+
+  /* garante que mensagens (ex.: 'nenhum evento') fiquem centralizadas */
+  p {
+    width: 100%;
+    text-align: center;
+    margin: 0;
+    padding: clamp(1rem, 1.8vw, 1.5rem);
+  }
 `;
 
 type Props = {
