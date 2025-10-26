@@ -1,71 +1,13 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8" />
-  <title>Auth Callback Debug</title>
-  <style>
-    body {
-      font-family: monospace;
-      background: #111;
-      color: #0f0;
-      padding: 10px;
-    }
-    .log {
-      white-space: pre-wrap;
-      word-break: break-word;
-      margin-bottom: 6px;
-    }
-  </style>
-</head>
-<body>
-  <div id="logs"></div>
-  <script>
-    (function () {
-      const logEl = document.getElementById("logs");
-      function log(msg, data) {
-        const time = new Date().toISOString().split("T")[1].split(".")[0];
-        const el = document.createElement("div");
-        el.className = "log";
-        el.textContent = `[${time}] ${msg}` + (data ? ` ${JSON.stringify(data)}` : "");
-        logEl.appendChild(el);
-        console.log("[auth-callback]", msg, data || "");
-      }
+  <head><meta charset="utf-8"/><title>Auth callback</title></head>
+  <body>
+    <script>
+      const payload = (window.location.hash || window.location.search || "").replace(/^#/, "");
+      const bc = new BroadcastChannel("supabase-auth-popup");
+      bc.postMessage(payload); // envia o hash de tokens/código
+      setTimeout(() => window.close(), 100);
+    </script>
 
-      log("Iniciando callback...");
-      try {
-        const hash = window.location.hash || '';
-        log("Hash recebido:", hash);
-
-        if (window.opener && !window.opener.closed) {
-          log("Enviando mensagem para janela principal...");
-          window.opener.postMessage(
-            { type: 'supabase_auth_callback', payload: hash },
-            window.location.origin
-          );
-          log("Mensagem enviada com sucesso!");
-        } else {
-          log("❌ window.opener não existe ou está fechada.");
-        }
-
-        log("Tentando fechar janela...");
-        window.close();
-      } catch (e) {
-        log("❌ Erro no callback:", e.message);
-        try {
-          if (window.opener && !window.opener.closed) {
-            log("Tentando enviar mensagem de erro para o opener...");
-            window.opener.postMessage({ type: 'supabase_auth_callback', payload: '' }, window.location.origin);
-          }
-        } catch (e2) {
-          log("❌ Falha ao enviar mensagem de erro:", e2.message);
-        }
-        try {
-          window.close();
-        } catch (e3) {
-          log("❌ Erro ao fechar janela:", e3.message);
-        }
-      }
-    })();
-  </script>
-</body>
+  </body>
 </html>

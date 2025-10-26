@@ -76,9 +76,7 @@ export function useGoogleAuth() {
         options: {
           redirectTo,
           skipBrowserRedirect: true,
-          queryParams: {
-            prompt: "select_account"
-          }
+          queryParams: { prompt: "select_account" }
         }
       });
 
@@ -93,25 +91,25 @@ export function useGoogleAuth() {
         }
 
         let settled = false;
+        let bc: BroadcastChannel | null = null;
 
         const cleanup = () => {
-          try { window.removeEventListener("message", messageHandler); } catch {}
+          try { if (bc) { bc.onmessage = null; bc.close(); bc = null; } } catch {}
+          try { window.removeEventListener("message", fallbackMessageHandler as any); } catch {}
           try { if (!popup.closed) popup.close(); } catch {}
           try { clearInterval(closeWatcher); } catch {}
         };
 
-        const messageHandler = async (ev: MessageEvent) => {
+        // handler que processa o payload (string) e tenta setSession
+        const processPayload = async (payloadRaw: unknown) => {
           try {
-            const okOrigin = ev.origin === window.location.origin || (ev.data && ev.data.origin === window.location.origin);
-            if (!okOrigin) return;
-            const data = ev.data;
-            if (!data || data.type !== "supabase_auth_callback") return;
-            const payload = String(data.payload || "");
+            const payload = String(payloadRaw || "");
             const qp = new URLSearchParams(payload.replace(/^#/, ""));
             const access_token = qp.get("access_token");
             const refresh_token = qp.get("refresh_token");
 
             if (!access_token) {
+              // payload pode não conter tokens (ex: code flow). Rejeita aqui.
               if (!settled) {
                 settled = true;
                 cleanup();
@@ -136,7 +134,6 @@ export function useGoogleAuth() {
                 return;
               }
 
-
               if (!settled) {
                 settled = true;
                 cleanup();
@@ -158,8 +155,38 @@ export function useGoogleAuth() {
           }
         };
 
-        window.addEventListener("message", messageHandler);
+        // --- BroadcastChannel approach (preferred) ---
+        try {
+          if ("BroadcastChannel" in window) {
+            bc = new BroadcastChannel("supabase-auth-popup");
+            bc.onmessage = (ev) => {
+              processPayload(ev.data);
+            };
+          } else {
+            bc = null;
+          }
+        } catch (e) {
+          bc = null;
+        }
 
+        // --- fallback para window.postMessage caso BroadcastChannel não exista ---
+        const fallbackMessageHandler = (ev: MessageEvent) => {
+          try {
+            // se o popup enviar um objeto, tenta extrair; se enviar string, usa direto
+            if (!ev.data) return;
+            // aceitar tanto string (payload) quanto objeto com .payload
+            const maybePayload = typeof ev.data === "string" ? ev.data : (ev.data.payload ?? ev.data);
+            processPayload(maybePayload);
+          } catch (err) {
+            // ignore
+          }
+        };
+
+        if (!bc) {
+          window.addEventListener("message", fallbackMessageHandler);
+        }
+
+        // --- watcher: se popup fechar, tenta getSession() antes de rejeitar ---
         const closeWatcher = setInterval(async () => {
           try {
             let isClosed = false;
