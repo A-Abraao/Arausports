@@ -2,12 +2,11 @@ import { useCallback, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { formatDateForDb, formatTimeForDb } from "../date/FormatarData";
 
-//tipos que o hook vai usar
 export type NewEventPayload = {
   titulo: string;
   categoria?: string | null;
-  data: string; // formata a data no formato ano/mês/dia
-  horario?: string | null; // formato de horas e minutos
+  data: string;
+  horario?: string | null;
   local: string;
   capacidade: number;
 };
@@ -26,16 +25,12 @@ function makeRandomId() {
 function getExtensionFromFile(file: File) {
   const nm = file.name ?? "";
   const segs = nm.split(".");
-  if (segs.length > 1) {
-    return segs[segs.length - 1].toLowerCase();
-  }
-  // fallback para o mime
+  if (segs.length > 1) return segs[segs.length - 1].toLowerCase();
   if (file.type === "image/png") return "png";
   if (file.type === "image/jpeg" || file.type === "image/jpg") return "jpg";
   return "jpg";
 }
 
-//hook criar evento
 export function useAddEvent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -86,28 +81,63 @@ export function useAddEvent() {
   };
 
   const addEventForUser = useCallback(
-    async (ownerId: string | null, evento: NewEventPayload, imageFile?: File | null) => {
-      if (!ownerId) throw new Error("Usuário não autenticado.");
+    async (ownerIdParam: string | null, evento: NewEventPayload, imageFile?: File | null) => {
+      // resolve sessão e ownerId
+      const userRes = await (supabase.auth as any).getUser?.();
+      const authUid = userRes?.data?.user?.id ?? null;
+      if (!authUid && !ownerIdParam) throw new Error("Usuário não autenticado.");
+      const ownerId = authUid ?? ownerIdParam!;
+
+      // helper: garante row do perfil existe (usa upsert para evitar race)
+      async function ensureUserRowExists(ownerIdToEnsure: string) {
+        const { data: existingUser, error: selErr } = await supabase
+          .from("usuarios")
+          .select("id, email")
+          .eq("id", ownerIdToEnsure)
+          .maybeSingle();
+
+        if (selErr) throw selErr;
+        if (existingUser) return;
+
+        const sess = await (supabase.auth as any).getUser?.();
+        const authUser = sess?.data?.user ?? null;
+        const nome = authUser?.user_metadata?.full_name ?? authUser?.user_metadata?.name ?? (authUser?.email?.split?.("@")?.[0]) ?? "Usuário";
+        const email = authUser?.email ?? null;
+        const foto = authUser?.user_metadata?.avatar_url ?? authUser?.user_metadata?.picture ?? null;
+
+        const insertObj: any = {
+          id: ownerIdToEnsure,
+          nome,
+          email,
+          bio: "Sou novato gente!",
+          foto_url: foto,
+          criado_em: new Date().toISOString(),
+        };
+
+        const { error: upsertErr } = await supabase
+          .from("usuarios")
+          .upsert([insertObj], { onConflict: "id" });
+
+        if (upsertErr) {
+          console.warn("[ensureUserRowExists] upsertErr:", upsertErr);
+          throw upsertErr;
+        }
+      }
 
       setLoading(true);
       setError(null);
       setEventId(null);
 
       try {
-        // validação básica
+        // validações
         const capacidadeValida = Math.max(1, Number(evento.capacidade ?? 1));
-
-        // formata a data para yyyy-mm-dd, usnado o hook de ho´rario
         const formattedDate = formatDateForDb(evento.data);
         if (!formattedDate) throw new Error("Data do evento inválida.");
-
-        // normaliza horario, baguho pode ser null
         const formattedTime = formatTimeForDb(evento.horario ?? null);
+        if (!evento.titulo || !String(evento.titulo).trim()) throw new Error("Título do evento obrigatório.");
 
-        // valida titulo
-        if (!evento.titulo || !String(evento.titulo).trim()) {
-          throw new Error("Título do evento obrigatório.");
-        }
+        // garante o perfil antes do insert (protege FK)
+        await ensureUserRowExists(ownerId);
 
         const eventRow: any = {
           usuario_id: ownerId,
@@ -120,47 +150,40 @@ export function useAddEvent() {
           participantes_atual: 0,
           imagem_url: null,
         };
-        // dubug: antes de inserir
-        console.debug("[useAddEvent] criando evento, ownerId:", ownerId, "payload:", {
-          ...eventRow,
-          imagem_url: Boolean(imageFile),
-        });
 
-        // envia o evento e gera o id também
+        console.debug("[useAddEvent] criando evento, ownerId:", ownerId, "payload:", { ...eventRow, imagem_url: Boolean(imageFile) });
+
+        // insere evento
         const { data: insertedEvents, error: insertErr } = await supabase
           .from("eventos")
           .insert([eventRow])
           .select("id")
           .maybeSingle();
 
-        // DEBUG: ver o retorno do insert
         console.debug("[useAddEvent] insert result:", { insertedEvents, insertErr });
 
         if (insertErr) {
           console.warn("[useAddEvent] insertErr:", insertErr);
           throw insertErr;
         }
-        if (!insertedEvents || !insertedEvents.id) {
-          console.warn("[useAddEvent] insertedEvents ausente ou sem id:", insertedEvents);
-          throw new Error("Falha ao criar evento (id ausente).");
-        }
+        if (!insertedEvents || !insertedEvents.id) throw new Error("Falha ao criar evento (id ausente).");
 
         const newEventId = String(insertedEvents.id);
         setEventId(newEventId);
         console.debug("[useAddEvent] evento criado com id:", newEventId);
 
         let imagePath: string | null = null;
+
+        // upload (se houver)
         if (imageFile) {
-          //validar tipo da imagem
           if (!imageFile.type || !ALLOWED_MIMES.includes(imageFile.type.toLowerCase())) {
             console.warn("[useAddEvent] mime inválido:", imageFile.type);
-            // limpa dos eventos da linha da tabela do supabase
-            try { await supabase.from("eventos").delete().eq("id", newEventId); } catch (e) { console.warn("[useAddEvent] falha rollback delete (mime inválido):", e); }
+            try { await supabase.from("eventos").delete().eq("id", newEventId); } catch (e) { console.warn("[useAddEvent] rollback delete (mime inválido):", e); }
             throw new Error("Tipo de arquivo inválido. Apenas JPG/PNG são permitidos.");
           }
           if (imageFile.size > MAX_FILE_BYTES) {
             console.warn("[useAddEvent] arquivo > MAX_FILE_BYTES:", imageFile.size);
-            try { await supabase.from("eventos").delete().eq("id", newEventId); } catch (e) { console.warn("[useAddEvent] falha rollback delete (tamanho):", e); }
+            try { await supabase.from("eventos").delete().eq("id", newEventId); } catch (e) { console.warn("[useAddEvent] rollback delete (tamanho):", e); }
             throw new Error("Arquivo muito grande. Máx 5MB.");
           }
 
@@ -169,10 +192,8 @@ export function useAddEvent() {
           const random = makeRandomId();
           const path = `events/${newEventId}/cover/${timestamp}_${random}.${ext}`;
 
-          // DEBUG: antes do upload
           console.debug("[useAddEvent] fazendo upload para path:", path, "fileSize:", imageFile.size, "ext:", ext);
 
-          // upload da imagem
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from("public-images")
             .upload(path, imageFile, { cacheControl: "public, max-age=31536000, immutable", upsert: false });
@@ -181,23 +202,16 @@ export function useAddEvent() {
 
           if (uploadError) {
             console.warn("[useAddEvent] uploadError:", uploadError);
-            // evento de rollback
-            try {
-              await supabase.from("eventos").delete().eq("id", newEventId);
-              console.debug("[useAddEvent] rollback: evento deletado após uploadError");
-            } catch (e) {
-              console.warn("[useAddEvent] Não foi possível remover evento após falha de upload:", e);
-            }
+            try { await supabase.from("eventos").delete().eq("id", newEventId); console.debug("[useAddEvent] rollback: evento deletado após uploadError"); } catch (e) { console.warn("[useAddEvent] rollback delete failed:", e); }
             throw uploadError;
           }
 
           imagePath = path;
 
-          // criar o evento com o path da imagem
+          // atualiza imagem_url no evento
           const { error: updErr } = await supabase.from("eventos").update({ imagem_url: imagePath }).eq("id", newEventId);
           if (updErr) {
             console.warn("[useAddEvent] updErr ao setar imagem_url:", updErr);
-            // tenta limpar remove o upload
             try { await supabase.storage.from("public-images").remove([path]); console.debug("[useAddEvent] removeu arquivo em storage por falha updErr"); } catch (remErr) { console.warn("[useAddEvent] falha ao remover arquivo do storage:", remErr); }
             try { await supabase.from("eventos").delete().eq("id", newEventId); console.debug("[useAddEvent] removeu evento por falha updErr"); } catch (delErr) { console.warn("[useAddEvent] falha ao deletar evento por updErr:", delErr); }
             throw updErr;
@@ -205,20 +219,18 @@ export function useAddEvent() {
           console.debug("[useAddEvent] imagem enviada e imagem_url atualizada:", imagePath);
         }
 
-        // insere os participantes contando já com o criador do evento
+        // insere participante (criador)
         const participantRow = {
           evento_id: newEventId,
           usuario_id: ownerId,
           joined_at: new Date().toISOString(),
         };
-
         console.debug("[useAddEvent] inserindo participante:", participantRow);
 
         const { error: partErr } = await supabase.from("participantes").insert([participantRow]);
 
         if (partErr) {
           console.warn("[useAddEvent] partErr:", partErr);
-          // função de limpar: remove o evento e o arquivo mandado se for do tipo any
           try { await supabase.from("eventos").delete().eq("id", newEventId); console.debug("[useAddEvent] rollback: evento deletado após partErr"); } catch (e) { console.warn("[useAddEvent] falha ao deletar evento depois de partErr:", e); }
           if (imagePath) {
             try { await supabase.storage.from("public-images").remove([imagePath]); console.debug("[useAddEvent] rollback: removeu imagem do storage após partErr"); } catch (e) { console.warn("[useAddEvent] falha ao remover imagem do storage apos partErr:", e); }
@@ -227,30 +239,22 @@ export function useAddEvent() {
         }
         console.debug("[useAddEvent] participante inserido com sucesso");
 
-        // incrementa os eventos criados, util para mostrar isso no perfil do usuário depois
+        // incrementa contador (rpc com fallback)
         try {
           await callIncrementRpc(ownerId);
         } catch (_rpcErr) {
           console.warn("[useAddEvent] rpc falhou, tentando fallback:", _rpcErr);
-          try {
-            await incrementEventosCriadosFallback(ownerId);
-          } catch (fallbackErr) {
-            console.warn("[useAddEvent] fallback também falhou:", fallbackErr);
-          }
+          try { await incrementEventosCriadosFallback(ownerId); } catch (fallbackErr) { console.warn("[useAddEvent] fallback também falhou:", fallbackErr); }
         }
 
-        //qaundo termina o processo o hook define o loading como false para interromper o processo de carregamento e para de fazer os componentes esperarem
         setLoading(false);
         console.debug("[useAddEvent] addEventForUser finalizado com sucesso, newEventId:", newEventId);
         return newEventId;
       } catch (err: any) {
-        // DEBUG e tratamento do erro final
         console.warn("[useAddEvent] erro geral:", err);
         setError(err instanceof Error ? err : new Error(String(err)));
-        setLoading(false);
         throw err;
       } finally {
-        // garante que o loading será sempre fechado, mesmo em caminhos inesperados
         setLoading(false);
       }
     },

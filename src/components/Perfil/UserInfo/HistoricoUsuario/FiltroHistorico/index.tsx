@@ -27,14 +27,17 @@ const Opcao = styled.button<{ selecionado?: boolean }>`
   `}
 `;
 
+//porps do componenete FiltroHistorico
 type Props = {
   selecionado: "meusEventos" | "eventosSalvos"
   onSelect: (opcao: "meusEventos" | "eventosSalvos" ) => void;
 };
 
+//função do componente
 export function FiltroHistorico({ selecionado, onSelect }: Props) {
   return (
     <FiltroHistoricoComponent>
+      {/* aqui eel renderiza as opções com um efeito de onclick nelas que muda o estado */}
       <Opcao
         onClick={() => onSelect("meusEventos")}
         selecionado={selecionado === "meusEventos"}

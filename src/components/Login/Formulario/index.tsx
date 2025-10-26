@@ -118,7 +118,7 @@ function Formulario() {
       //aqui ele faz o signin e normaliza email para não ter usuario duplicado e dar erro ao criar evento
       const normalized = email.trim().toLowerCase();
       await signIn(normalized, senha);
-      showAlert("Bem-vindo!", { severity: "success", duration: 2500 });
+      showAlert("Salve rapax!!", { severity: "success", duration: 2500 });
       navigate("/homepage");
     } catch (err: any) {
       showAlert("Login falhou. Verifique suas credenciais.", { severity: "error", duration: 4000 });

@@ -8,12 +8,16 @@ export type EventoSalvoShape = {
   localizacao?: string | null;
   data?: string | null; // ISO yyy-mm-dd ou null
   categoria?: string | null;
-  participantes?: number; // número (usado como capacidade no seu componente)
+  participantes?: number; // número usado como capacidade
   salvoEm?: string | null;
-  imageUrl?: string | null; // URL pública montada para o frontend renderizar a imagem (ou null)
+  imageUrl?: string | null; // URL pública montada para o frontend renderizar a imagem fica nulo mesmo
 };
 
+//função do hook
 export function useEventosSalvosComParticipantes(userIdArg: string | null = null, { realtime = true } = {}) {
+  //aqui é os states que vai usar para funcionar, salvos é lista de todos os eventos que o usuário salvou
+  //loading serve para criar o efeito de loading no site, útil para fazer o frotend esperar pela requisição de GET retornar a lista de eventos salvos do supabase
+  //error é para quando o hook der erro, assim nós consegue perfeitamente tratar esse erro e criar interfaces amigáveis para o usuário
   const [salvos, setSalvos] = useState<EventoSalvoShape[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<any | null>(null);

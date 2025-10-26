@@ -65,25 +65,21 @@ type DivUsuarioProps = {
 
 
 //função que renderiza
-export function DivUsuario({
-  data,
-  esporte,
-  loading,
-  foiSalvo = false,
-  onToggleSave,
-  onDelete,
-}: DivUsuarioProps) {
+export function DivUsuario({ data, esporte, loading, foiSalvo = false, onToggleSave, onDelete }: DivUsuarioProps) {
   //estates e hooks que o componente da divUsuario vai usar para ter suas funcionalidades
   const [deleting, setDeleting] = useState(false);
   const [openPopup, setOpenPopup] = useState(false);
 
+  //handler que permite mostrar o popup para confirmar se ele quer real apagar o evento
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    //passa o estado true para o popup ser exibido pro cara
     setOpenPopup(true);
   };
 
   //handler que permite o usuario deletar os eventos criados por ele, obviamente exibe um popup avisando sobre a decisão
   const handleConfirmDelete = async () => {
+    //aqui ele inverte o estado do onDelete para o popup ser fechado
     if (!onDelete) return;
     try {
       setDeleting(true);
@@ -115,16 +111,17 @@ export function DivUsuario({
     }
   };
 
-
   return (
     <>
       <DivUsuarioComponent>
         <Usuario data={formatarDataDMA(data)} foiSalvo={foiSalvo} />
         <RightGroup>
-          {foiSalvo && onToggleSave && (
+          {/* mostrar o botão de salvar apenas para eventos salvos e se não houver onDelete */}
+          {foiSalvo && onToggleSave && !onDelete && (
             <SalvarButton ativo={!!foiSalvo} onClick={handleSaveClick} loading={loading} />
           )}
 
+          {/* mostrar o botão de deletar apenas para eventos criados (quando existir onDelete) e se não for um item salvo */}
           {onDelete && (
             <DeleteButton
               aria-label="deletar evento"
@@ -172,7 +169,7 @@ export function DivUsuario({
             
           }}
         >
-          <span style={{ fontWeight: 700 }}>
+          <span style={{ fontWeight: 520, color: "black" }}>
             Não vai ter como voltar atrás se tu fizer isso...
           </span>
         </DialogContentText>
@@ -189,12 +186,13 @@ export function DivUsuario({
         <Button
           onClick={handleCancel}
           sx={{
-            border: "1px solid dodgerblue",
+            color: "white",
+            background: "dodgerblue",
             textTransform: "none",
             fontSize: "0.85rem",
             padding: "4px 10px",
             minHeight: "32px",
-            "&:hover": { backgroundColor: "rgba(255,255,255,0.08)" },
+            "&:hover": { backgroundColor: "rgba(14, 95, 176, 1)" },
           }}
         >
           Deixa quieto..

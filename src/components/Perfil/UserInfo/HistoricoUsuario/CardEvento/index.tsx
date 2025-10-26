@@ -61,18 +61,7 @@ type CardEventoProps = {
 };
 
 //renderizar a função de CardEvento
-export function CardEvento({
-  titulo,
-  local,
-  data,
-  esporte,
-  loadingSalvo,
-  capacidade,
-  foiSalvo = false,
-  onUnsave,
-  onDelete,
-  imageUrl,
-}: CardEventoProps) {
+export function CardEvento({ titulo, local, data, esporte, loadingSalvo, capacidade, foiSalvo = false, onUnsave, onDelete, imageUrl }: CardEventoProps) {
   return (
     <CardEventoComponent>
       <DivUsuario

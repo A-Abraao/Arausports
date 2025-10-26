@@ -2,8 +2,11 @@ import styled from "styled-components";
 import { CardEvento } from "./CardEvento";
 import { FiltroHistorico } from "./FiltroHistorico";
 import { useEventosSalvosComParticipantes } from "../../../../supabase";
+import useMeusEventosComParticipantes from "../../../../supabase/eventos/useMeusEventosComparticipantes";
 import { useRemoverEventoSalvo } from "../../../../supabase";
+import { useDeleteEvent } from "../../../../supabase";
 import { useState } from "react";
+import { useAlert } from "../../../Alerta/AlertProvider";
 
 //componnete do historico do usuário
 const HistoricoUsuarioComponent = styled.section`
@@ -18,18 +21,24 @@ const HistoricoUsuarioComponent = styled.section`
 //função que é chaamda e renderiza tudo
 export function HistoricoUsuario() {
   // agora só existe a opção "eventosSalvos"
-  const [opcaoSelecionada, setOpcaoSelecionada] = useState<"eventosSalvos">("eventosSalvos");
+  const [opcaoSelecionada, setOpcaoSelecionada] = useState<"meusEventos" | "eventosSalvos">("meusEventos");
 
   //hooks que implementam as funcionalidade de salvar evento e renderizar evento em tempo real
-  const { salvos, loading: loadingSalvos, refresh } = useEventosSalvosComParticipantes(null);
+  const { salvos, loading: loadingEventosSalvos, refresh: refreshSalvos } = useEventosSalvosComParticipantes(null);
   const { removerEvento, loadingSalvo } = useRemoverEventoSalvo();
+  const { deletarEvento } = useDeleteEvent()
+  const { eventos, loading:loadingEventosCriados, refreshCriados } = useMeusEventosComParticipantes()
 
+  //importa o hook de showAlert para mostrar mensagens que alguma coisa aconteceu no durante a remoção/exclusao de evento
+  const { showAlert } = useAlert()
 
   //efeitos de loading para fazer o componente esperar o banco de dados mandar as imagens
-  const loading = loadingSalvos;
+  const loadingSalvos = loadingEventosSalvos;
+  const loadingCriados = loadingEventosCriados
+
 
   //lista que renderza se é eventos salvos ou eventos criados quando o cara seleciona as opções no filtro
-  const listaParaRender = salvos.map(s => ({
+  const listaParaRender = opcaoSelecionada == "eventosSalvos" ? salvos.map(s => ({
     id: s.savedId, //id do evento
     titulo: s.titulo ?? "", //titulozão
     local: s.localizacao ?? "", //localização
@@ -37,7 +46,16 @@ export function HistoricoUsuario() {
     categoria: s.categoria ?? "", //categoria pros cara ver que é real o esporte que eles quer
     capacidade: s.participantes ?? 0, //capacidade, quantidade de gente pode ir
     imageUrl: s.imageUrl ?? null, // url da imagem que vai ser renderizada e mostrar previa do evento
-  }));
+  })) : 
+  eventos.map(e => ({
+    id: e.id,
+    titulo: e.titulo ?? "",
+    local: e.local?? "",
+    data: e.data ?? "",
+    categoria: e.categoria ?? "",
+    capacidade: e.participantesAtual ?? 0,
+    imageUrl: e.imageUrl ?? null,
+}));
 
   //retorna os componentes renderizados, quando for chamar a função ela vai automaticamente renderizar esses componentes na tela
   return (
@@ -45,18 +63,20 @@ export function HistoricoUsuario() {
       <FiltroHistorico
         selecionado={opcaoSelecionada}
         onSelect={(op) => {
-          // ainda aceita onSelect, mas só há "eventosSalvos"
-          if (op === "eventosSalvos") setOpcaoSelecionada(op);
+          // verifica se op esta vazio antes de passar o valor da opção sleecionada para o state, serve para impedir erros devido a ausencia de valor
+          if (op) setOpcaoSelecionada(op);
         }}
       />
 
-      {loading && <p>Peraí, peraí...</p>}
-
-      {!loading && listaParaRender.length === 0 && (
+      {!(
+        (opcaoSelecionada === "eventosSalvos" && loadingSalvos) ||
+        (opcaoSelecionada === "meusEventos" && loadingCriados)
+      ) && listaParaRender.length === 0 && (
         <p style={{ textAlign: "center", color: "rgba(0,0,0,0.6)", marginTop: "1em" }}>
           Sem eventos mano :(
         </p>
       )}
+
 
       {listaParaRender.map((evento) => (
         <CardEvento
@@ -71,18 +91,45 @@ export function HistoricoUsuario() {
           foiSalvo={true}
           imageUrl={evento.imageUrl}
           onUnsave={async () => {
-
             const res = await removerEvento(evento.id);
               // se removerEvento retorna okn mas como o hook já faz, apenas vamos refazer o refresh e garanti o realtime
               if ((res as any)?.ok) {
                 // recarrega a lista
-                await refresh();
+                await refreshSalvos();
               } else {
                 // fallback que força o refresh
-                await refresh();
+                await refreshSalvos();
               }
 
           }}
+          //aqui ele passa o hook de excluir o evento
+          onDelete={
+            //usa um operador ternário para verificar se a opção selecionada foi meus eventos, se a opção foi realmente meus eventos, ele passa o hook se não ele passa undefined
+            opcaoSelecionada === "meusEventos"
+              ? async () => {
+                  //hook é coloando dentro de uma variavel para sabermos se ele deu certo quando for executado
+                  const res = await deletarEvento(evento.id)
+                  if (res.ok) {
+                    // sucesso: lança refresh na UI para criar efeito de realtime (atualização em tempo real sem reaload)
+                    await refreshCriados?.();
+                    showAlert("Evento apagado", {
+                      severity: "success",
+                      duration: 3000,
+                      variant: "standard",
+                    })
+
+                  } else {
+                    // lidar com erro (exibir toast / console)
+                    showAlert("Erro ao apagar evento :(", {
+                      severity: "error",
+                      duration: 3000,
+                      variant: "standard",
+                    })
+                    console.error("Não foi possível deletar:", res.error);
+                  }
+                }
+              : undefined
+          }
         />
       ))}
     </HistoricoUsuarioComponent>
