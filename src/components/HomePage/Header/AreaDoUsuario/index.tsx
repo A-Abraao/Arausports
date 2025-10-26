@@ -1,11 +1,13 @@
+// AreaDoUsuario.tsx (modificado)
 import styled from "styled-components";
 import bolaDeBasqueteUrl from '../../../../assets/img/bola-de-basquete.jpg';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { IconButton } from "@mui/material";
+import { IconButton, CircularProgress } from "@mui/material";
 import { useAuth } from "../../../../supabase";
 import { useUserProfile } from "../../../../supabase";
+import { useUserFoto } from "../../../../supabase";
 
 const AreaDoUsuarioComponent = styled.div`
   display: flex;
@@ -34,6 +36,9 @@ export function AreaDoUsuario() {
   const userId = user?.id ?? null;
   const { profile, error: profileError } = useUserProfile(userId);
 
+  // passa profile?.photoURL (pode ser URL absoluta ou path em storage)
+  const { photoUrl, loading: photoLoading } = useUserFoto(userId, profile?.photoURL);
+
   const navigate = useNavigate();
   const handleNavigate = () => {
     navigate("/perfil");
@@ -43,7 +48,7 @@ export function AreaDoUsuario() {
     if (profileError) console.warn("Erro ao carregar perfil do usuário:", profileError);
   }, [profileError]);
 
-  const photoSrc = profile?.photoURL ?? bolaDeBasqueteUrl;
+  const photoSrc = photoUrl ?? bolaDeBasqueteUrl;
 
   return (
     <AreaDoUsuarioComponent>
@@ -55,14 +60,15 @@ export function AreaDoUsuario() {
           fontSize: 'clamp(20px, 2.5vw, 26px)',
         }}
       >
-        <NotificationsIcon sx={{
-          fontSize: 'inherit',
-          color: "var(--ring)",
-        }} />
+        <NotificationsIcon sx={{ fontSize: 'inherit', color: "var(--ring)" }} />
       </IconButton>
 
       <PerfilImg onClick={handleNavigate} aria-label="abrir perfil">
-        <img src={photoSrc} alt="Perfil" />
+        {photoLoading ? (
+          <CircularProgress size={22} />
+        ) : (
+          <img src={photoSrc} alt="Perfil" />
+        )}
       </PerfilImg>
     </AreaDoUsuarioComponent>
   );

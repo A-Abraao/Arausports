@@ -23,5 +23,6 @@ export * from './eventos/useEventProgress'
 
 export * from './user/useUserProfile'
 export * from './user/useUserUpdateProfile'
+export * from './user/useUserFoto'
 
 export * from './helpers/ensureUserProfileExists'

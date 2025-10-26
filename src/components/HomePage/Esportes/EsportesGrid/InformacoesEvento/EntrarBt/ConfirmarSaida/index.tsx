@@ -11,7 +11,7 @@ interface ConfirmarSaidaProps {
   confirmLabel?: string;
   cancelLabel?: string;
 }
-export function ConfirmarSaida({ open, onClose, onConfirm, loading = false, title = "Quer mesmo sair do evento?", description = "Sua participação será removida se você confirmar a saída", confirmLabel = "Sair", cancelLabel = "Deixa quieto..",}: ConfirmarSaidaProps) {
+export function ConfirmarSaida({ open, onClose, onConfirm, loading = false, title, description, confirmLabel, cancelLabel,}: ConfirmarSaidaProps) {
   return (
     <Dialog
       open={open}

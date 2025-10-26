@@ -50,6 +50,7 @@ export function CriarEvento() {
     imagePath: "",
   });
 
+  //sate para guardar a imagem
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   //chama o hook de criar o evento..
@@ -77,6 +78,15 @@ export function CriarEvento() {
         local: evento.local,
         capacidade: evento.capacidade,
       };
+
+      if (!evento.categoria) {
+        throw new Error("sem categoria não dá")
+        showAlert("tem sem a categoria (tipo do evento)", {
+          severity: "error",
+          duration: 3800,
+          variant: "standard"
+        })
+      }
 
       const id = await addEventForUser(userId, payload, imageFile);
 
