@@ -3,36 +3,44 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import Fundo from '../../../../assets/img/sports-hero.jpg';
 
+//wrapper que controla o banner, ele só funciona em desktop ou tela maior
 const BannerWrapper = styled.div`
-  position: relative;
-  width: 50%;
-  height: 100%;
-  border-radius: 1.5em;
-  overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  /* hidden on mobile (banner obsoleto em telas pequenas) */
+  display: none;
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  @media (min-width: 1024px) {
     display: block;
-    filter: brightness(0.65);
-  }
+    position: relative;
+    width: 50%;
+    height: 100%;
+    border-radius: 1.5em;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
 
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to top,
-      rgba(0,0,0,0.7) 0%,   
-      rgba(0,0,0,0.4) 40%,  
-      rgba(0,0,0,0.0) 100%  
-    );
-    z-index: 1;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: brightness(0.65);
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.7) 0%,
+        rgba(0,0,0,0.4) 40%,
+        rgba(0,0,0,0.0) 100%
+      );
+      z-index: 1;
+    }
   }
 `;
 
+//conteúdo do banner
 const BannerContent = styled.div`
   position: absolute;
   inset: 0;
@@ -50,11 +58,16 @@ const BannerContent = styled.div`
     line-height: 1.4em;
     text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
     margin: 0 auto;
-    max-width: 90%; /* mantém responsivo, mas mais central */
+    max-width: 90%;
+  }
+
+  /* slightly smaller text on very large screens */
+  @media (min-width: 1400px) {
+    h1 { font-size: 2.2em; }
   }
 `;
 
-
+//esses slogans aqui vão passando pelo componente como se fosse um efeito da tela do estádio de futebol
 const slogans = [
   "Descubra, participe e compartilhe esportes com a rapaziada!",
   "Crie seu evento e ganhe respeito na quebrada 🏆",
@@ -62,6 +75,7 @@ const slogans = [
   "Chegou a hora: cola, joga e mostra tua vibe! ⚡"
 ];
 
+//renderizar
 export function Banner() {
   const [index, setIndex] = useState(0);
 
@@ -70,7 +84,7 @@ export function Banner() {
       setIndex((prev) => (prev + 1) % slogans.length);
     }, 5000); // troca a cada 5s
 
-    return () => clearInterval(timer);
+    return () => clearInterval(timer); //retornar ao estado inicial quando ele chega no último slogan
   }, []);
 
   return (

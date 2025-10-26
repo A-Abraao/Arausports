@@ -17,16 +17,22 @@ import useVerificarEmail from '../../../supabase/auth/useVerificarEmail'
 // estilização do formulario de confirmar o email
 const FormCard = styled.div`
   position: relative;
-  width: clamp(20rem, 90%, 40rem);
+
+  /* mobile: ainda ocupa bem o espaço disponível */
+  width: 100%;
+  max-width: 720px;           /* <-- limita a largura em desktop */
+  margin: 0 auto;             /* centraliza quando houver espaço extra */
+
   background: #fff;
   border-radius: 0.75rem;
   box-shadow: 0 1rem 3rem rgba(0,0,0,0.12), 0 0.25rem 0.75rem rgba(0,0,0,0.06);
-  padding: clamp(1rem, 2.5vw, 1.25rem);
+  padding: clamp(1rem, 3vw, 1.5rem);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 1.15em;
   overflow: hidden;
+
   &::before {
     content: "";
     position: absolute;
@@ -39,8 +45,13 @@ const FormCard = styled.div`
     border-top-right-radius: inherit;
     z-index: 2;
   }
+
+  @media (min-width: 1400px) {
+    max-width: 980px;
+  } 
 `
 
+//linha de cima
 const HeaderRow = styled.div`
   display: flex;
   align-items: center;
@@ -48,12 +59,11 @@ const HeaderRow = styled.div`
   margin-bottom: clamp(0.6rem, 1.5vh, 0.9rem);
   padding-top: clamp(0.4rem, 0.8vh, 0.6rem);
 `
-
+//titulo
 const Titulo = styled.div`
   font-weight: 510;
   text-align: center;
   margin-top: 0.2rem;
-  color: rgba(0,0,0,0.6);
   font-size: 0.9rem;
 `
 

@@ -1,54 +1,45 @@
 import styled from "styled-components";
 import { Banner } from "./Banner";
 import FormularioCriarConta from "./Formulario";
-import LeftArrow from '../../../assets/img/retornar-setinha.svg?react'
-import { IconButton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
+
+//componente que criar o container que engloba o banner e o formulário
 const RegistroContainerComponent = styled.div`
   border-radius: 1em;
   background: white;
   display: flex;
+  flex-direction: column; /* mobile: stack */
   align-items: stretch;
   width: 100%;
-  height: 88vh;
+  max-width: 1100px;
+  height: auto; /* mobile: let content define height */
   border: 1px solid #ddd;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   position: relative;
   overflow: hidden;
-  padding: 0.8em;
+  padding: 0.6rem;
   box-sizing: border-box;
+  gap: 0.6rem;
 
   & > * {
     border-radius: 0.7em;
   }
-`;
 
-
-
-const BackButtonWrapper = styled.div`
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  z-index: 10;
-
-  svg {
-    width: 1.5em;
-    height: 1.5em;
+  /* desktop: side by side */
+  @media (min-width: 1024px) {
+    flex-direction: row;
+    height: 88vh;
+    padding: 0.8em;
   }
 `;
 
-export function RegistroContainer() {
-  const navigate = useNavigate();
 
+//renderizar real o componente na tela
+export function RegistroContainer() {
+  
   return (
     <RegistroContainerComponent>
-      <BackButtonWrapper>
-        <IconButton onClick={() => navigate("/")}>
-          <LeftArrow />
-        </IconButton>
-      </BackButtonWrapper>
-
       <Banner />
       <FormularioCriarConta />
     </RegistroContainerComponent>

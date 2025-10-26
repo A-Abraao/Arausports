@@ -1,30 +1,33 @@
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import styled from "styled-components";
 
-//estilização da aprada
+//componente pai que renderiza os inputs
 const CodeGrid = styled.div`
   display: flex;
-  gap: 0.6rem;
+  gap: clamp(0.35rem, 1.2vw, 0.7rem); /* um pouco menor para os inputs próximos */
   justify-content: center;
   margin-top: 0.6rem;
   margin-bottom: 0.8rem;
 `;
 
+//digito dos codigos enviado por email
 const DigitInput = styled.input`
-  width: clamp(3rem, 7vw, 3.75rem);
-  height: clamp(3rem, 7vw, 3.75rem);
-  font-size: clamp(1.25rem, 2.4vw, 1.5rem);
+  width: clamp(2.5rem, 5.5vw, 3.25rem);
+  height: clamp(2.5rem, 5.5vw, 3.25rem);
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
   text-align: center;
   border-radius: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.3);
   outline: none;
   background: #fafafa;
   transition: box-shadow 120ms ease, border-color 120ms ease;
+
   &::placeholder {
     color: rgba(0, 0, 0, 0.2);
   }
+
   &:focus {
-    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.04);
     border-color: var(--ring);
     background: #fff;
   }
