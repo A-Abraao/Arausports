@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { formatDateForDb, formatTimeForDb } from "../date/FormatarData";
 
+//tipando as props do payload do evento novo
 export type NewEventPayload = {
   titulo: string;
   categoria?: string | null;
@@ -11,10 +12,13 @@ export type NewEventPayload = {
   capacidade: number;
 };
 
+//apenas formatos especificos de imagem lá
 const ALLOWED_MIMES = ["image/jpeg", "image/jpg", "image/png"];
 const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5MB
 
+//criar id do evento
 function makeRandomId() {
+  //tenta criar o id novo
   try {
     return (crypto as any).randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
   } catch {
@@ -22,15 +26,19 @@ function makeRandomId() {
   }
 }
 
+//pegar o caminho inteiro do arquivo
 function getExtensionFromFile(file: File) {
   const nm = file.name ?? "";
   const segs = nm.split(".");
   if (segs.length > 1) return segs[segs.length - 1].toLowerCase();
+  //verifica o tipo da imagem
   if (file.type === "image/png") return "png";
   if (file.type === "image/jpeg" || file.type === "image/jpg") return "jpg";
+  //
   return "jpg";
 }
 
+//funçaõ que cria o evento
 export function useAddEvent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -264,4 +272,5 @@ export function useAddEvent() {
   return { addEventForUser, loading, error, eventId };
 }
 
+//exporta o useAddEvent
 export default useAddEvent;

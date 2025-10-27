@@ -27,9 +27,30 @@ export function ConfirmLogoutDialog({ open, onClose }: ConfirmLogoutDialogProps)
       onClose={() => { if (!loading) onClose(); }}
       PaperProps={{
         sx: {
+          position: "relative",
           borderRadius: "0.8rem",
           width: "clamp(300px, 70vw, 420px)",
           padding: "0.25rem",
+          // faixa superior igual ao EditarPerfilPopup
+          "--top-bar-height": "6px",
+          paddingTop: "calc(var(--top-bar-height) + 0.25rem)", // empurra conteúdo pra baixo
+          overflow: "hidden",
+          // se quiser pode manter um boxShadow discreto (opcional)
+          boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
+          background: "white",
+          color: "inherit",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "var(--top-bar-height)",
+            background: "var(--gradient-hero)",
+            borderTopLeftRadius: "inherit",
+            borderTopRightRadius: "inherit",
+            zIndex: 2,
+          },
         },
       }}
       BackdropProps={{

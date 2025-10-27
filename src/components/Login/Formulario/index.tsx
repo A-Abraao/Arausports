@@ -15,8 +15,8 @@ const FormularioComponent = styled.form`
   max-width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.75em;
-  padding: 0; /* Principal já tem padding */
+  gap: 0.6rem;
+  padding: 0;
   box-sizing: border-box;
 
   /* garantir que nada interno extrapole a largura do form */
@@ -29,35 +29,40 @@ const FormularioComponent = styled.form`
     box-sizing: border-box;
   }
 
-  /* inputs / labels */
+  .MuiFormControl-root,
+  .MuiOutlinedInput-root {
+    max-width: 320px; 
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   input,
   textarea,
   .MuiInputBase-root,
   .MuiFormControl-root,
   .MuiOutlinedInput-root {
-    font-size: 0.92rem;
+    font-size: 0.9rem;
   }
 
   .MuiOutlinedInput-input {
     padding: 6px 10px;
-    line-height: 1.2;
+    line-height: 1.15;
   }
 
   .MuiFormLabel-root {
-    font-size: 0.88rem;
+    font-size: 0.85rem;
   }
 
-  /* botoes empilhados verticalmente e ocupando 100% do form */
   .botoes {
     display: flex !important;
     flex-direction: column !important;
     width: 100%;
-    gap: 0.45em;
+    gap: 0.35rem;
   }
   .botoes .MuiButton-root {
     width: 100% !important;
     min-width: 0;
-    height: 1.8em;
+    height: 1.8em; 
     font-size: 0.94rem;
     text-transform: none;
   }
@@ -67,24 +72,25 @@ const FormularioComponent = styled.form`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.25rem;
-    margin-top: 0.25rem;
+    gap: 0.2rem;
+    margin-top: 0.2rem;
     width: 100%;
   }
 
   .social-slogan {
     margin: 0;
-    font-size: 0.92rem;
+    font-size: 0.86rem;
     font-weight: 500;
     text-align: center;
     width: 100%;
   }
 `;
 
-/* GoogleIconButton e GoogleLogoImg (forçando centralização) */
+
+//googleIconButton e googleLogoImg reduzidos 
 const GoogleIconButton = styled(IconButton)`
-  width: 2.4rem !important;
-  height: 2.4rem !important;
+  width: 2.1rem !important;
+  height: 2.1rem !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -92,9 +98,10 @@ const GoogleIconButton = styled(IconButton)`
   padding: 0 !important;
 `;
 
+//componente para criar a logo do google
 const GoogleLogoImg = styled.img`
-  width: 1.4rem;
-  height: 1.0rem;
+  width: 1.7rem;
+  height: 1.45rem;
   object-fit: contain;
   display: block;
   margin: 0 auto;

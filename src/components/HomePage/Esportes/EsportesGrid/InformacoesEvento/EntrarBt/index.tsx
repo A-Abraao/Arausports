@@ -3,6 +3,7 @@ import { Button } from "@mui/material";
 import { useJoinEvent } from "../../../../../../supabase";
 import { useExitEvent } from "../../../../../../supabase";
 import { useEventParticipationStatus } from "../../../../../../supabase";
+import { useEventProgress } from "../../../../../../supabase";
 import { ConfirmarSaida } from "./ConfirmarSaida";
 
 type EntrarBtProps = {
@@ -15,17 +16,39 @@ export function EntrarBt({ eventoId, ownerId }: EntrarBtProps) {
   const { joinEvent, loading: loadingJoin } = useJoinEvent();
   const { leaveEvent, loading: loadingLeave } = useExitEvent();
 
+  // hook para saber capacidade / participantes em realtime
+  const { participantesAtuais, capacidade, loading: loadingProg } = useEventProgress(eventoId);
+
   const [busy, setBusy] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  // Clique do botão: se já participa -> abrir confirm; se não -> join direto
+  // determina se o evento está cheio
+  const isFull =
+    typeof capacidade === "number" &&
+    typeof participantesAtuais === "number" &&
+    participantesAtuais >= capacidade;
+
+  // se o usuário já participa, não bloqueamos o botão (ele pode sair)
+  const disabledBecauseFull = Boolean(isFull && !participating);
+
+  const isLoading = busy || loadingStatus || loadingJoin || loadingLeave || loadingProg;
+
+  const disabled = Boolean(isLoading || ownerId === undefined || disabledBecauseFull);
+
+  // Clique do botão verifica se ele não esta ou o evento esta cheio
   const handleClick = async (e?: React.MouseEvent) => {
     e?.stopPropagation?.();
     if (busy) return;
 
-    // se está participando, apenas abrir o diálogo
+    // se está participando, abre o diálogo de confirmação
     if (participating) {
       setConfirmOpen(true);
+      return;
+    }
+
+    // segurança: impedir tentativa de join quando cheio
+    if (disabledBecauseFull) {
+      console.warn("Tentativa de entrar em evento cheio");
       return;
     }
 
@@ -58,14 +81,16 @@ export function EntrarBt({ eventoId, ownerId }: EntrarBtProps) {
   };
 
   const label = participating ? "Sair do evento" : "Se juntar";
-  const isLoading = busy || loadingStatus || loadingJoin || loadingLeave;
+
+  // Se o evento estiver cheio e o usuário não participa, mostra "Já era.."
+  const displayLabel = disabledBecauseFull ? "Já era.." : isLoading ? "Aguarde..." : label;
 
   return (
     <>
       <div style={{ display: "flex", justifyContent: "flex-end", width: "100%" }}>
         <Button
           onClick={(e) => handleClick(e)}
-          disabled={isLoading || ownerId === undefined}
+          disabled={disabled}
           size="small"
           sx={{
             minWidth: "auto",
@@ -76,9 +101,16 @@ export function EntrarBt({ eventoId, ownerId }: EntrarBtProps) {
             background: participating ? "crimson" : "springgreen",
             textTransform: "none",
             whiteSpace: "nowrap",
+            // quando desabilitado por capacidade cheia, aplicar cinza
+            "&.Mui-disabled": {
+              backgroundColor: disabledBecauseFull ? "rgba(0,0,0,0.6)" : undefined,
+              color: disabledBecauseFull ? "lightgray" : "#ffffff",
+              fontStyle: disabledBecauseFull ? "italic" : "none",
+              opacity: 1, // manter cor sólida 
+            },
           }}
         >
-          {isLoading ? "Aguarde..." : label}
+          {displayLabel}
         </Button>
       </div>
 

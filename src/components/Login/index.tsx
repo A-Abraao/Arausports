@@ -2,6 +2,7 @@ import styled from "styled-components";
 import bannerSRC from '../../assets/img/login-banner.jpg'
 import Formulario from "./Formulario";
 
+//criar pagina de login
 const LoginPage = styled.div`
   display: flex;
   align-items: center;
@@ -17,7 +18,6 @@ const LoginPage = styled.div`
   padding: 2rem 1rem;
   box-sizing: border-box;
 
-  /* Em telas pequenas melhorar legibilidade/remover imagem */
   ${({ theme }) => theme.breakpoints.down("sm")} {
     background-image: linear-gradient(to bottom, rgba(255,255,255,0) 0%, white 100%);
     background-color: var(--background);
@@ -25,50 +25,45 @@ const LoginPage = styled.div`
   }
 `;
 
-// a div princiapal serve apenas para segurar os componentes dentro e definir o típico fundo branco do formulario
+//div principal engloba todos os componentes do formulario e serve para dar fundo branco
 const Principal = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    align-self: center;
 
-  /* impedir estiramento pelo parent flex */
-  flex: 0 0 auto;
-  align-self: center;
-
-  /* largura controlada — nunca maior que 420px, mas responsiva */
-  width: min(420px, 96%);
-  max-width: 420px;
-  padding: 1.25rem;
-  margin: 0 auto;
-  box-sizing: border-box;
-
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
-
-  /* altura com sua var --vh */
-  min-height: calc(var(--vh, 1vh) * 62);
-  max-height: 90vh;
-  overflow-y: auto;
-
-  h1 {
-    font-size: 1.35em;
-    margin-bottom: 0.6rem;
-    text-align: center;
-    width: 100%;
-  }
-
-  /* em telas maiores mantemos a mesma largura fixa visual (não estica) */
-  ${({ theme }) => theme.breakpoints.up("lg")} {
-    width: 420px;
-  }
-
-  ${({ theme }) => theme.breakpoints.down("sm")} {
+    min-width: min(360px, 94%);
+    max-width: 360px;
     padding: 1rem;
-    width: 100%;
-    max-width: 420px;
-  }
+    margin: 0 auto;
+    box-sizing: border-box;
+
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 22px rgba(16, 24, 40, 0.06);
+
+    min-height: calc(var(--vh, 1vh) * 56);
+    max-height: 90vh;
+    overflow-y: auto;
+
+    h1 {
+      font-size: 1.15rem;
+      margin-bottom: 0.5rem;
+      text-align: center;
+      width: 100%;
+    }
+
+    ${({ theme }) => theme.breakpoints.up("lg")} {
+      width: 360px;
+    }
+
+    ${({ theme }) => theme.breakpoints.down("sm")} {
+      padding: 0.9rem;
+      width: 100%;
+      max-width: 360px;
+    }
 `;
 
 //componente da pagina de login

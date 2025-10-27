@@ -176,75 +176,98 @@ export function DivUsuario({ data, esporte, loading, foiSalvo = false, onToggleS
         onClose={handleCancel}
         PaperProps={{
           sx: {
+            position: "relative",
+            borderRadius: "1rem",
+            padding: "0.5rem",
+            overflow: "hidden",
+            minWidth: "clamp(250px, 35vw, 380px)",
             background: "var(--background)",
             color: "black",
-            borderRadius: "1rem",
-            minWidth: "clamp(250px, 35vw, 380px)",
-            padding: "0.5rem 0.5rem",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+            "--top-bar-height": "6px",
+            paddingTop: "calc(var(--top-bar-height) + 0.5rem)",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "var(--top-bar-height)",
+              background: "var(--gradient-hero)",
+              borderTopLeftRadius: "inherit",
+              borderTopRightRadius: "inherit",
+              zIndex: 2,
+            },
+          },
+        }}
+        BackdropProps={{
+          sx: {
+            backdropFilter: "blur(6px)",
+            backgroundColor: "rgba(0,0,0,0.3)",
           },
         }}
       >
-        <DialogTitle sx={{ fontWeight: 600, fontSize: "1.1rem" }}>
+        <DialogTitle sx={{ fontWeight: 600, fontSize: "1.1rem", mt: 0.5 }}>
           Certeza que você quer apagar esse evento?
         </DialogTitle>
 
         <DialogContent>
-        <DialogContentText
+          <DialogContentText
+            sx={{
+              opacity: 0.95,
+              fontWeight: 600,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <span style={{ fontWeight: 520, color: "black" }}>
+              Não vai ter como voltar atrás se tu fizer isso...
+            </span>
+          </DialogContentText>
+        </DialogContent>
+
+        <DialogActions
           sx={{
-            opacity: 0.95,
-            fontWeight: 600,
             display: "flex",
-            flexDirection: "column",
-            
+            justifyContent: "flex-end",
+            gap: "0.25rem",
+            padding: "0.5rem 1rem 1rem",
           }}
         >
-          <span style={{ fontWeight: 520, color: "black" }}>
-            Não vai ter como voltar atrás se tu fizer isso...
-          </span>
-        </DialogContentText>
-      </DialogContent>
+          <Button
+            onClick={handleCancel}
+            sx={{
+              color: "white",
+              background: "dodgerblue",
+              textTransform: "none",
+              fontSize: "0.85rem",
+              padding: "4px 10px",
+              minHeight: "32px",
+              "&:hover": { backgroundColor: "rgba(14, 95, 176, 1)" },
+            }}
+          >
+            Deixa quieto..
+          </Button>
 
-      <DialogActions
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: "0.25rem",
-          padding: "0.5rem 1rem 1rem",
-        }}
-      >
-        <Button
-          onClick={handleCancel}
-          sx={{
-            color: "white",
-            background: "dodgerblue",
-            textTransform: "none",
-            fontSize: "0.85rem",
-            padding: "4px 10px",
-            minHeight: "32px",
-            "&:hover": { backgroundColor: "rgba(14, 95, 176, 1)" },
-          }}
-        >
-          Deixa quieto..
-        </Button>
-
-        <Button
-          onClick={handleConfirmDelete}
-          variant="contained"
-          color="error"
-          disabled={deleting}
-          sx={{
-            textTransform: "none",
-            fontWeight: 600,
-            fontSize: "0.85rem",
-            padding: "4px 10px",
-            minHeight: "32px",
-            "&:hover": { backgroundColor: "#b22222" },
-          }}
-        >
-          {deleting ? <CircularProgress size={18} /> : "Apagar"}
-        </Button>
-      </DialogActions>
+          <Button
+            onClick={handleConfirmDelete}
+            variant="contained"
+            color="error"
+            disabled={deleting}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "0.85rem",
+              padding: "4px 10px",
+              minHeight: "32px",
+              "&:hover": { backgroundColor: "#b22222" },
+            }}
+          >
+            {deleting ? <CircularProgress size={18} /> : "Apagar"}
+          </Button>
+        </DialogActions>
       </Dialog>
+
     </>
   );
 }

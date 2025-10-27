@@ -20,20 +20,23 @@ function EmailInput({value, onChange}: InputEmailProps) {
             onChange={handleChange}
             size="small"
             sx={{
+                maxWidth: "320px",
+                margin: "0 auto",
                 "& .MuiOutlinedInput-root": {
-                    height: 45,
-                    "& .MuiInputBase-input": {
-                        fontSize: "0.95rem",
-                        padding: "8px 10px",
-                    },
+                height: 45,
+                "& .MuiInputBase-input": {
+                    fontSize: "0.95rem",
+                    padding: "8px 10px",
+                },
                 },
             }}
             InputLabelProps={{
                 sx: {
-                    fontSize: "0.9rem",
+                fontSize: "0.9rem",
                 },
             }}
         />
+
     )
 }
 
