@@ -88,6 +88,7 @@ export function useAddEvent() {
     }
   };
 
+  //cria o hook
   const addEventForUser = useCallback(
     async (ownerIdParam: string | null, evento: NewEventPayload, imageFile?: File | null) => {
       // resolve sessão e ownerId
@@ -104,15 +105,23 @@ export function useAddEvent() {
           .eq("id", ownerIdToEnsure)
           .maybeSingle();
 
+        //
         if (selErr) throw selErr;
+        //se não exisir usuario ele para tudo
         if (existingUser) return;
 
+        //inicia a sessão usando o usuario autenticado para pegar os dados do usuarios, esses dados vão ser uteis para criar o evento
         const sess = await (supabase.auth as any).getUser?.();
+        //pega o usuario autneticando
         const authUser = sess?.data?.user ?? null;
+        //pega o nome do usuario
         const nome = authUser?.user_metadata?.full_name ?? authUser?.user_metadata?.name ?? (authUser?.email?.split?.("@")?.[0]) ?? "Usuário";
+        //pega o email do usuario
         const email = authUser?.email ?? null;
+        //pega a foto do usuario
         const foto = authUser?.user_metadata?.avatar_url ?? authUser?.user_metadata?.picture ?? null;
-
+        
+        //define o objeto que vai ser inserido na requisiç~çao de criar o evento
         const insertObj: any = {
           id: ownerIdToEnsure,
           nome,
@@ -132,6 +141,7 @@ export function useAddEvent() {
         }
       }
 
+      //inicia o processo de crriaçãodo evento
       setLoading(true);
       setError(null);
       setEventId(null);

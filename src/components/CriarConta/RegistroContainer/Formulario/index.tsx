@@ -18,10 +18,10 @@ export const FormContainer = styled.div`
   padding: 1.5rem;
   box-sizing: border-box;
 
-  /* constrain the inner form width so inputs never span the entire page on small screens */
+  /* fazer com que os inputs nunca fiquem com largura máxima em telas de celular */
   form {
     width: 100%;
-    max-width: 520px; /* mobile/tiny screens: keep form narrow */
+    max-width: 520px; /* mantém o formulário estreito para telas menores */
     display: flex;
     flex-direction: column;
     align-items: center; /* centraliza os campos quando eles forem menores que 100% */
@@ -29,11 +29,9 @@ export const FormContainer = styled.div`
   }
 
   @media (min-width: 1024px) {
-    width: 50%; /* on desktop share with banner */
+    width: 50%; /* no desktop o banner vai aparecer */
     padding: 2rem;
 
-    /* allow the form to use the full available width on desktop,
-       so 45% for inputs is calculated from this container's width */
     form {
       max-width: none;
       width: 100%;
@@ -46,11 +44,11 @@ const StyledTextField = styled(TextField)`
   height: 3.3rem;
   max-width: 520px; /* configuração extra para telas pequenas */
 
-  /* desktop: make each field ~60% of the available width and keep it centered */
+  /* faz que cada campo de texto tenha 60% da largura e mantém tudo centralizado lá */
   @media (min-width: 1024px) {
     width: 60%;
     max-width: 720px; /* evita que cresça demais em telas super largas e quebre tudo*/
-    min-width: 260px;  /* não deixa ficar pequeno demais em janelas estreitas demais*/
+    min-width: 260px;  /* não deixa ficar pequeninho demais em janelas estreitas demais*/
   }
 
   & .MuiOutlinedInput-root {

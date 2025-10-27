@@ -9,7 +9,7 @@ const CriarContaComponent = styled.div`
   justify-content: center;
   width: 100%;
   min-height: 100vh;
-  padding: 1.25rem; /* mobile-friendly padding */
+  padding: 1.25rem; /* mobile padding */
 
   /* desktop padding */
   @media (min-width: 1024px) {

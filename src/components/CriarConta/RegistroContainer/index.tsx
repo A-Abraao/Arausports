@@ -9,11 +9,11 @@ const RegistroContainerComponent = styled.div`
   border-radius: 1em;
   background: white;
   display: flex;
-  flex-direction: column; /* mobile: stack */
+  flex-direction: column; /* ajustar para mobile */
   align-items: stretch;
   width: 100%;
   max-width: 1100px;
-  height: auto; /* mobile: let content define height */
+  height: auto; /* defirnir altura em bile */
   border: 1px solid #ddd;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   position: relative;
@@ -26,7 +26,7 @@ const RegistroContainerComponent = styled.div`
     border-radius: 0.7em;
   }
 
-  /* desktop: side by side */
+  /* ajustar em desktop tbm */
   @media (min-width: 1024px) {
     flex-direction: row;
     height: 88vh;

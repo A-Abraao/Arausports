@@ -2,6 +2,7 @@ import styled from 'styled-components'
 import logoUrl from '../../../assets/img/logo-icone.png'
 import { AreaDoUsuario } from './AreaDoUsuario'
 
+//ciomponente header
 const HeaderComponent = styled.header`
   align-items: center;
   width: 100%;
@@ -33,12 +34,14 @@ const HeaderComponent = styled.header`
   }
 `
 
+//componente logo do header
 const LogoComponent = styled.img`
   width: clamp(2.0rem, 6.5vw, 3.5rem);
   height: clamp(2.0rem, 6.5vw, 3.5rem);
   object-fit: contain;
 `
 
+//header
 function Header() {
   return (
     <HeaderComponent>

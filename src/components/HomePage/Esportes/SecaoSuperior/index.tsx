@@ -45,7 +45,7 @@ const Titulo = styled.h1`
   /* garante que o título não fique deslocado para o centro por causa de paddings */
   text-align: left;
 
-  /* destaque mantém o mesmo visual (não alterei) */
+  /* destaque mantém o mesmo visual */
   .destaque {
     background-image: linear-gradient(to right, rgb(253 230 138), rgb(253 186 116));
     color: transparent;

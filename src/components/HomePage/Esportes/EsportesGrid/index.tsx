@@ -13,10 +13,6 @@ const EsportesGridComponent = styled.div`
   padding-inline: clamp(0.75rem, 2.2vw, 2rem);
   box-sizing: border-box;
 
-  /* Grid responsivo: controla largura dos cards de forma previsível.
-     - min column: clamp(220px, 28vw, 300px) -> fica maior em desktop
-     - auto-fill / auto-fit permite quebrar linhas conforme espaço disponível
-  */
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(clamp(220px, 28vw, 320px), 1fr));
   gap: clamp(0.75rem, 1.2vw, 1.65rem);

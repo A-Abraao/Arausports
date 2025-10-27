@@ -20,8 +20,8 @@ const FormCard = styled.div`
 
   /* mobile: ainda ocupa bem o espaço disponível */
   width: 100%;
-  max-width: 720px;           /* <-- limita a largura em desktop */
-  margin: 0 auto;             /* centraliza quando houver espaço extra */
+  max-width: 720px;           /* isso aqui vai limitar a largura em desktop */
+  margin: 0 auto;             /* e centralizar quando tem espaço extra */
 
   background: #fff;
   border-radius: 0.75rem;

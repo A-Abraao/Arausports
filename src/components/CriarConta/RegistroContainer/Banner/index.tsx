@@ -5,7 +5,7 @@ import Fundo from '../../../../assets/img/sports-hero.jpg';
 
 //wrapper que controla o banner, ele só funciona em desktop ou tela maior
 const BannerWrapper = styled.div`
-  /* hidden on mobile (banner obsoleto em telas pequenas) */
+  /* (banner obsoleto em telas pequenas) */
   display: none;
 
   @media (min-width: 1024px) {
@@ -61,7 +61,7 @@ const BannerContent = styled.div`
     max-width: 90%;
   }
 
-  /* slightly smaller text on very large screens */
+  /* texto para telas muito largas */
   @media (min-width: 1400px) {
     h1 { font-size: 2.2em; }
   }
