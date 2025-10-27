@@ -11,6 +11,7 @@ import { PreviaEvento } from "./PreviaEvento";
 import type { EventoData } from "./DetalhesEvento";
 import { useAuth } from "../../supabase";
 import { useAddEvent } from "../../supabase";
+import { Footer } from "../Footer";
 
 //pagina de criar evento, basicamente ela vai encapsular tudo, permitindo alinhar os dois formulários corretamente
 const CriarEventoPage = styled.div`
@@ -30,6 +31,7 @@ const CriarEventoComponent = styled.div`
   justify-content: center;
   padding-bottom: clamp(0.5rem, 1.5vh, 1rem);
   width: 90%;
+  margin-bottom: 1.75em;
   min-height: calc(var(--vh, 1vh) * 100);
   box-sizing: border-box;
 
@@ -254,6 +256,7 @@ export function CriarEvento() {
         </Button>
 
       </CriarEventoComponent>
+      <Footer/>
     </CriarEventoPage>
   );
 }

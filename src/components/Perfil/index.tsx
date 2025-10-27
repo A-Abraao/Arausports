@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useAlert } from "../Alerta/AlertProvider";
 import { useNavigate } from "react-router-dom";
+import { Footer } from "../Footer";
 
 const PerfilComponent = styled.div`
     display: flex;
@@ -35,6 +36,7 @@ export function Perfil() {
         <PerfilComponent>
             <Header/>
             <UserInfo/>
+            <Footer/>
         </PerfilComponent>
     )
 }

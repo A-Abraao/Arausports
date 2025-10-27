@@ -5,6 +5,7 @@ import { useAlert } from "../Alerta/AlertProvider";
 import Header from "./Header";
 import { Banner } from "./MainBanner";
 import { Esportes } from "./Esportes";
+import { Footer } from "../Footer";
 
 //container da homepage é criado pel styled-componets
 const HomePageComponent = styled.div`
@@ -58,6 +59,7 @@ export default function HomePage() {
         onSearch={() => handleSearch(searchTerm)}
       />
       <Esportes searchQuery={searchQuery}/>
+      <Footer/>
     </HomePageComponent>
   );
 }
