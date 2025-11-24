@@ -18,7 +18,9 @@ const GlobalStyle = createGlobalStyle`
     --gradient-secondary: linear-gradient(135deg, hsl(200 95% 60%), hsl(210 90% 65%));
     --background: hsl(35 100% 98%);
     --azul-gradient: linear-gradient(135deg, #4c68d7, #6098ff);
-  }
+
+    --gradient-rodape: linear-gradient(135deg, rgba(45, 70, 83, 0.5), rgba(38, 38, 38, 0.5));
+    }
 
   * {
     box-sizing: border-box;

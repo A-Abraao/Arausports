@@ -31,7 +31,7 @@ function App() {
     <AppComponent>
       <Routes>
         <Route path="/auth/callback" element={<AuthCallback/>}></Route>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/homepage" element={<HomePage />} />
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/criar-evento" element={<CriarEvento />} />

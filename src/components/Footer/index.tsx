@@ -4,7 +4,7 @@ import styled from "styled-components";
 const FooterComponent = styled.footer`
   width: 100%;
   box-sizing: border-box;
-  background: rgba(0,0,0,0.06);
+  background: var(--gradient-rodape);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,11 +19,17 @@ const FooterComponent = styled.footer`
     padding: 0 1rem;
   }
 
+
+  .copy {
+    font-weight: 510;
+    color: white;
+  }
+
   h2 {
     margin: 0;
     font-weight: 550;
-    font-style: italic;
-    color: rgba(0,0,0,0.85);
+    color: white;
+    
 
     /* diminui no mobile, cresce em telas maiores */
     font-size: clamp(0.85rem, 1.6vw, 1.05rem);
@@ -44,9 +50,23 @@ export function Footer() {
   return (
     <FooterComponent>
       <div className="wrap">
-        <h2>
-          &copy; 2025 Arausports. Todos os direitos reservados.
-        </h2>
+        <div className="contato">
+          <h2>
+            CONTATO
+          </h2>
+        </div>
+
+        <div className="sobre">
+          <h2>
+            SOBRE
+          </h2>
+
+          <div className="copyright">
+            <p className="copy">
+              &copy; <span>2025</span> Arausports &bull; Todos os direitos reservados.
+            </p>
+          </div>
+        </div>
       </div>
     </FooterComponent>
   );

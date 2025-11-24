@@ -34,8 +34,8 @@ const Principal = styled.div`
     flex: 0 0 auto;
     align-self: center;
 
-    min-width: min(360px, 94%);
-    max-width: 360px;
+    min-width: min(310px, 94%);
+    max-width: 310px;
     padding: 1rem;
     margin: 0 auto;
     box-sizing: border-box;
