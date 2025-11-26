@@ -110,7 +110,7 @@ export function Footer() {
           <h2>
             SOBRE
           </h2>
-            <p>Somos um site dedicado à divulgação de eventos esportivos que acontecem na cidade de <strong>Araucária</strong></p>
+            <p>Somos uma iniciativa que busca divulgar publicamente os eventos esportivos que acontecem principalmente na cidade de <strong>Araucária</strong></p>
         </div>
 
         <div className="contato">
